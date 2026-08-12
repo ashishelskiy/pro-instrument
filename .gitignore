@@ -36,8 +36,8 @@ build/
 logs/
 
 # Медиа файлы (если есть)
-media/
-uploads/
+#media/
+#uploads/
 
 # Django
 #staticfiles/
