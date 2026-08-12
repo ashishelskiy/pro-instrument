@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - PRO-инструмент{% endblock %}
+
+{% block breadcrumb_extra %}
+<li class="breadcrumb-item"><a href="{% url 'catalog:category_list' %}">Каталог</a></li>
+<li class="breadcrumb-item active">{{ category.name }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Заголовок -->
+        <h1 class="fw-normal mb-4" style="color: #1c2126; font-size: 1.6rem;">
+            {{ category.name }}
+        </h1>
+<!--        {% if category.description %}-->
+<!--            <p class="text-muted mb-4">{{ category.description }}</p>-->
+<!--        {% endif %}-->
+
+        <!-- Сетка подкатегорий -->
+        <div class="row g-3">
+            {% for subcategory in subcategories %}
+            <div class="col-lg-4 col-md-6">
+                <a href="{% url 'catalog:category_detail' subcategory.slug %}" class="text-decoration-none">
+                    <div class="card category-card-horizontal">
+                        <div class="category-card-inner">
+                            <!-- Изображение подкатегории -->
+                            <div class="category-image-wrapper-horizontal">
+                                {% if subcategory.image %}
+                                    <img src="{{ subcategory.image.url }}" alt="{{ subcategory.name }}">
+                                {% else %}
+                                    <div class="category-image-placeholder-horizontal">
+                                        <i class="fas {{ subcategory.icon|default:'fa-folder-open' }}"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Текст -->
+                            <div class="category-content">
+                                <h5 class="category-title">{{ subcategory.name }}</h5>
+                                <p class="category-subtitle">
+                                    {% with count=subcategory.products.count %}
+                                        {% if count > 0 %}
+                                            {{ count }} товар{{ count|pluralize:"а,ов" }}
+                                        {% else %}
+                                            Нет товаров
+                                        {% endif %}
+                                    {% endwith %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-folder-open" style="font-size: 48px; color: #dee2e6;"></i>
+                <p class="mt-3 text-muted">Подкатегории не найдены</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

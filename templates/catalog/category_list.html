@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Категории товаров - PRO-инструмент{% endblock %}
+
+{% block breadcrumb_extra %}
+<li class="breadcrumb-item active">Каталог</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Заголовок страницы -->
+        <div class="col-12">
+            <h2 class="fw-normal mb-4" style="color: #1c2126; font-size: 1.6rem;">
+                <i class="" style="color: #BD0000;"></i>
+                Категории
+            </h2>
+        </div>
+
+        <div class="row g-3">
+            {% for category in categories %}
+            <div class="col-lg-4 col-md-6">
+                <a href="{% url 'catalog:category_detail' category.slug %}" class="text-decoration-none">
+                    <div class="card category-card-horizontal">
+                        <div class="category-card-inner">
+                            <!-- Изображение категории (слева) -->
+                            <div class="category-image-wrapper-horizontal">
+                                {% if category.image %}
+                                    <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                                {% else %}
+                                    <div class="category-image-placeholder-horizontal">
+                                        <i class="fas {{ category.icon|default:'fa-folder-open' }}"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Текст (справа) -->
+                            <div class="category-content">
+                                <h5 class="category-title">{{ category.name }}</h5>
+                                <p class="category-subtitle">
+                                    {% with count=category.products.count %}
+                                        {% if count > 0 %}
+                                            {{ count }} товар{{ count|pluralize:"а,ов" }}
+                                        {% else %}
+                                            Нет товаров
+                                        {% endif %}
+                                    {% endwith %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-folder-open" style="font-size: 48px; color: #dee2e6;"></i>
+                <p class="mt-3 text-muted">Категории не найдены</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PRO-инструмент - Интернет-магазин профессионального инструмента{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h4 class="mb-4">Онлайн-гипермаркет для профессионалов и бизнеса</h4>
+    </div>
+</div>
+
+<!-- Категории (карусель) -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0">Категории</h2>
+            <a href="{% url 'catalog:category_list' %}" class="text-decoration-none" style="color: #BD0000; font-weight: 500;">
+                Все категории <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div id="categoriesCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+            <div class="carousel-inner">
+                {% for category in categories %}
+                    {% if forloop.counter0|divisibleby:4 %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <div class="row g-3">
+                    {% endif %}
+
+                    <div class="col-6 col-md-3">
+                        <a href="{% url 'catalog:category_detail' category.slug %}" class="text-decoration-none">
+                            <div class="card category-card-horizontal">
+                                <div class="category-card-inner">
+                                    <div class="category-image-wrapper-horizontal">
+                                        {% if category.image %}
+                                            <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                                        {% else %}
+                                            <div class="category-image-placeholder-horizontal">
+                                                <i class="fas {{ category.icon|default:'fa-folder-open' }}"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="category-content">
+                                        <h5 class="category-title">{{ category.name }}</h5>
+                                        <p class="category-subtitle">
+                                            {% with count=category.products.count %}
+                                                {% if count > 0 %}
+                                                    {{ count }} товар{{ count|pluralize:"а,ов" }}
+                                                {% else %}
+                                                    Нет товаров
+                                                {% endif %}
+                                            {% endwith %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    {% if forloop.counter0|add:1|divisibleby:4 or forloop.last %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted">Категории не найдены</p>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Кнопки навигации -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Предыдущая</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Следующая</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Новинки -->
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-3">Новинки</h2>
+        <div class="row">
+            {% for product in new_products %}
+            <div class="col-6 col-md-4 col-lg-3 mb-4">
+                <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
+                    <div class="card h-100 product-card d-flex flex-column">
+                        {% if product.image %}
+                        <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <!-- Цена -->
+                            <div class="mb-1">
+                                <span class="product-price">{{ product.price }} ₽</span>
+                                {% if product.old_price %}
+                                <br><span class="product-old-price">{{ product.old_price }} ₽</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Название -->
+                            <h5 class="product-title">
+                                {{ product.name }}
+                            </h5>
+
+                            <!-- Артикул -->
+                            {% if product.article %}
+                            <div class="product-article">
+                                Арт: {{ product.article }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Статус наличия -->
+                            <div class="mb-1">
+                                {% if product.in_stock %}
+                                <span class="product-stock in-stock">
+                                    <i class="fas fa-check-circle"></i> В наличии
+                                </span>
+                                {% else %}
+                                <span class="product-stock on-order">
+                                    <i class="fas fa-clock"></i> Под заказ
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Кнопка "В корзину" -->
+                            <button class="btn-cart" onclick="event.stopPropagation(); alert('Товар добавлен в корзину!'); return false;">
+                                <i class="fas fa-shopping-cart"></i> В корзину
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+# Виртуальное окружение
+venv/
+env/
+.env/
+.venv/
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# База данных
+db.sqlite3
+db.sqlite3-journal
+*.sqlite3
+
+# Переменные окружения
+.env
+.env.local
+.env.production
+
+# Настройки IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Логи
+*.log
+logs/
+
+# Медиа файлы (если есть)
+media/
+uploads/
+
+# Django
+staticfiles/
+static/
+
+# Файлы отладки
+.DS_Store
+Thumbs.db
+
+*.json
+!requirements.txt

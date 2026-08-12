@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+{% block description %}{{ product.meta_description|default:product.name }}{% endblock %}
+
+{% block breadcrumb_extra %}
+<li class="breadcrumb-item"><a href="{% url 'catalog:category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
+<li class="breadcrumb-item active">{{ product.name|truncatechars:30 }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        {% if product.image %}
+        <img src="{{ product.image }}" class="img-fluid" alt="{{ product.name }}">
+        {% endif %}
+
+        <!-- Дополнительные изображения -->
+        {% if product.images.all %}
+        <div class="row mt-3">
+            {% for image in product.images.all|slice:":4" %}
+            <div class="col-3">
+                <img src="{{ image.image }}" class="img-thumbnail" alt="{{ product.name }}" style="height: 100px; object-fit: cover; cursor: pointer;" onclick="document.querySelector('.img-fluid').src=this.src">
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-6">
+        <h1 class="fw-normal" style="font-size: 1.6rem;">{{ product.name }}</h1>
+        <p class="text-muted" style="font-size: 0.85rem;">Артикул: {{ product.article }}</p>
+
+        {% if product.brand %}
+        <p>Бренд: <strong>{{ product.brand.name }}</strong></p>
+        {% endif %}
+
+        <!-- Цена как в карточке -->
+        <div class="price mb-3">
+            <span class="product-detail-price">{{ product.price }} ₽</span>
+            {% if product.old_price %}
+            <del class="product-detail-old-price">{{ product.old_price }} ₽</del>
+            {% endif %}
+        </div>
+
+        <!-- Статус как в карточке -->
+        <div class="availability mb-3">
+            {% if product.in_stock %}
+            <span class="product-detail-stock in-stock">
+                <i class="fas fa-check-circle"></i> В наличии
+            </span>
+            {% else %}
+            <span class="product-detail-stock on-order">
+                <i class="fas fa-clock"></i> Под заказ
+            </span>
+            {% endif %}
+        </div>
+
+        <!-- Кнопка "В корзину" красная -->
+        <button class="btn-detail-cart" onclick="alert('Товар добавлен в корзину!')">
+            <i class="fas fa-shopping-cart"></i> В корзину
+        </button>
+
+        <!-- Характеристики -->
+        <h5 class="mt-4 mb-3">Технические характеристики</h5>
+        <div class="characteristics-list">
+            {% for prop in properties %}
+            <div class="characteristic-item">
+                <span class="characteristic-name">{{ prop.name }}</span>
+                <span class="characteristic-line"></span>
+                <span class="characteristic-value">{{ prop.value }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Описание -->
+{% if product.description %}
+<div class="row mt-5">
+    <div class="col-12">
+        <h3>Описание</h3>
+        <p>{{ product.description|linebreaks }}</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Похожие товары -->
+{% if related_products %}
+<div class="row mt-5">
+    <div class="col-12">
+        <h3>Похожие товары</h3>
+        <div class="row">
+            {% for related in related_products %}
+            <div class="col-md-3 mb-4">
+                <a href="{% url 'catalog:product_detail' related.slug %}" class="text-decoration-none">
+                    <div class="card h-100 product-card">
+                        {% if related.image %}
+                        <img src="{{ related.image }}" class="card-img-top" alt="{{ related.name }}" style="height: 150px; object-fit: contain; padding: 10px;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h6 class="card-title text-dark" style="font-size: 0.85rem;">{{ related.name|truncatechars:30 }}</h6>
+                            <p class="card-text"><strong>{{ related.price }} ₽</strong></p>
+                        </div>
+                        <div class="card-footer">
+                            {% if related.in_stock %}
+                            <span class="text-success" style="font-size: 0.7rem;">В наличии</span>
+                            {% else %}
+                            <span class="text-warning" style="font-size: 0.7rem;">Под заказ</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
