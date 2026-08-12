@@ -16,9 +16,9 @@ dist/
 build/
 
 # База данных
-db.sqlite3
-db.sqlite3-journal
-*.sqlite3
+#db.sqlite3
+#db.sqlite3-journal
+#*.sqlite3
 
 # Переменные окружения
 .env
@@ -40,8 +40,8 @@ media/
 uploads/
 
 # Django
-staticfiles/
-static/
+#staticfiles/
+#static/
 
 # Файлы отладки
 .DS_Store
