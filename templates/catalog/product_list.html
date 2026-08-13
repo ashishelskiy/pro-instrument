@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load catalog_tags %}
 
 {% block title %}{{ category.name }} - PRO-инструмент{% endblock %}
 
@@ -13,7 +14,66 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-12">
+    <!-- Фильтры - левая колонка -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5>Фильтры</h5>
+            </div>
+            <div class="card-body">
+                <form method="get">
+                    <!-- Цена -->
+                    <div class="mb-3">
+                        <label class="form-label">Цена</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="number" class="form-control" name="min_price" placeholder="от" value="{{ request.GET.min_price }}">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control" name="max_price" placeholder="до" value="{{ request.GET.max_price }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Бренды -->
+                    {% if brands %}
+                    <div class="mb-3">
+                        <label class="form-label">Бренд</label>
+                        {% for brand in brands %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="brand" value="{{ brand.slug }}"
+                                   {% if request.GET.brand == brand.slug %}checked{% endif %}>
+                            <label class="form-check-label">{{ brand.name }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Характеристики -->
+                    {% for prop in filter_properties %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ prop.name }}</label>
+                        {% for value in prop.values %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="{{ prop.name }}"
+                                   value="{{ value }}"
+                                   {% if request.GET|get_item:prop.name == value %}checked{% endif %}>
+                            <label class="form-check-label">{{ value }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn w-100" style="background-color: #BD0000; color: #ffffff; border: none;">Применить</button>
+                    <a href="?" class="btn btn-secondary w-100 mt-2">Сбросить</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Товары - правая колонка -->
+    <div class="col-md-9">
         <!-- Заголовок с товарами -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="fw-normal" style="color: #1c2126; font-size: 1.6rem;">
