@@ -1,3 +1,4 @@
+<!-- base.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -8,66 +9,663 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome для иконок -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           ВСЕ СТИЛИ ТОЛЬКО ДЛЯ ШАПКИ
+           ============================================================ */
+
+        /* ----- СБРОС ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Roboto Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #333;
+            background: #fff;
+        }
+
+        a {
+            color: #d82a20;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /*.container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }*/
+
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            border: 0 !important;
+        }
+
+        /* ============================================================
+           ШАПКА (HEADER)
+           ============================================================ */
+        .header {
+            background: #000;
+            border-bottom: 10px solid #d82a20;
+            position: relative;
+        }
+
+        /* ----- ВЕРХНЯЯ ПАНЕЛЬ ----- */
+        .header__top {
+            background: #000;
+            padding: 8px 0;
+            color: #fff;
+        }
+
+        .header__top-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Социальные иконки */
+        .social-icons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .social-icons a {
+            color: #fff;
+            font-size: 18px;
+            transition: opacity 0.3s;
+        }
+
+        .social-icons a:hover {
+            opacity: 0.7;
+            text-decoration: none;
+        }
+
+        /* Аккаунт */
+        .header__account .account-link {
+            color: #fff;
+            font-family: "poster-gothic-atf", sans-serif;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header__account .account-link__login {
+            color: #d82a20;
+            text-decoration: underline;
+        }
+
+        .header__account .account-link:hover {
+            text-decoration: none;
+        }
+
+        .header__account .account-link:hover .account-link__login {
+            text-decoration: none;
+        }
+
+        /* ----- ОСНОВНАЯ ЧАСТЬ ШАПКИ ----- */
+        .header__main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            gap: 20px;
+            background: #000;
+        }
+
+        /* Бургер-кнопка (для мобильных) */
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            background: #fff;
+            border: none;
+            border-radius: 100px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            padding: 8px 6px;
+            flex-shrink: 0;
+        }
+
+        .nav-toggle span {
+            display: block;
+            height: 2px;
+            background: #000;
+            width: 100%;
+            border-radius: 2px;
+        }
+
+        /* Логотип */
+        .logo {
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            max-width: 246px;
+            height: auto;
+        }
+
+        /* Поиск */
+        .search-block {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        .search-block form {
+            display: flex;
+            background: #fff;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .search-block__input {
+            flex: 1;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            outline: none;
+            height: 40px;
+            font-family: "Roboto Condensed", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+
+        .search-block__input::placeholder {
+            color: #918e8e;
+        }
+
+        .search-block__submit {
+            background: transparent;
+            border: none;
+            padding: 0 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-block__submit i {
+            font-size: 20px;
+            color: #666;
+        }
+
+        /* Корзина */
+        .cart-icon {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .cart-icon:hover {
+            text-decoration: none;
+        }
+
+        .cart-icon__count {
+            background: #d82a20;
+            color: #fff;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: "poster-gothic-atf", sans-serif;
+        }
+
+        .cart-icon__text {
+            font-family: "poster-gothic-atf", sans-serif;
+            font-size: 14px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+        }
+
+        .cart-icon__text::before {
+            content: '';
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: url('img/toolbox-icon.png') no-repeat center;
+            background-size: contain;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        /* ----- ПРОМО-БАННЕР (под шапкой) ----- */
+        .promo-banner {
+            background: #d6d9e1;
+            padding: 8px 0;
+            text-align: center;
+        }
+
+        .promo-banner p {
+            font-size: 16px;
+            color: #333;
+            margin: 0;
+        }
+
+        .promo-banner a {
+            color: #d82a20;
+            font-weight: 700;
+        }
+
+        /* ============================================================
+           НАВИГАЦИЯ (С fullmenu-bg.png)
+           ============================================================ */
+        .nav {
+            background: #d82a20;
+            position: relative;
+            padding-top: 22px;
+            margin-top: -2px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        .nav__inner {
+            background: url('/static/images/fullmenu-bg.png') no-repeat 100% 0;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .nav__list {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 10px;
+            gap: 2px;
+            margin: 0;
+        }
+
+        .nav__item {
+            margin: 0;
+            padding 0;
+        }
+
+        .nav__link {
+            display: block;
+            padding: 6px 15px;
+            color: #fff;
+            font-family: "poster-gothic-atf", sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            line-height: 1.3;
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        /* Разделители между пунктами */
+        .nav__item:not(:last-child) .nav__link::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 100%;
+            background: #820b05;
+        }
+
+        .nav__link:hover {
+            background: #000;
+            text-decoration: none;
+        }
+
+        /* Выделенный пункт "Top Tool Deals" */
+        .nav__item--highlight .nav__link {
+            background: #000;
+        }
+
+        .nav__item--highlight .nav__link:hover {
+            background: #1a1a1a;
+        }
+
+        /* ----- ВЫПАДАЮЩЕЕ МЕНЮ (Megamenu) ----- */
+        .nav__submenu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 20px 0;
+            box-shadow: 0 8px 15px rgba(72, 88, 112, 0.11);
+            border-radius: 0 0 15px 15px;
+            z-index: 100;
+        }
+
+        .nav__item--has-submenu:hover .nav__submenu {
+            display: block;
+        }
+
+        .nav__submenu-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        .nav__submenu-col h4 {
+            font-size: 14px;
+            font-weight: 400;
+            margin-bottom: 2px;
+        }
+
+        .nav__submenu-col h4 a {
+            color: #333;
+            transition: color 0.3s;
+        }
+
+        .nav__submenu-col h4 a:hover {
+            color: #d82a20;
+            text-decoration: none;
+        }
+
+        .nav__submenu-all {
+            display: inline-block;
+            background: #d82a20;
+            color: #fff !important;
+            text-align: center;
+            padding: 12px 30px !important;
+            font-family: "poster-gothic-atf", sans-serif;
+            font-size: 20px !important;
+            border-radius: 8px;
+        }
+
+        .nav__submenu-all:hover {
+            background: #a9201a;
+            color: #fff !important;
+            text-decoration: none;
+        }
+
+        .nav__submenu-col--cta {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        /* ============================================================
+           АДАПТИВ (мобильные)
+           ============================================================ */
+        @media (max-width: 1024px) {
+            .header__main {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .search-block {
+                order: 3;
+                flex-basis: 100%;
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Верхняя панель */
+            .header__top-inner {
+                justify-content: center;
+            }
+
+            .header__account .account-link__text {
+                display: none;
+            }
+
+            .header__account .account-link__icon i {
+                font-size: 20px;
+            }
+
+            /* Бургер */
+            .nav-toggle {
+                display: flex;
+            }
+
+            /* Логотип меньше */
+            .logo img {
+                max-width: 130px;
+            }
+
+            /* Корзина — только иконка */
+            .cart-icon__text {
+                display: none;
+            }
+
+            .cart-icon__count {
+                width: 22px;
+                height: 22px;
+                font-size: 12px;
+            }
+
+            /* Навигация становится вертикальной */
+            .nav {
+                padding-top: 0;
+                margin-top: 0;
+            }
+
+            .nav__inner {
+                background: none !important;
+                border-radius: 0;
+            }
+
+            .nav__list {
+                flex-direction: column;
+                padding: 0;
+                gap: 0;
+            }
+
+            .nav__item {
+                width: 100%;
+                border-bottom: 1px solid #7f110d;
+            }
+
+            .nav__item .nav__link {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+
+            .nav__item:not(:last-child) .nav__link::before {
+                display: none;
+            }
+
+            /* Подменю на мобилках */
+            .nav__submenu {
+                display: none !important;
+                position: relative;
+                background: transparent;
+                box-shadow: none;
+                padding: 10px 20px;
+                border-radius: 0;
+                width: 100%;
+            }
+
+            .nav__item--has-submenu:hover .nav__submenu {
+                display: none !important;
+            }
+
+            /* Открываем подменю по клику через JS */
+            .nav__item--open .nav__submenu {
+                display: block !important;
+            }
+
+            .nav__submenu-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 0;
+            }
+
+            .nav__submenu-col h4 a {
+                color: #fff !important;
+                padding: 4px 0;
+                font-size: 16px;
+            }
+
+            .nav__submenu-all {
+                background: transparent;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                font-size: 16px !important;
+            }
+
+            .nav__submenu-all:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .nav__submenu-col--cta {
+                align-items: flex-start;
+                justify-content: flex-start;
+            }
+
+            .nav__item--open .nav__link {
+                background: rgba(0, 0, 0, 0.2);
+            }
+
+            .promo-banner p {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo img {
+                max-width: 100px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-            <div class="container">
-                <a class="navbar-brand" href="{% url 'catalog:index' %}">
-                    <img src="{% static 'images/logo.png' %}" alt="PRO-инструмент">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
+    <div class="page-wrapper">
+         <header class="page-header">
+            <div class="header content">
+        <a class="navbar-brand" href="{% url 'catalog:index' %}">
+            <img src="{% static 'images/logo_new4.jpg' %}" alt="PRO-Инструмент">
+        </a>
+        <div class="flex-grow-1 d-flex align-items-center" id="navbarNav">
+            <ul class="navbar-nav me-auto"></ul>
+            <form class="d-flex" action="{% url 'catalog:search' %}" method="get" style="position: relative; width: 100%; max-width: 550px;">
+                <input class="form-control" type="search" name="q" placeholder="Расскажите нам, что вы ищете" aria-label="Поиск" style="height: 38px; width: 100%; padding-right: 40px;">
+                <button type="submit" aria-label="Поиск" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #666; flex-shrink: 0;">
+                        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                        <path d="M16 16L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="btn-catalog" href="{% url 'catalog:category_list' %}">Каталог</a>
-                        </li>
-                    </ul>
-                    <form class="d-flex" action="{% url 'catalog:search' %}" method="get">
-                        <input class="form-control me-2" type="search" name="q" placeholder="Поиск..." aria-label="Поиск">
-                        <button class="btn btn-outline-dark" type="submit">Найти</button>
-                    </form>
+            </form>
+        </div>
+        <!--                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" style="width: 40px; height: 40px; fill: #ffffff; flex-shrink: 0;">&lt;!&ndash;!Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.&ndash;&gt;<path d="M463 448.2C440.9 409.8 399.4 384 352 384L288 384C240.6 384 199.1 409.8 177 448.2C212.2 487.4 263.2 512 320 512C376.8 512 427.8 487.3 463 448.2zM64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576C178.6 576 64 461.4 64 320zM320 336C359.8 336 392 303.8 392 264C392 224.2 359.8 192 320 192C280.2 192 248 224.2 248 264C248 303.8 280.2 336 320 336z"/></svg>-->
+        <a href="#" class="header__icon-link" style="display: flex; align-items: center; text-decoration: none;">
+            <img src="{% static 'images/ico-account.png' %}" alt="Пользователь" width="35" height="35" style="display: block; flex-shrink: 0;">
+            <div class="info-account">
+                <span class="header__icon-title">Мой аккаунт</span>
+                <span class="header__icon-login">(Войти)</span>
+            </div>
+        </a>
+        <a href="#" class="header__icon-link" style="display: flex; align-items: center; text-decoration: none;">
+            <img src="{% static 'images/toolbox-icon.png' %}" alt="Корзина" width="35" height="35" style="display: block; flex-shrink: 0;">
+            <span class="header__icon-title">Корзина</span>
+        </a>
+
+
+    </div>
+        </header>
+
+        <!-- ===== НАВИГАЦИЯ (НОВОЕ МЕНЮ) ===== -->
+        <div class="sections nav-sections">
+            <div class="section-items nav-sections-items">
+
+                <div class="section-item-content nav-sections-item-content">
+                    <nav class="navigation">
+                        <ul class="nav__list">
+                            <!-- Каталог (с подменю) -->
+                            <li class="nav__item nav__item--has-submenu">
+                                <a href="{% url 'catalog:index' %}" class="nav__link">
+                                    <span>Каталог</span>
+                                </a>
+                                <div class="nav__submenu">
+                                    <div class="container">
+                                        <div class="nav__submenu-grid">
+                                            {% for item in menu_data|slice:":4" %}
+                                            <div class="nav__submenu-col">
+                                                <h4>
+                                                    <a href="{% url 'catalog:category_detail' item.category.slug %}">
+                                                        {{ item.category.name }}
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <!-- О компании -->
+                            <li class="nav__item">
+                                <a href="/about/" class="nav__link">О компании</a>
+                            </li>
+
+                            <!-- Новости -->
+                            <li class="nav__item">
+                                <a href="/news/" class="nav__link">Новости</a>
+                            </li>
+
+                            <!-- Оплата и доставка -->
+                            <li class="nav__item">
+                                <a href="/delivery/" class="nav__link">Оплата и доставка</a>
+                            </li>
+
+                            <!-- Контакты -->
+                            <li class="nav__item">
+                                <a href="/contacts/" class="nav__link">Контакты</a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <!-- Main -->
-    <main>
-        <div class="container mt-4">
-            {% if not request.resolver_match.url_name == 'index' %}
-                {% block breadcrumbs %}
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">Главная</a></li>
-                        {% block breadcrumb_extra %}{% endblock %}
-                    </ol>
-                </nav>
-                {% endblock %}
-            {% endif %}
-            {% block content %}{% endblock %}
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="copyright">
-                © 2015-2026 pro-instrument.ru
-            </div>
-            <div>
-                <a href="{% url 'catalog:index' %}">Главная</a>
-                <span style="margin: 0 10px; opacity: 0.5;">|</span>
-                <a href="{% url 'catalog:category_list' %}">Каталог</a>
-            </div>
+        <!-- ===== MAIN ===== -->
+        <main>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <section class="col-12">
+                {% block content %}{% endblock %}
+            </section>
         </div>
-    </footer>
+    </div>
+</main>
 
+        <footer class="footer">
+            <div class="container">
+                <div class="copyright">© 2026 pro-instrument.ru<br>ООО "ЭКСИНУС"</div>
+            </div>
+        </footer>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>
 </body>

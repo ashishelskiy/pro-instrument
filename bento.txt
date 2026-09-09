@@ -1,0 +1,193 @@
+<!-- РЯД 2: BENTO КАРТОЧКИ КАТЕГОРИЙ -->
+{% if category_cards %}
+<div class="bento-categories">
+    <div class="bento-grid">
+        <!-- 1. БОЛЬШАЯ -->
+        <a href="{{ category_cards.0.link }}" class="bento-card bento-card-large bento-1">
+            <img src="{{ category_cards.0.image }}" alt="{{ category_cards.0.title }}">
+            <div class="bento-card-overlay"></div>
+            <div class="bento-card-content"><h3>{{ category_cards.0.title }}</h3></div>
+        </a>
+
+        <!-- 2. МАЛЕНЬКАЯ -->
+        <a href="{{ category_cards.1.link }}" class="bento-card bento-2">
+            <img src="{{ category_cards.1.image }}" alt="{{ category_cards.1.title }}">
+            <div class="bento-card-overlay"></div>
+            <div class="bento-card-content"><h3>{{ category_cards.1.title }}</h3></div>
+        </a>
+
+        <!-- 3. МАЛЕНЬКАЯ -->
+        <a href="{{ category_cards.2.link }}" class="bento-card bento-3">
+            <img src="{{ category_cards.2.image }}" alt="{{ category_cards.2.title }}">
+            <div class="bento-card-overlay"></div>
+            <div class="bento-card-content"><h3>{{ category_cards.2.title }}</h3></div>
+        </a>
+
+        <!-- 4. МАЛЕНЬКАЯ -->
+        <a href="{{ category_cards.3.link }}" class="bento-card bento-4">
+            <img src="{{ category_cards.3.image }}" alt="{{ category_cards.3.title }}">
+            <div class="bento-card-overlay"></div>
+            <div class="bento-card-content"><h3>{{ category_cards.3.title }}</h3></div>
+        </a>
+
+        <!-- 5. БОЛЬШАЯ -->
+        <a href="{{ category_cards.4.link }}" class="bento-card bento-card-large bento-5">
+            <img src="{{ category_cards.4.image }}" alt="{{ category_cards.4.title }}">
+            <div class="bento-card-overlay"></div>
+            <div class="bento-card-content"><h3>{{ category_cards.4.title }}</h3></div>
+        </a>
+
+        <!-- 6. МАЛЕНЬКАЯ -->
+        <a href="{{ category_cards.5.link }}" class="bento-card bento-6">
+            <img src="{{ category_cards.5.image }}" alt="{{ category_cards.5.title }}">
+            <div class="bento-card-overlay"></div>
+            <div class="bento-card-content"><h3>{{ category_cards.5.title }}</h3></div>
+        </a>
+    </div>
+</div>
+{% endif %}
+
+/* =========================================
+   BENTO КАТЕГОРИИ
+   ========================================= */
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 185px 185px;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.bento-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f1f1f1;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    height: 100%;
+}
+
+.bento-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.bento-card:hover img {
+    transform: scale(1.06);
+}
+
+.bento-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.bento-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.25) 45%, rgba(0, 0, 0, 0) 75%);
+    z-index: 1;
+}
+
+.bento-card-content {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 16px;
+    z-index: 2;
+}
+
+.bento-card-content h3 {
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== РАСКЛАДКА ===== */
+
+/* 1-я карточка — широкая (2 колонки) */
+.bento-1 {
+    grid-column: 1 / 3;
+    grid-row: 1;
+}
+
+/* 2-я карточка — узкая */
+.bento-2 {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+/* 3-я карточка — узкая */
+.bento-3 {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+/* 4-я карточка — узкая */
+.bento-4 {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+/* 5-я карточка — широкая (2 колонки) */
+.bento-5 {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+/* 6-я карточка — узкая (если нужна) */
+.bento-6 {
+    grid-column: 1 / 3;
+    grid-row: 3;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .bento-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+    }
+
+    .bento-1 { grid-column: 1 / 3; grid-row: auto; }
+    .bento-2 { grid-column: 1; grid-row: auto; }
+    .bento-3 { grid-column: 2; grid-row: auto; }
+    .bento-4 { grid-column: 1; grid-row: auto; }
+    .bento-5 { grid-column: 2; grid-row: auto; }
+    .bento-6 { grid-column: 1 / 3; grid-row: auto; }
+
+    .bento-card {
+        height: 150px;
+    }
+
+    .bento-card-content h3 {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .bento-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bento-1, .bento-2, .bento-3, .bento-4, .bento-5, .bento-6 {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    .bento-card {
+        height: 130px;
+    }
+
+    .bento-card-content h3 {
+        font-size: 13px;
+    }
+}

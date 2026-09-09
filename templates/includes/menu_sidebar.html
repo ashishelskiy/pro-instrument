@@ -1,0 +1,35 @@
+<!-- templates/includes/menu_sidebar.html -->
+<div class="sidebar-catalog">
+    <div class="sidebar-catalog__header">
+        <span class="sidebar-catalog__title">Каталог</span>
+    </div>
+    <ul class="sidebar-catalog__list">
+        {% for item in menu_data %}
+        <li class="sidebar-catalog__item {% if item.has_children %}has-children{% endif %}">
+            <a href="{% url 'catalog:category_detail' item.category.slug %}"
+               class="sidebar-catalog__link {% if item.has_children %}has-children{% endif %}">
+                <span class="sidebar-catalog__name">{{ item.category.name }}</span>
+                {% if item.has_children %}
+                    <span class="sidebar-catalog__arrow">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                {% endif %}
+            </a>
+            {% if item.has_children %}
+            <ul class="sidebar-catalog__children">
+                {% for sub in item.children %}
+                <li class="sidebar-catalog__child">
+                    <a href="{% url 'catalog:category_detail' sub.slug %}" class="sidebar-catalog__child-link">
+                        <span class="sidebar-catalog__child-name">{{ sub.name }}</span>
+                        {% if sub.products.count > 0 %}
+                            <span class="sidebar-catalog__child-count">({{ sub.products.count }})</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
