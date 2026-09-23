@@ -1,0 +1,118 @@
+{% extends 'users/base_cabinet.html' %}
+{% load static %}
+
+{% block title %}Мои организации - PRO-инструмент{% endblock %}
+
+{% block cabinet_content %}
+
+<div class="card">
+    <div class="card-header" style="background-color: #f8f9fa;">
+        <h5 class="mb-0">Мои организации</h5>
+    </div>
+    <div class="card-body">
+
+        <div class="mb-3">
+            <a href="{% url 'users:organization_add' %}" class="btn btn-outline-secondary text-decoration-none">
+                <i class="fas fa-plus"></i> Добавить организацию
+            </a>
+        </div>
+
+        {% if organizations %}
+            {% for org in organizations %}
+                <div class="card mb-3 org-card {% if org.is_default %}org-card--default{% endif %}">
+                    <div class="card-body">
+
+                        <div class="org-card__head">
+                            <div>
+                                <h5 class="org-card__name">
+                                    <span class="badge bg-secondary me-1">
+                                        {% if org.is_ip %}ИП{% else %}ООО{% endif %}
+                                    </span>
+                                    {{ org.name }}
+                                </h5>
+                                <p class="org-card__requisites">
+                                    ИНН {{ org.inn }}
+                                    {% if org.kpp %} · КПП {{ org.kpp }}{% endif %}
+                                </p>
+                            </div>
+
+                            <div class="dropdown">
+                                <button class="org-card__menu-btn"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        title="Действия">
+                                    <i class="fas fa-ellipsis-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           href="{% url 'users:organization_edit' org.pk %}">
+                                            <i class="fas fa-edit me-2"></i> Редактировать
+                                        </a>
+                                    </li>
+
+                                    {% if not org.is_default %}
+                                        <li>
+                                            <form method="post"
+                                                  action="{% url 'users:organization_set_default' org.pk %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-star me-2"></i> Сделать основной
+                                                </button>
+                                            </form>
+                                        </li>
+                                    {% endif %}
+
+                                    <li><hr class="dropdown-divider"></li>
+
+                                    <li>
+                                        <a class="dropdown-item text-danger"
+                                           href="{% url 'users:organization_delete' org.pk %}">
+                                            <i class="fas fa-trash me-2"></i> Удалить
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {% if org.is_default %}
+                            <div>
+                                <span class="org-card__badge">Основная</span>
+                            </div>
+                        {% endif %}
+
+                        <div>
+                            {% if org.is_default %}
+                                <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                                    <i class="fas fa-check me-1"></i> Выбрана
+                                </button>
+                            {% else %}
+                                <form method="post"
+                                      action="{% url 'users:organization_set_default' org.pk %}"
+                                      class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-check me-1"></i> Выбрать организацию
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-building fa-4x mb-3" style="color: #dee2e6;"></i>
+                <p class="text-muted mb-3">У вас пока нет добавленных организаций</p>
+                <a href="{% url 'users:organization_add' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-plus"></i> Добавить первую организацию
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

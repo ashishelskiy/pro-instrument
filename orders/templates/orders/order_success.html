@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Заказ оформлен - PRO-инструмент{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+
+            <i class="fas fa-check-circle fa-5x mb-4" style="color: #28a745;"></i>
+
+            <h1 class="mb-3">Заказ оформлен!</h1>
+
+            {% if order %}
+                <p class="text-muted mb-4">
+                    Номер вашего заказа: <strong>№{{ order.pk }}</strong>
+                </p>
+                <p class="text-muted mb-4">
+                    Мы свяжемся с вами по телефону <strong>{{ order.phone }}</strong>
+                    для подтверждения.
+                </p>
+            {% else %}
+                <p class="text-muted mb-4">
+                    Спасибо за заказ! Мы свяжемся с вами в ближайшее время.
+                </p>
+            {% endif %}
+
+            <div class="d-flex gap-2 justify-content-center">
+                <a href="{% url 'users:orders' %}" class="btn btn-danger">
+                    <i class="fas fa-list"></i> Мои заказы
+                </a>
+                <a href="{% url 'catalog:index' %}" class="btn btn-outline-secondary">
+                    Вернуться в каталог
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

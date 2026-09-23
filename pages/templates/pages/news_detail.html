@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ news.title }} - PRO-инструмент{% endblock %}
+{% block description %}{{ news.short_description|default:news.title }}{% endblock %}
+
+{% block breadcrumb_extra %}
+<li class="breadcrumb-item"><a href="{% url 'pages:news_list' %}">Новости</a></li>
+<li class="breadcrumb-item active">{{ news.title|truncatechars:40 }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+
+            <div class="text-muted small mb-2">
+                {{ news.published_at|date:"d.m.Y" }}
+            </div>
+
+            <h1 class="mb-4">{{ news.title }}</h1>
+
+            {% if news.image %}
+                <img src="{{ news.image.url }}"
+                     class="img-fluid mb-4"
+                     alt="{{ news.title }}"
+                     style="border-radius: 8px;">
+            {% endif %}
+
+            <div class="page-content">
+                {{ news.content|safe }}
+            </div>
+
+            <div class="mt-5">
+                <a href="{% url 'pages:news_list' %}" class="btn btn-outline-secondary">
+                    ← Все новости
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

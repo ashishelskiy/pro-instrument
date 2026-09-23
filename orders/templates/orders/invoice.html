@@ -1,0 +1,298 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Счёт №{{ order.pk }} от {{ order.created_at|date:"d.m.Y" }}</title>
+    <style>
+        /* ===== ОБЩИЕ СТИЛИ ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "DejaVu Sans", Arial, sans-serif;
+            font-size: 11px;
+            color: #000;
+            padding: 20mm 15mm;
+            line-height: 1.4;
+        }
+
+        /* ===== ШАПКА ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #000;
+        }
+
+        .header__left {
+            max-width: 60%;
+        }
+
+        .header__right {
+            text-align: right;
+        }
+
+        .company-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .company-details {
+            font-size: 10px;
+            color: #333;
+        }
+
+        .doc-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .doc-number {
+            font-size: 12px;
+        }
+
+        /* ===== БЛОК ПОКУПАТЕЛЯ ===== */
+        .buyer-block {
+            margin-bottom: 15px;
+        }
+
+        .buyer-block__title {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .buyer-block__content {
+            font-size: 10px;
+        }
+
+        /* ===== ТАБЛИЦА ТОВАРОВ ===== */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .items-table th,
+        .items-table td {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        .items-table th {
+            background: #eee;
+            font-weight: bold;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .items-table td.num {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .items-table td.center {
+            text-align: center;
+        }
+
+        .items-table td.name {
+            word-wrap: break-word;
+        }
+
+        /* ===== ИТОГИ ===== */
+        .totals {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .totals__row {
+            margin-bottom: 4px;
+        }
+
+        .totals__label {
+            font-weight: bold;
+        }
+
+        .totals__grand {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        /* ===== ПОДВАЛ ===== */
+        .footer {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            font-size: 10px;
+            color: #555;
+        }
+
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            font-size: 11px;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #000;
+            width: 200px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        /* ===== КНОПКА ПЕЧАТИ (не печатается) ===== */
+        .no-print {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        .btn-print {
+            padding: 8px 20px;
+            background: #d82a20;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* ===== СТИЛИ ДЛЯ ПЕЧАТИ ===== */
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                padding: 10mm;
+            }
+
+            .header {
+                border-bottom: 2px solid #000;
+            }
+        }
+
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+    </style>
+</head>
+<body>
+
+    {# Кнопка печати — не печатается #}
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">
+            🖨️ Печать / Сохранить в PDF
+        </button>
+    </div>
+
+    {# ШАПКА #}
+    <div class="header">
+        <div class="header__left">
+            <div class="company-name">ООО "ЭКСИНУС"</div>
+            <div class="company-details">
+                ИНН 7712345678 · КПП 771201001<br>
+                ОГРН 1157746123456<br>
+                123456, г. Москва, ул. Примерная, д. 1, офис 100<br>
+                Тел.: +7 (495) 123-45-67 · Email: info@pro-instrument.ru
+            </div>
+        </div>
+        <div class="header__right">
+            <div class="doc-title">СЧЁТ</div>
+            <div class="doc-number">
+                № {{ order.pk }}<br>
+                от {{ order.created_at|date:"d.m.Y" }}
+            </div>
+        </div>
+    </div>
+
+    {# ПОКУПАТЕЛЬ #}
+    <div class="buyer-block">
+        <div class="buyer-block__title">Покупатель:</div>
+        <div class="buyer-block__content">
+            {% if order.organization %}
+                <strong>{{ order.organization.name }}</strong><br>
+                ИНН {{ order.organization.inn }}
+                {% if order.organization.kpp %} · КПП {{ order.organization.kpp }}{% endif %}<br>
+                {% if order.organization.address %}{{ order.organization.address }}<br>{% endif %}
+            {% else %}
+                <strong>{{ order.name }}</strong><br>
+            {% endif %}
+            Тел.: {{ order.phone }}<br>
+            Email: {{ order.email }}
+        </div>
+    </div>
+
+    {# ТАБЛИЦА ТОВАРОВ #}
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 5%;">№</th>
+                <th style="width: 50%;">Наименование</th>
+                <th style="width: 12%;">Артикул</th>
+                <th style="width: 8%;">Кол-во</th>
+                <th style="width: 12%;">Цена</th>
+                <th style="width: 13%;">Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr>
+                <td class="center">{{ forloop.counter }}</td>
+                <td class="name">{{ item.product_name }}</td>
+                <td class="center">{{ item.product_article|default:"—" }}</td>
+                <td class="center">{{ item.quantity }}</td>
+                <td class="num">{{ item.price }} ₽</td>
+                <td class="num">{{ item.subtotal }} ₽</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {# ИТОГИ #}
+    <div class="totals">
+        <div class="totals__row">
+            <span class="totals__label">Итого:</span>
+            {{ order.total_price }} ₽
+        </div>
+        <div class="totals__row">
+            Без НДС
+        </div>
+        <div class="totals__grand">
+            Всего к оплате: {{ order.total_price }} ₽
+        </div>
+    </div>
+
+    {# ПОДПИСИ #}
+    <div class="signatures">
+        <div>
+            <div>Руководитель:</div>
+            <div class="signature-line"></div>
+            <div style="margin-top: 4px;">/ __________________ /</div>
+        </div>
+        <div>
+            <div>Главный бухгалтер:</div>
+            <div class="signature-line"></div>
+            <div style="margin-top: 4px;">/ __________________ /</div>
+        </div>
+    </div>
+
+    {# ПОДВАЛ #}
+    <div class="footer">
+        Счёт действителен в течение 5 банковских дней.<br>
+        Оплата данного счёта означает согласие с условиями поставки товара.
+    </div>
+
+</body>
+</html>

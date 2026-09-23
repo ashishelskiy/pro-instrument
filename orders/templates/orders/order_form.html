@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Оформление заказа - PRO-инструмент{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Оформление заказа</h1>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="row">
+            {# ЛЕВАЯ КОЛОНКА — данные #}
+            <div class="col-lg-8">
+
+                {# Кто покупает #}
+                <div class="card mb-3">
+                    <div class="card-header" style="background: #f8f9fa;">
+                        <h5 class="mb-0">Покупатель</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if organization %}
+                            <div class="alert alert-success mb-3">
+                                <i class="fas fa-briefcase"></i>
+                                Заказ оформляется от организации:
+                                <strong>{{ organization.name }}</strong>
+                                (ИНН {{ organization.inn }})
+                                <a href="{% url 'users:organization_unset_default' %}"
+                                   onclick="event.preventDefault(); this.nextElementSibling.submit();"
+                                   class="float-end small">Сменить на физлицо</a>
+                                <form method="post"
+                                      action="{% url 'users:organization_unset_default' %}"
+                                      class="d-none">
+                                    {% csrf_token %}
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-user"></i>
+                                Заказ оформляется как <strong>физическое лицо</strong>
+                                {% if user.organizations.exists %}
+                                    · <a href="{% url 'users:organizations' %}">Выбрать организацию</a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">
+                                    {{ form.name.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.name.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                    {{ form.phone.label }} <span class="text-danger">*</span>
+                                </label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                    <div class="text-danger small mt-1">{{ form.phone.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                {{ form.email.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">{{ form.email.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {# Доставка #}
+                <div class="card mb-3">
+                    <div class="card-header" style="background: #f8f9fa;">
+                        <h5 class="mb-0">Доставка</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            {{ form.delivery_method }}
+                            {% if form.delivery_method.errors %}
+                                <div class="text-danger small mt-1">{{ form.delivery_method.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-0">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">
+                                {{ form.address.label }}
+                            </label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="text-danger small mt-1">{{ form.address.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {# Оплата #}
+                <div class="card mb-3">
+                    <div class="card-header" style="background: #f8f9fa;">
+                        <h5 class="mb-0">Оплата</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ form.payment_method }}
+                        {% if form.payment_method.errors %}
+                            <div class="text-danger small mt-1">{{ form.payment_method.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Комментарий #}
+                <div class="card mb-3">
+                    <div class="card-header" style="background: #f8f9fa;">
+                        <h5 class="mb-0">Комментарий</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ form.comment }}
+                    </div>
+                </div>
+
+            </div>
+
+            {# ПРАВАЯ КОЛОНКА — корзина #}
+            <div class="col-lg-4">
+                <div class="card" style="position: sticky; top: 20px;">
+                    <div class="card-header" style="background: #f8f9fa;">
+                        <h5 class="mb-0">Ваш заказ</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for item in cart.items.all %}
+                            <div class="d-flex justify-content-between mb-2 pb-2" style="border-bottom: 1px solid #eee;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.85rem;">{{ item.product.name|truncatechars:40 }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">
+                                        {{ item.quantity }} × {{ item.product.price }} ₽
+                                    </div>
+                                </div>
+                                <div style="font-weight: 600; white-space: nowrap; margin-left: 10px;">
+                                    {{ item.subtotal }} ₽
+                                </div>
+                            </div>
+                        {% endfor %}
+
+<!--                        <div class="d-flex justify-content-between mt-3 pt-3" style="border-top: 2px solid #eee;">-->
+<!--                            <strong>Итого:</strong>-->
+<!--                            <strong style="font-size: 1.2rem; color: #d82a20;">{{ cart.total_price }} ₽</strong>-->
+<!--                        </div>-->
+
+                        {# Стоимость доставки (скрыта, пока не выбрана) #}
+                        <div class="d-flex justify-content-between mt-3 pt-3" id="deliveryPriceRow" style="border-top: 1px solid #eee; display: none;">
+                            <span class="text-muted">Доставка:</span>
+                            <span id="deliveryPriceValue">0 ₽</span>
+                        </div>
+
+                        {# Итого #}
+                        <div class="d-flex justify-content-between mt-2 pt-2" style="border-top: 2px solid #eee;">
+                            <strong>Итого:</strong>
+                            <strong id="orderTotal" style="font-size: 1.2rem; color: #d82a20;">{{ cart.total_price }} ₽</strong>
+                        </div>
+
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const cartTotal = parseFloat('{{ cart.total_price }}'.replace(',', '.')) || 0;
+
+                            // Цены доставок: id -> price
+                            const deliveryPrices = {};
+                            {% for d in delivery_methods_json %}
+                                deliveryPrices['{{ d.id }}'] = {{ d.price }};
+                            {% endfor %}
+
+                            const totalEl = document.getElementById('orderTotal');
+                            const deliveryRow = document.getElementById('deliveryPriceRow');
+                            const deliveryValue = document.getElementById('deliveryPriceValue');
+
+                            function updateTotal() {
+                                const selected = document.querySelector('input[name="delivery_method"]:checked');
+                                let deliveryPrice = 0;
+
+                                if (selected) {
+                                    deliveryPrice = parseFloat(deliveryPrices[selected.value]) || 0;
+                                }
+
+                                const total = cartTotal + deliveryPrice;
+                                totalEl.textContent = total.toFixed(2).replace('.', ',') + ' ₽';
+
+                                if (deliveryPrice > 0) {
+                                    deliveryRow.style.display = 'flex';
+                                    deliveryValue.textContent = deliveryPrice.toFixed(2).replace('.', ',') + ' ₽';
+                                } else {
+                                    deliveryRow.style.display = 'none';
+                                    deliveryValue.textContent = '0 ₽';   // ← сбрасываем значение
+                                }
+                            }
+
+                            // При изменении радио — обновляем итог
+                            document.querySelectorAll('input[name="delivery_method"]').forEach(function(radio) {
+                                radio.addEventListener('change', updateTotal);
+                            });
+
+                            // Первый расчёт при загрузке
+                            updateTotal();
+                        });
+                        </script>
+
+                        <p class="text-muted small mt-3 mb-0">
+                            Нажимая «Оформить заказ», вы соглашаетесь с условиями
+                            <a href="{% url 'pages:page_detail' slug='offer' %}" target="_blank">публичной оферты</a>
+                            и
+                            <a href="{% url 'pages:page_detail' slug='privacy' %}" target="_blank">политикой конфиденциальности</a>.
+                        </p>
+
+                        <button type="submit" class="btn btn-danger w-100 mt-3">
+                            <i class="fas fa-check"></i> Оформить заказ
+                        </button>
+
+                        <a href="{% url 'cart:cart_detail' %}" class="btn btn-link w-100 mt-2">
+                            ← Вернуться в корзину
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+{% endblock %}

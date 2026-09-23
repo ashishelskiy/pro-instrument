@@ -1,0 +1,165 @@
+{% extends 'users/base_cabinet.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - PRO-инструмент{% endblock %}
+
+{% block cabinet_content %}
+<div class="card">
+    <div class="card-header" style="background-color: #f8f9fa;">
+        <h5 class="mb-0">{{ title }}</h5>
+    </div>
+    <div class="card-body">
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {# Тип организации #}
+            <div class="mb-4">
+                <label for="{{ form.org_type.id_for_label }}" class="form-label">
+                    Тип организации <span class="text-danger">*</span>
+                </label>
+                {{ form.org_type }}
+                <div class="form-text">
+                    <strong>ООО:</strong> ИНН 10 цифр, КПП 9 цифр, ОГРН 13 цифр.<br>
+                    <strong>ИП:</strong> ИНН 12 цифр, ОГРНИП 15 цифр, КПП не заполняется.
+                </div>
+                {% if form.org_type.errors %}
+                    <div class="text-danger small mt-1">{{ form.org_type.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            {# Название, ИНН, ОГРН/ОГРНИП #}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">Название</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="{{ form.inn.id_for_label }}" class="form-label">ИНН</label>
+                    {{ form.inn }}
+                    {% if form.inn.errors %}
+                        <div class="text-danger small mt-1">{{ form.inn.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="{{ form.ogrn.id_for_label }}" class="form-label">
+                        {% if current_org_type == 'ip' %}ОГРНИП{% else %}ОГРН{% endif %}
+                    </label>
+                    {{ form.ogrn }}
+                    {% if form.ogrn.errors %}
+                        <div class="text-danger small mt-1">{{ form.ogrn.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# КПП — только для ООО #}
+            {% if current_org_type != 'ip' %}
+                <div class="mb-3">
+                    <label for="{{ form.kpp.id_for_label }}" class="form-label">КПП</label>
+                    {{ form.kpp }}
+                    {% if form.kpp.errors %}
+                        <div class="text-danger small mt-1">{{ form.kpp.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <input type="hidden" name="kpp" value="">
+            {% endif %}
+
+            {# Юридический адрес #}
+            <div class="mb-3">
+                <label for="{{ form.address.id_for_label }}" class="form-label">Юридический адрес</label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                    <div class="text-danger small mt-1">{{ form.address.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.actual_address.id_for_label }}" class="form-label">Фактический адрес</label>
+                {{ form.actual_address }}
+            </div>
+
+            {# Контакты #}
+            <h6 class="mt-4 mb-3">Контакты</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.phone.id_for_label }}" class="form-label">Телефон</label>
+                    {{ form.phone }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                    {{ form.email }}
+                </div>
+            </div>
+
+            {# Директор — только для ООО #}
+            {% if current_org_type != 'ip' %}
+                <div class="mb-3">
+                    <label for="{{ form.director.id_for_label }}" class="form-label">Директор</label>
+                    {{ form.director }}
+                </div>
+            {% else %}
+                <input type="hidden" name="director" value="">
+            {% endif %}
+
+            {# Банковские реквизиты #}
+            <h6 class="mt-4 mb-3">Банковские реквизиты</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.bank_name.id_for_label }}" class="form-label">Банк</label>
+                    {{ form.bank_name }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.bik.id_for_label }}" class="form-label">БИК</label>
+                    {{ form.bik }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.account.id_for_label }}" class="form-label">Расчётный счёт</label>
+                    {{ form.account }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.corr_account.id_for_label }}" class="form-label">Корр. счёт</label>
+                    {{ form.corr_account }}
+                </div>
+            </div>
+
+            {# Основная #}
+            <div class="form-check mb-4">
+                {{ form.is_default }}
+                <label class="form-check-label" for="{{ form.is_default.id_for_label }}">
+                    Сделать основной организацией
+                </label>
+            </div>
+
+            {# Кнопки #}
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger">{{ button_text }}</button>
+                <a href="{% url 'users:organizations' %}" class="btn btn-link">Отмена</a>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    // При смене типа организации — перезагружаем форму с новым org_type.
+    // Это позволяет серверу перерисовать поля (КПП и Директор — только для ООО).
+    document.addEventListener('DOMContentLoaded', function () {
+        var orgType = document.getElementById('{{ form.org_type.id_for_label }}');
+        if (!orgType) return;
+
+        orgType.addEventListener('change', function () {
+            var url = new URL(window.location.href);
+            url.searchParams.set('org_type', this.value);
+            window.location.href = url.toString();
+        });
+    });
+</script>
+{% endblock %}

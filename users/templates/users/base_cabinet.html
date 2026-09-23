@@ -1,0 +1,155 @@
+<!-- users/templates/users/base_cabinet.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- ===== ЛЕВОЕ МЕНЮ ===== -->
+        <div class="col-lg-3 col-md-4">
+
+            {# Кнопка-бургер для мобильных #}
+            <button type="button"
+                    class="cabinet-menu-toggle"
+                    onclick="toggleCabinetMenu()"
+                    aria-expanded="false">
+                <span><i class="fas fa-bars me-2"></i>Меню кабинета</span>
+                <i class="fas fa-chevron-down cabinet-menu-toggle__caret"></i>
+            </button>
+
+            {# Сам сайдбар #}
+            <div class="cabinet-sidebar" id="cabinetSidebar">
+                <div class="list-group">
+                    <a href="{% url 'users:profile' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                        Мой кабинет
+                    </a>
+                    <a href="{% url 'users:orders' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'orders' %}active{% endif %}">
+                        Мои заказы
+                    </a>
+                    <a href="{% url 'users:order_documents' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'order_documents' %}active{% endif %}">
+                        Документы по заказам
+                    </a>
+                    <a href="{% url 'users:purchase_history' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'purchase_history' %}active{% endif %}">
+                        История покупок
+                    </a>
+                    <a href="{% url 'users:profile_edit' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'profile_edit' %}active{% endif %}">
+                        Личные данные
+                    </a>
+                    <a href="{% url 'users:organizations' %}" class="list-group-item list-group-item-action {% if 'organization' in request.resolver_match.url_name %}active{% endif %}">
+                        Мои организации
+                    </a>
+                    <a href="{% url 'users:viewed' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'viewed' %}active{% endif %}">
+                        Просмотренные
+                    </a>
+<!--                    <a href="{% url 'users:cart' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'cart' %}active{% endif %}">-->
+<!--                        Корзина-->
+<!--                    </a>-->
+<!--                    <a href="{% url 'users:favorites' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'favorites' %}active{% endif %}">-->
+<!--                        Избранное-->
+<!--                    </a>-->
+                    <a href="{% url 'users:stock_notifications' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'stock_notifications' %}active{% endif %}">
+                        Ожидаемые товары
+                    </a>
+                    <a href="{% url 'users:support' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'support' %}active{% endif %}">
+                        Поддержка
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
+        <div class="col-lg-9 col-md-8">
+            {% block cabinet_content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* ============================================================
+       КНОПКА-БУРГЕР КАБИНЕТА
+       ============================================================ */
+    .cabinet-menu-toggle {
+        display: none; /* скрыта на десктопе */
+    }
+
+    /* ============================================================
+       МОБИЛЬНАЯ ВЕРСИЯ КАБИНЕТА
+       ============================================================ */
+    @media (max-width: 768px) {
+
+        /* Показываем кнопку */
+        .cabinet-menu-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 12px 16px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            margin-bottom: 10px;
+            touch-action: manipulation;
+            transition: background 0.15s;
+        }
+
+        .cabinet-menu-toggle:hover {
+            background: #f8f9fa;
+        }
+
+        .cabinet-menu-toggle__caret {
+            transition: transform 0.2s;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .cabinet-menu-toggle.is-open .cabinet-menu-toggle__caret {
+            transform: rotate(180deg);
+        }
+
+        /* Сайдбар скрыт по умолчанию */
+        .cabinet-sidebar {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .cabinet-sidebar.is-open {
+            display: block;
+        }
+
+        /* List-group внутри сайдбара — компактнее */
+        .cabinet-sidebar .list-group-item {
+            padding: 10px 14px;
+            font-size: 14px;
+            border-radius: 4px !important;
+            margin-bottom: 2px;
+            border: 1px solid #e9ecef;
+        }
+
+        /* Убираем лишние отступы у колонок */
+        .container-fluid > .row > [class*="col-"] {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    }
+</style>
+
+<script>
+    // Мобильное меню кабинета
+    function toggleCabinetMenu() {
+        const sidebar = document.getElementById('cabinetSidebar');
+        const btn = document.querySelector('.cabinet-menu-toggle');
+        if (!sidebar || !btn) return;
+        sidebar.classList.toggle('is-open');
+        btn.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', sidebar.classList.contains('is-open'));
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Регистрация - PRO-инструмент{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-header" style="background-color: #d82a20; color: #fff;">
+                <h4 class="mb-0">Регистрация</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Имя пользователя</label>
+                        <input type="text" name="username" id="id_username" class="form-control" required value="{{ form.username.value|default:'' }}">
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+                        {% endif %}
+                        <small class="text-muted">Обязательное поле. Не более 150 символов.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">Email</label>
+                        <input type="email" name="email" id="id_email" class="form-control" required value="{{ form.email.value|default:'' }}">
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_phone" class="form-label">Телефон</label>
+                        <input type="text" name="phone" id="id_phone" class="form-control" placeholder="+7 (XXX) XXX-XX-XX" value="{{ form.phone.value|default:'' }}">
+                        {% if form.phone.errors %}
+                            <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_password1" class="form-label">Пароль</label>
+                        <input type="password" name="password1" id="id_password1" class="form-control" required>
+                        {% if form.password1.errors %}
+                            <div class="text-danger small mt-1">{{ form.password1.errors }}</div>
+                        {% endif %}
+                        <small class="text-muted">Пароль должен содержать не менее 8 символов.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_password2" class="form-label">Подтверждение пароля</label>
+                        <input type="password" name="password2" id="id_password2" class="form-control" required>
+                        {% if form.password2.errors %}
+                            <div class="text-danger small mt-1">{{ form.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    {# ---------- СОГЛАСИЕ НА ОБРАБОТКУ ПД ---------- #}
+                    <div class="mb-3 form-check">
+                        <input type="checkbox"
+                               name="agree_to_terms"
+                               id="id_agree_to_terms"
+                               class="form-check-input"
+                               required>
+                        <label class="form-check-label" for="id_agree_to_terms">
+                            Я согласен на <a href="{% url 'pages:page_detail' slug='privacy' %}" target="_blank" style="color: #d82a20;">обработку персональных данных</a>
+                        </label>
+                        {% if form.agree_to_terms.errors %}
+                            <div class="text-danger small mt-1">{{ form.agree_to_terms.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn w-100" style="background-color: #d82a20; color: #fff;">
+                        Зарегистрироваться
+                    </button>
+                </form>
+
+                <div class="mt-3 text-center">
+                    <p class="mb-0">
+                        Уже есть аккаунт?
+                        <a href="{% url 'users:login' %}" style="color: #d82a20;">Войти</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

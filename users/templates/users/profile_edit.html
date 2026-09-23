@@ -1,0 +1,120 @@
+{% extends 'users/base_cabinet.html' %}
+{% load static %}
+
+{% block title %}Настройки и личные данные - PRO-инструмент{% endblock %}
+
+{% block cabinet_content %}
+<div class="card">
+    <div class="card-header" style="background-color: #f8f9fa;">
+        <h5 class="mb-0">Настройки и личные данные</h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted small mb-4">ID: {{ user.id }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {# ФИО #}
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="id_last_name" class="form-label">Фамилия</label>
+                    <input type="text" name="last_name" id="id_last_name" class="form-control"
+                           value="{{ form.last_name.value|default:'' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="id_first_name" class="form-label">
+                        Имя <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" name="first_name" id="id_first_name" class="form-control" required
+                           value="{{ form.first_name.value|default:'' }}">
+                    {% if form.first_name.errors %}
+                        <div class="text-danger small mt-1">{{ form.first_name.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="id_middle_name" class="form-label">Отчество</label>
+                    <input type="text" name="middle_name" id="id_middle_name" class="form-control"
+                           value="{{ form.middle_name.value|default:'' }}">
+                </div>
+            </div>
+
+            {# Пол #}
+            <div class="mb-3">
+                <label class="form-label d-block">Пол</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="gender" id="gender_m" value="M"
+                           {% if form.gender.value == 'M' %}checked{% endif %}>
+                    <label class="form-check-label" for="gender_m">Мужской</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="gender" id="gender_f" value="F"
+                           {% if form.gender.value == 'F' %}checked{% endif %}>
+                    <label class="form-check-label" for="gender_f">Женский</label>
+                </div>
+            </div>
+
+            {# Email #}
+            <div class="mb-3">
+                <label for="id_email" class="form-label">Электронная почта</label>
+                <input type="email" name="email" id="id_email" class="form-control"
+                       value="{{ form.email.value|default:'' }}">
+                {% if form.email.errors %}
+                    <div class="text-danger small mt-1">{{ form.email.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            {# Телефон #}
+            <div class="mb-3">
+                <label for="id_phone" class="form-label">Телефон</label>
+                <input type="tel" name="phone" id="id_phone" class="form-control"
+                       value="{{ form.phone.value|default:'' }}">
+            </div>
+
+            {# Дата рождения #}
+            <div class="mb-3">
+                <label for="id_birth_date" class="form-label">Дата рождения</label>
+                <input type="date" name="birth_date" id="id_birth_date" class="form-control"
+                       value="{{ form.birth_date.value|default:''|date:'Y-m-d' }}">
+            </div>
+
+            <div class="d-flex gap-3 flex-wrap align-items-center">
+                <button type="submit" class="btn btn-danger">
+                    Сохранить изменения
+                </button>
+
+                <a href="{% url 'users:password_change' %}" class="action-link">
+                    <i class="fas fa-lock"></i> Изменить пароль
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-header" style="background-color: #f8f9fa;">
+        <h5 class="mb-0">Выход и удаление</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <form method="post" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="action-link">
+                    <i class="fas fa-sign-out-alt"></i> Выход из личного кабинета
+                </button>
+            </form>
+        </div>
+        <div>
+            <form method="post" action="{% url 'users:account_delete' %}"
+                  onsubmit="return confirm('Удалить аккаунт? Действие необратимо.');">
+                {% csrf_token %}
+                <button type="submit" class="action-link">
+                    <i class="fas fa-times"></i> Удалить аккаунт
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

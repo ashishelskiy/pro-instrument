@@ -1,0 +1,150 @@
+{% extends 'users/base_cabinet.html' %}
+{% load static %}
+
+{% block title %}История покупок - PRO-инструмент{% endblock %}
+
+{% block cabinet_content %}
+<div class="card">
+    <div class="card-header" style="background-color: #f8f9fa;">
+        <h5 class="mb-0">История покупок</h5>
+    </div>
+    <div class="card-body">
+
+        {% if history %}
+            <p class="text-muted small mb-3">
+                Товары, которые вы покупали. Нажмите «Купить снова», чтобы добавить в корзину.
+            </p>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Фото</th>
+                            <th>Товар</th>
+                            <th style="width: 100px;">Куплено</th>
+                            <th style="width: 120px;">Последний раз</th>
+                            <th style="width: 100px;">Цена</th>
+                            <th style="width: 140px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                            <tr>
+                                <td>
+                                    {% if item.product.image %}
+                                        <a href="{% url 'catalog:product_detail' item.product.slug %}">
+                                            <img src="{{ item.product.image.url }}"
+                                                 alt="{{ item.product.name }}"
+                                                 style="width: 60px; height: 60px; object-fit: contain;">
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'catalog:product_detail' item.product.slug %}"
+                                       style="color: #333; text-decoration: none;">
+                                        {{ item.product.name|truncatechars:80 }}
+                                    </a>
+                                    {% if item.product.article %}
+                                        <div class="text-muted small">Арт: {{ item.product.article }}</div>
+                                    {% endif %}
+                                    <div class="text-muted small">
+                                        {% if item.product.in_stock %}
+                                            <span style="color: #28a745;">● В наличии</span>
+                                        {% else %}
+                                            <span style="color: #fd7e14;">● Под заказ</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">{{ item.total_quantity }} шт.</span>
+                                    <div class="text-muted small mt-1">
+                                        в {{ item.orders_count }} заказ{{ item.orders_count|pluralize:"е,ах" }}
+                                    </div>
+                                </td>
+                                <td class="text-muted small">
+                                    {{ item.last_bought|date:"d.m.Y" }}
+                                </td>
+                                <td>
+                                    <strong>{{ item.product.price }} ₽</strong>
+                                </td>
+                                <td>
+                                    {% if item.product.in_stock %}
+                                        <form method="post" action="{% url 'cart:cart_add' item.product.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-cart btn-sm w-100">
+                                                <i class="fas fa-shopping-cart"></i> Купить снова
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        {% if item.product.id in user_stock_notification_ids %}
+                                            <button type="button"
+                                                    class="btn-cart btn-sm w-100"
+                                                    style="background: #adb5bd; cursor: default;"
+                                                    disabled>
+                                                <i class="fas fa-check"></i> Подписан
+                                            </button>
+                                        {% else %}
+                                            <button type="button"
+                                                    class="btn-cart btn-sm w-100"
+                                                    style="background: #666;"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#stockModal{{ item.product.id }}">
+                                                <i class="fas fa-bell"></i> Уведомить
+                                            </button>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-bag fa-4x mb-3" style="color: #dee2e6;"></i>
+                <p class="text-muted mb-0">У вас пока нет покупок</p>
+                <a href="{% url 'catalog:index' %}" class="btn btn-danger mt-3">Перейти в каталог</a>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{# ===== МОДАЛКИ — в конце body, вне контейнеров ===== #}
+{% block modals %}
+    {% for item in history %}
+        {% if not item.product.in_stock %}
+            {% if item.product.id not in user_stock_notification_ids %}
+                <div class="modal fade" id="stockModal{{ item.product.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="post" action="{% url 'users:stock_notification_add' item.product.id %}">
+                                {% csrf_token %}
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Уведомить о поступлении</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="mb-3">Товар: <strong>{{ item.product.name|truncatechars:60 }}</strong></p>
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="email" class="form-control" required
+                                           placeholder="your@email.com"
+                                           value="{{ user.email|default:'' }}">
+                                    <p class="text-muted small mt-2 mb-0">
+                                        Мы пришлём письмо, когда товар появится в наличии.
+                                    </p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                    <button type="submit" class="btn btn-danger">Подписаться</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}

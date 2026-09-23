@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Новости - PRO-инструмент{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Новости</h1>
+
+    {% if news_list %}
+        <div class="row g-4">
+            {% for news in news_list %}
+                <div class="col-md-6 col-lg-4">
+                    <a href="{{ news.get_absolute_url }}" class="text-decoration-none">
+                        <div class="card h-100 product-card">
+                            {% if news.image %}
+                                <img src="{{ news.image.url }}"
+                                     class="card-img-top"
+                                     alt="{{ news.title }}"
+                                     style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="text-muted small mb-2">
+                                    {{ news.published_at|date:"d.m.Y" }}
+                                </div>
+                                <h5 class="product-title">{{ news.title }}</h5>
+                                {% if news.short_description %}
+                                    <p class="text-muted small mb-0">
+                                        {{ news.short_description|truncatechars:120 }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Пагинация #}
+        {% if is_paginated %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">←</a></li>
+                    {% endif %}
+                    <li class="page-item active"><span class="page-link">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">→</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-newspaper fa-4x mb-3" style="color: #dee2e6;"></i>
+            <p class="text-muted">Новостей пока нет</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

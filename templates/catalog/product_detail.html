@@ -5,6 +5,10 @@
 {% block description %}{{ product.meta_description|default:product.name }}{% endblock %}
 
 {% block breadcrumb_extra %}
+<li class="breadcrumb-item"><a href="{% url 'catalog:category_list' %}">Каталог</a></li>
+{% if product.category.parent %}
+    <li class="breadcrumb-item"><a href="{% url 'catalog:category_detail' product.category.parent.slug %}">{{ product.category.parent.name }}</a></li>
+{% endif %}
 <li class="breadcrumb-item"><a href="{% url 'catalog:category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
 <li class="breadcrumb-item active">{{ product.name|truncatechars:30 }}</li>
 {% endblock %}
@@ -13,18 +17,18 @@
 <div class="row">
     <div class="col-md-6">
         {% if product.image %}
-        <img src="{{ product.image }}" class="img-fluid" alt="{{ product.name }}">
+        <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
         {% endif %}
 
         <!-- Дополнительные изображения -->
         {% if product.images.all %}
-        <div class="row mt-3">
-            {% for image in product.images.all|slice:":4" %}
-            <div class="col-3">
-                <img src="{{ image.image }}" class="img-thumbnail" alt="{{ product.name }}" style="height: 100px; object-fit: cover; cursor: pointer;" onclick="document.querySelector('.img-fluid').src=this.src">
+            <div class="row row-cols-4 g-1 mt-3" style="max-width: 420px;">
+                {% for image in product.images.all %}
+                <div class="col">
+                    <img src="{{ image.image.url }}" class="img-thumbnail" alt="{{ product.name }}" style="height: 100px; object-fit: cover; cursor: pointer;" onclick="document.querySelector('.img-fluid').src=this.src">
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
         {% endif %}
     </div>
 
@@ -36,7 +40,7 @@
         <p>Бренд: <strong>{{ product.brand.name }}</strong></p>
         {% endif %}
 
-        <!-- Цена как в карточке -->
+        <!-- Цена -->
         <div class="price mb-3">
             <span class="product-detail-price">{{ product.price }} ₽</span>
             {% if product.old_price %}
@@ -44,7 +48,7 @@
             {% endif %}
         </div>
 
-        <!-- Статус как в карточке -->
+        <!-- Статус -->
         <div class="availability mb-3">
             {% if product.in_stock %}
             <span class="product-detail-stock in-stock">
@@ -57,10 +61,108 @@
             {% endif %}
         </div>
 
-        <!-- Кнопка "В корзину" красная -->
-        <button class="btn-detail-cart" onclick="alert('Товар добавлен в корзину!')">
-            <i class="fas fa-shopping-cart"></i> В корзину
-        </button>
+        <!-- Кнопки: количество + корзина/уведомить + избранное + сравнение -->
+        <div class="product-actions d-flex gap-2 flex-wrap align-items-center">
+
+            {% if product.in_stock %}
+                {# Количество #}
+                <div class="quantity-selector">
+                    <button type="button" class="quantity-selector__btn" onclick="changeQuantity(-1)">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <input type="number"
+                           id="productQuantity"
+                           class="quantity-selector__input"
+                           value="1"
+                           min="1"
+                           max="999">
+                    <button type="button" class="quantity-selector__btn" onclick="changeQuantity(1)">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+
+                {# Кнопка «В корзину» #}
+                <form method="post" action="{% url 'cart:cart_add' product.id %}" id="addToCartForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" id="quantityInput" value="1">
+                    <button type="submit" class="btn-cart">
+                        <i class="fas fa-shopping-cart"></i> В корзину
+                    </button>
+                </form>
+            {% else %}
+                {% if product.id in user_stock_notification_ids %}
+                    <form method="post" action="{% url 'users:stock_notification_remove_by_product' product.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-cart" style="background: #adb5bd;">
+                            <i class="fas fa-times"></i> Отписаться
+                        </button>
+                    </form>
+                {% else %}
+                    <button type="button"
+                            class="btn-cart"
+                            style="background: #666;"
+                            data-bs-toggle="modal"
+                            data-bs-target="#stockModalDetail">
+                        <i class="fas fa-bell"></i> Уведомить о поступлении
+                    </button>
+                {% endif %}
+            {% endif %}
+
+            {# Избранное #}
+            {% if product.id in user_favorite_ids %}
+                <form method="post" action="{% url 'users:favorite_remove' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-fav btn-fav--active" title="Удалить из избранного">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                </form>
+            {% else %}
+                <form method="post" action="{% url 'users:favorite_add' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-fav" title="В избранное">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </form>
+            {% endif %}
+
+            {# Сравнение #}
+            {% if product.id in user_comparison_ids %}
+                <form method="post" action="{% url 'users:comparison_remove' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-fav btn-fav--active" title="Удалить из сравнения">
+                        <i class="fas fa-chart-simple"></i>
+                    </button>
+                </form>
+            {% else %}
+                <form method="post" action="{% url 'users:comparison_add' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-fav" title="В сравнение">
+                        <i class="fas fa-chart-simple"></i>
+                    </button>
+                </form>
+            {% endif %}
+
+        </div>
+
+        <script>
+        function changeQuantity(delta) {
+            const input = document.getElementById('productQuantity');
+            const quantityInput = document.getElementById('quantityInput');
+            let value = parseInt(input.value) || 1;
+            value = Math.max(1, Math.min(999, value + delta));
+            input.value = value;
+            quantityInput.value = value;
+        }
+
+        // Синхронизация при ручном вводе
+        document.getElementById('productQuantity')?.addEventListener('input', function() {
+            const quantityInput = document.getElementById('quantityInput');
+            let value = parseInt(this.value) || 1;
+            value = Math.max(1, Math.min(999, value));
+            this.value = value;
+            quantityInput.value = value;
+        });
+        </script>
 
         <!-- Характеристики -->
         <h5 class="mt-4 mb-3">Технические характеристики</h5>
@@ -73,6 +175,49 @@
             </div>
             {% endfor %}
         </div>
+
+        {# СЕРТИФИКАТЫ #}
+        {% if product.certificates.exists %}
+            <div class="mt-4 pt-3" style="border-top: 1px solid #eee;">
+                <h6 class="mb-3">Сертификация</h6>
+
+                {% for cert in product.certificates.all %}
+                    <div class="mb-3 pb-2" style="border-bottom: 1px dashed #eee;">
+                        <div class="mb-1">
+                            <strong style="font-size: 0.9rem;">{{ cert.name }}</strong>
+                        </div>
+                        <div class="text-muted small mb-2">
+                            {% if cert.number %}№ {{ cert.number }}{% endif %}
+                            {% if cert.valid_until %}· до {{ cert.valid_until|date:"d.m.Y" }}{% endif %}
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% if cert.file %}
+                                <a href="{{ cert.file.url }}"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-file-pdf"></i> Скачать
+                                </a>
+                            {% endif %}
+                            {% if cert.url %}
+                                <a href="{{ cert.url }}"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-external-link-alt"></i> Проверить в реестре
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif product.no_certificate_required %}
+            <div class="mt-4 pt-3" style="border-top: 1px solid #eee;">
+                <h6 class="mb-2">Сертификация</h6>
+                <p class="text-muted small mb-0">
+                    <i class="fas fa-info-circle"></i>
+                    Товар не подлежит обязательной сертификации
+                </p>
+            </div>
+        {% endif %}
     </div>
 </div>
 
@@ -89,33 +234,154 @@
 <!-- Похожие товары -->
 {% if related_products %}
 <div class="row mt-5">
-    <div class="col-12">
+    <div class="col-lg-9">
         <h3>Похожие товары</h3>
         <div class="row">
-            {% for related in related_products %}
-            <div class="col-md-3 mb-4">
-                <a href="{% url 'catalog:product_detail' related.slug %}" class="text-decoration-none">
-                    <div class="card h-100 product-card">
-                        {% if related.image %}
-                        <img src="{{ related.image }}" class="card-img-top" alt="{{ related.name }}" style="height: 150px; object-fit: contain; padding: 10px;">
+            {% for product in related_products %}
+            <div class="col-6 col-md-4 col-lg-3 mb-4">
+                <div class="card h-100 product-card d-flex flex-column">
+
+                    <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
                         {% endif %}
-                        <div class="card-body">
-                            <h6 class="card-title text-dark" style="font-size: 0.85rem;">{{ related.name|truncatechars:30 }}</h6>
-                            <p class="card-text"><strong>{{ related.price }} ₽</strong></p>
+                    </a>
+
+                    <div class="card-body d-flex flex-column">
+                        <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
+                            <h5 class="product-title">{{ product.name }}</h5>
+                        </a>
+
+                        <div class="mb-1">
+                            <span class="product-price">{{ product.price }} ₽</span>
+                            {% if product.old_price %}
+                                <br><span class="product-old-price">{{ product.old_price }} ₽</span>
+                            {% endif %}
                         </div>
-                        <div class="card-footer">
-                            {% if related.in_stock %}
-                            <span class="text-success" style="font-size: 0.7rem;">В наличии</span>
+
+                        {% if product.article %}
+                            <div class="product-article">Арт: {{ product.article }}</div>
+                        {% endif %}
+
+                        <div class="mb-1">
+                            {% if product.in_stock %}
+                                <span class="product-stock in-stock"><i class="fas fa-check-circle"></i> В наличии</span>
                             {% else %}
-                            <span class="text-warning" style="font-size: 0.7rem;">Под заказ</span>
+                                <span class="product-stock on-order"><i class="fas fa-clock"></i> Под заказ</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2 mt-auto">
+                            {% if product.in_stock %}
+                                <form method="post" action="{% url 'cart:cart_add' product.id %}" class="flex-grow-1">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-cart w-100">
+                                        <i class="fas fa-shopping-cart"></i> В корзину
+                                    </button>
+                                </form>
+                            {% else %}
+                                {% if product.id in user_stock_notification_ids %}
+                                    <form method="post" action="{% url 'users:stock_notification_remove_by_product' product.id %}" class="w-100">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-cart w-100" style="background: #adb5bd;">
+                                            <i class="fas fa-times"></i> Отписаться
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <button type="button"
+                                            class="btn-cart w-100"
+                                            style="background: #666;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#stockModal{{ product.id }}">
+                                        <i class="fas fa-bell"></i> Уведомить
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if product.id in user_favorite_ids %}
+                                <form method="post" action="{% url 'users:favorite_remove' product.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-fav btn-fav--active" title="Удалить из избранного">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{% url 'users:favorite_add' product.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-fav" title="В избранное">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                </form>
                             {% endif %}
                         </div>
                     </div>
-                </a>
+                </div>
+
+                {# Модалка для уведомления — своя для каждого товара #}
+                {% if not product.in_stock %}
+                    <div class="modal fade" id="stockModal{{ product.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post" action="{% url 'users:stock_notification_add' product.id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Уведомить о поступлении</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="mb-3">Товар: <strong>{{ product.name|truncatechars:60 }}</strong></p>
+                                        <label class="form-label">Email</label>
+                                        <input type="email" name="email" class="form-control" required
+                                               placeholder="your@email.com"
+                                               value="{{ user.email|default:'' }}">
+                                        <p class="text-muted small mt-2 mb-0">
+                                            Мы пришлём письмо, когда товар появится в наличии.
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                        <button type="submit" class="btn btn-danger">Подписаться</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
     </div>
 </div>
+{% endif %}
+
+{# Модалка для уведомления о поступлении (для основного товара) #}
+{% if not product.in_stock %}
+    <div class="modal fade" id="stockModalDetail" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{% url 'users:stock_notification_add' product.id %}">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title">Уведомить о поступлении</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3">Товар: <strong>{{ product.name }}</strong></p>
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" required
+                               placeholder="your@email.com"
+                               value="{{ user.email|default:'' }}">
+                        <p class="text-muted small mt-2 mb-0">
+                            Мы пришлём письмо, когда товар появится в наличии.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-danger">Подписаться</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endif %}
 {% endblock %}

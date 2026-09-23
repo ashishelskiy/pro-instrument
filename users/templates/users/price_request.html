@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Запросить цену - PRO-инструмент{% endblock %}
+{% block description %}Не нашли товар в каталоге? Оставьте заявку — мы найдём и сообщим цену.{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <h1 class="mb-3">Запросить цену</h1>
+            <p class="text-muted mb-4">
+                Не нашли нужный товар в каталоге? Оставьте заявку — мы подберём его
+                и сообщим вам цену и сроки поставки.
+            </p>
+
+            {# Подсказка для залогиненных #}
+            {% if user.is_authenticated %}
+                <div class="alert alert-info d-flex align-items-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <div>
+                        Вы вошли как <strong>{{ user.get_display_name }}</strong>.
+                        {% if user.email %}
+                            Мы свяжемся с вами через <strong>{{ user.email }}</strong>.
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="card">
+                <div class="card-body">
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        {# Имя и телефон — только если полей нет в профиле #}
+                        {% if form.name or form.phone %}
+                            <div class="row">
+                                {% if form.name %}
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.name.id_for_label }}" class="form-label">
+                                            Имя <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.name }}
+                                        {% if form.name.errors %}
+                                            <div class="text-danger small mt-1">{{ form.name.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {% if form.phone %}
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                            Телефон <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.phone }}
+                                        {% if form.phone.errors %}
+                                            <div class="text-danger small mt-1">{{ form.phone.errors|striptags }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {# Email — только если нет в профиле #}
+                        {% if form.email %}
+                            <div class="mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ form.email.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {# Описание товара #}
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                Какой товар нужен? <span class="text-danger">*</span>
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors|striptags }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                Укажите название, модель, характеристики, количество —
+                                чем подробнее, тем точнее мы подберём.
+                            </div>
+                        </div>
+
+                        {# Комментарий #}
+                        <div class="mb-3">
+                            <label for="{{ form.comment.id_for_label }}" class="form-label">
+                                Комментарий
+                            </label>
+                            {{ form.comment }}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-paper-plane"></i> Отправить заявку
+                            </button>
+                            <a href="{% url 'catalog:index' %}" class="btn btn-link">
+                                Отмена
+                            </a>
+                        </div>
+
+                        <p class="text-muted small mt-3 mb-0">
+                            Нажимая «Отправить заявку», вы соглашаетесь на
+                            <a href="{% url 'pages:page_detail' slug='privacy' %}" target="_blank">обработку персональных данных</a>.
+                        </p>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'users/base_cabinet.html' %}
+{% load static %}
+
+{% block title %}Ожидаемые товары - PRO-инструмент{% endblock %}
+
+{% block cabinet_content %}
+<div class="card">
+    <div class="card-header" style="background-color: #f8f9fa;">
+        <h5 class="mb-0">Ожидаемые товары</h5>
+    </div>
+    <div class="card-body">
+
+        {% if notifications %}
+            <p class="text-muted small mb-3">
+                Мы пришлём вам письмо, когда эти товары появятся в наличии.
+            </p>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Фото</th>
+                            <th>Товар</th>
+                            <th>Email</th>
+                            <th>Подписка</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for n in notifications %}
+                            <tr>
+                                <td>
+                                    {% if n.product.image %}
+                                        <a href="{% url 'catalog:product_detail' n.product.slug %}">
+                                            <img src="{{ n.product.image.url }}"
+                                                 alt="{{ n.product.name }}"
+                                                 style="width: 60px; height: 60px; object-fit: contain;">
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'catalog:product_detail' n.product.slug %}"
+                                       style="color: #333; text-decoration: none;">
+                                        {{ n.product.name|truncatechars:60 }}
+                                    </a>
+                                    {% if n.product.article %}
+                                        <div class="text-muted small">Арт: {{ n.product.article }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted small">{{ n.email }}</td>
+                                <td class="text-muted small">{{ n.created_at|date:"d.m.Y" }}</td>
+                                <td class="text-end">
+                                    {% if n.product.in_stock %}
+                                        <span class="badge bg-success">В наличии</span>
+                                        <a href="{% url 'catalog:product_detail' n.product.slug %}"
+                                           class="btn btn-sm btn-cart ms-2">
+                                            <i class="fas fa-shopping-cart"></i> Купить
+                                        </a>
+                                    {% else %}
+                                        <form method="post"
+                                              action="{% url 'users:stock_notification_remove' n.pk %}"
+                                              class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    title="Отписаться">
+                                                <i class="fas fa-times"></i> Отписаться
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-bell fa-4x mb-3" style="color: #dee2e6;"></i>
+                <p class="text-muted mb-0">Вы пока не подписаны ни на один товар</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

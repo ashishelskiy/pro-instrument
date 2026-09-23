@@ -11,21 +11,25 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# ============================================================
+# SECURITY
+# ============================================================
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-lfn26w_&nm6302ror()b+x87+4fyg44bw%%eufb0+m+4g_^h6!'
+SECRET_KEY = config('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'proinstrument.pythonanywhere.com']
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='127.0.0.1,localhost',
+    cast=Csv()
+)
 
 
 # Application definition
@@ -37,13 +41,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'catalog',
     'import_export',
+    'catalog',
     'users',
+    'cart',
+    'orders',
+    'pages',
+    'banners',
+    'promotions',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,6 +76,13 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'catalog.context_processors.menu_categories',
+                'cart.context_processors.cart_count',
+                'users.context_processors.favorites_count',
+                'users.context_processors.user_favorite_ids',
+                'users.context_processors.user_stock_notification_ids',
+                'pages.context_processors.site_settings',
+                'users.context_processors.user_comparison_ids',
+                'users.context_processors.comparison_count',
             ],
         },
     },
@@ -74,15 +91,34 @@ TEMPLATES = [
 WSGI_APPLICATION = 'pro_instrument.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# ============================================================
+# DATABASE
+# ============================================================
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# ============================================================
+# DATABASE
+# ============================================================
+
+if DEBUG:
+    # Локальная разработка — SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    # Продакшен/стейдж — PostgreSQL
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+        }
+    }
 
 
 # Password validation
@@ -116,17 +152,19 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+# ============================================================
+# STATIC & MEDIA
+# ============================================================
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
+# WhiteNoise: сжатие и кэширование статики
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Медиа файлы
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -135,6 +173,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 # URL для входа и выхода
-LOGIN_URL = '/accounts/login/'
+LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+
+# ============================================================
+# EMAIL
+# ============================================================
+
+# Для разработки — письма печатаются в консоль
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# От кого письма
+DEFAULT_FROM_EMAIL = 'noreply@pro-instrument.ru'
+
+# Email администратора — куда приходят уведомления о заказах
+ADMIN_EMAIL = 'ashishelskiyo@gmail.com'

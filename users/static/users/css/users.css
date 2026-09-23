@@ -1,0 +1,194 @@
+/* ============================================================
+   Личный кабинет: ссылки-действия
+   ============================================================ */
+
+a.action-link,
+button.action-link {
+    color: #000;
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: inherit;
+    text-align: left;
+    box-shadow: none;
+}
+
+a.action-link i,
+button.action-link i {
+    color: #dc3545;
+}
+
+a.action-link:hover,
+a.action-link:hover i,
+button.action-link:hover,
+button.action-link:hover i {
+    color: #dc3545;
+    text-decoration: none;
+}
+
+.action-link.small {
+    font-size: 0.875rem;
+}
+
+
+/* ============================================================
+   Организации: заголовок раздела
+   ============================================================ */
+
+.org-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.org-section-header h4 {
+    margin: 0;
+    font-weight: 600;
+    color: #1c2126;
+    font-size: 1.25rem;
+}
+
+
+/* ============================================================
+   Карточка организации
+   ============================================================ */
+
+.org-card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: #ffffff;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.org-card:hover {
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    border-color: #dee2e6;
+}
+
+/* Карточка основной организации — зелёная рамка */
+.org-card--default {
+    border-color: #b7e1c4;
+    background: #fbfffc;
+}
+
+.org-card--default:hover {
+    border-color: #8fd3a5;
+}
+
+/* Внутренние отступы карточки */
+.org-card .card-body {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Шапка карточки: название + меню */
+.org-card__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+/* Название организации */
+.org-card__name {
+    margin: 0 0 4px 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1c2126;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+/* Реквизиты (ИНН, КПП) */
+.org-card__requisites {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #93999e;
+    line-height: 1.4;
+}
+
+/* Меню «⋮» */
+.org-card__menu-btn {
+    color: #93999e;
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    line-height: 1;
+}
+
+.org-card__menu-btn:hover {
+    background: #f4f5f6;
+    color: #1c2126;
+}
+
+/* Бейдж «Основная» */
+.org-card__badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: #ebfaeb;
+    color: #2aa32a;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+
+/* ============================================================
+   Адаптивность
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .org-card .card-body {
+        padding: 16px 18px;
+    }
+
+    .org-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .org-section-header h4 {
+        font-size: 1.15rem;
+    }
+}
+
+/* ============================================================
+   Сайдбар кабинета — только красный текст у активного
+   ============================================================ */
+
+.cabinet-sidebar .list-group-item {
+    color: #333;
+    background: transparent;
+    border-color: #e9ecef;
+}
+
+.cabinet-sidebar .list-group-item:hover {
+    color: #BD0000;
+    background: transparent;
+    border-color: #e9ecef;
+}
+
+.cabinet-sidebar .list-group-item.active {
+    color: #BD0000;
+    background: transparent;
+    border-color: #e9ecef;
+    font-weight: 500;
+}
+
+.cabinet-sidebar .list-group-item.active:hover {
+    color: #BD0000;
+    background: transparent;
+    border-color: #e9ecef;
+}

@@ -73,11 +73,13 @@ body {
     position: relative;
 }
 
+/*
 @media (min-width: 768px), print
 @media screen and (min-width: 768px)
 styles-l.min.css:1:805885.header.content:before, .header.content:after {
 display: none !important;
 }
+*/
 
 .sections.nav-sections {
     left: 0;
@@ -183,6 +185,7 @@ background: #d82a20;
     align-items: flex-end;
     line-height: 1.2;
     font-weight: 400;
+    min-height: 55px;
 }
 
 .header__icon-link {
@@ -556,7 +559,7 @@ main {
 .category-image-wrapper-horizontal {
     flex: 0 0 35%;
     max-width: 35%;
-    background: #ffffff;
+    /*background: #ffffff;*/
     display: flex;
     align-items: center;
     justify-content: center;
@@ -599,7 +602,7 @@ main {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: #ffffff;
+    /*background: #ffffff;*/
 }
 
 .category-title {
@@ -659,11 +662,13 @@ main {
     font-weight: 500 !important;
 }
 
+/*
 .breadcrumb-item + .breadcrumb-item::before {
     color: #adb5bd !important;
     content: "—" !important;
     padding: 0 8px !important;
 }
+*/
 
 /* ================================================================ */
 /* ========== КАРТОЧКИ ТОВАРОВ ========== */
@@ -687,7 +692,6 @@ main {
     height: 180px;
     object-fit: contain;
     padding: 10px;
-    background: #ffffff;
 }
 
 .product-card .card-body {
@@ -773,7 +777,7 @@ main {
 .btn-cart {
     display: inline-flex !important;
     align-items: center;
-    justify-content: flex-start !important;
+    justify-content: center !important;
     gap: 8px;
     padding: 6px 18px;
     background-color: #BD0000;
@@ -785,7 +789,7 @@ main {
     cursor: pointer;
     transition: background-color 0.2s ease;
     width: 100% !important;
-    text-align: left !important;
+    white-space: nowrap;
 }
 
 .btn-cart:hover {
@@ -984,11 +988,6 @@ main {
     color: #28a745;
 }
 
-.product-stock.on-order {
-    color: #ffc107;  /* Желтый */
-}
-
-/* Или если хотите оранжевый */
 .product-stock.on-order {
     color: #fd7e14;  /* Оранжевый */
 }
@@ -2056,4 +2055,345 @@ main {
 
 .sidebar-news__item:hover .sidebar-news__title-text {
     color: #BD0000;
+}
+
+/* ================================================================
+   СКРЫВАЕМ САЙДБАР НА МОБИЛЬНЫХ
+   ================================================================ */
+@media (max-width: 768px) {
+    aside.col-lg-3 {
+        display: none;
+    }
+
+    section.col-lg-9 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* ================================================================
+   БЕНТО НА МОБИЛЬНЫХ — 4 КВАДРАТА 2×2
+   ================================================================ */
+@media (max-width: 768px) {
+
+    .bento-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .bento-1, .bento-2, .bento-3,
+    .bento-4, .bento-5, .bento-6 {
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    /* Скрываем 5 и 6 */
+    .bento-5,
+    .bento-6 {
+        display: none;
+    }
+
+    /* Квадратные карточки */
+    .bento-card {
+        aspect-ratio: 1 / 1;
+        height: auto;
+    }
+
+    .bento-card-content {
+        left: 12px;
+        right: 12px;
+        bottom: 10px;
+    }
+
+    .bento-card-content h3 {
+        font-size: 14px;
+        line-height: 1.2;
+    }
+}
+
+/* ===== БРЕНДЫ ===== */
+.brands-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+}
+
+.brand-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 8px;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s ease;
+    min-height: 100px;
+}
+
+.brand-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+}
+
+.brand-card img {
+    max-height: 50px;
+    max-width: 100%;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.brand-card__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    font-size: 22px;
+    font-weight: 700;
+    color: #BD0000;
+    margin-bottom: 8px;
+}
+
+.brand-card__name {
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.2;
+    word-wrap: break-word;
+}
+
+/* Мобильные */
+@media (max-width: 992px) {
+    .brands-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .brands-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+
+    .brand-card {
+        min-height: 80px;
+        padding: 10px 6px;
+    }
+
+    .brand-card__name {
+        font-size: 11px;
+    }
+}
+
+/* ===== КНОПКА ИЗБРАННОГО ===== */
+.btn-fav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: #adb5bd;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-fav:hover {
+    color: #dc3545;
+    transform: scale(1.1);
+}
+
+.btn-fav--active {
+    color: #dc3545;
+}
+
+.btn-fav--active:hover {
+    color: #a02020;
+}
+
+
+/* ===== СТРАНИЦА ТОВАРА — КНОПКИ ===== */
+.product-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.product-actions .btn-cart {
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    height: 38px;
+    justify-content: center;
+}
+
+/* ===== СЕЛЕКТОР КОЛИЧЕСТВА ===== */
+.quantity-selector {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+    height: 38px;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.quantity-selector__btn {
+    width: 34px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: #333;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+.quantity-selector__btn:hover {
+    background: #f8f9fa;
+    color: #BD0000;
+}
+
+.quantity-selector__btn:active {
+    background: #e9ecef;
+}
+
+.quantity-selector__input {
+    width: 50px;
+    height: 36px;
+    border: none;
+    border-left: 1px solid #dee2e6;
+    border-right: 1px solid #dee2e6;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1c2126;
+    outline: none;
+    -moz-appearance: textfield;
+    background: #fff;
+}
+
+.quantity-selector__input::-webkit-outer-spin-button,
+.quantity-selector__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* На мобильном — на всю ширину */
+@media (max-width: 576px) {
+    .product-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .quantity-selector {
+        width: 100%;
+    }
+
+    .quantity-selector__btn {
+        flex: 1;
+    }
+
+    .quantity-selector__input {
+        flex: 1;
+    }
+
+    .product-actions .btn-cart {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Блочные ссылки сайдбара — без подчёркивания при наведении */
+.sidebar-news__item:hover,
+.sidebar-new-products__item:hover,
+.sidebar-catalog__link:hover,
+.sidebar-catalog__child-link:hover {
+    text-decoration: none;
+}
+
+@media (max-width: 576px) {
+    .product-card {
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0;
+        background: transparent !important;
+    }
+    .product-card:hover {
+        transform: none;
+        box-shadow: none !important;
+    }
+
+    .img-thumbnail {
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0;
+        background: transparent !important;
+    }
+}
+
+
+/* ============================================================
+   КАТЕГОРИИ: ГОРИЗОНТАЛЬНАЯ СКРОЛЛ-ЛЕНТА НА МОБИЛЬНЫХ
+   ============================================================ */
+.categories-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 12px 8px;
+    margin: 0 -12px;
+    scrollbar-width: none;
+}
+
+.categories-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.category-scroll-item {
+    flex: 0 0 78%;
+    scroll-snap-align: start;
+    text-decoration: none;
+}
+
+/* ============================================================
+   КАТЕГОРИИ: ГОРИЗОНТАЛЬНАЯ СКРОЛЛ-ЛЕНТА НА ПЛМАНШЕТАХ
+   ============================================================ */
+@media (max-width: 767.98px) {
+    .categories-scroll {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 12px 8px;
+        margin: 0 -12px;
+        scrollbar-width: none;
+    }
+    .categories-scroll::-webkit-scrollbar { display: none; }
+    .category-scroll-item {
+        flex: 0 0 78%;
+        scroll-snap-align: start;
+        text-decoration: none;
+    }
 }

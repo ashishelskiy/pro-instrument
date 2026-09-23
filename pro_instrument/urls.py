@@ -3,9 +3,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('catalog.urls')),  # ДОБАВЬТЕ
+    path('users/', include('users.urls', namespace='users')),
+    path('cart/', include('cart.urls', namespace='cart')),
+    path('orders/', include('orders.urls', namespace='orders')),
+    path('banners/', include('banners.urls', namespace='banners')),
+    path('', include('catalog.urls', namespace='catalog')),
+    path('', include('pages.urls', namespace='pages')),
 ]
 
 # Добавляем для отладки (только в режиме DEBUG)

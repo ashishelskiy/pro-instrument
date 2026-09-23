@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Заявка отправлена - PRO-инструмент{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+
+            <i class="fas fa-check-circle fa-5x mb-4" style="color: #28a745;"></i>
+
+            <h1 class="mb-3">Заявка отправлена!</h1>
+            <p class="text-muted mb-4">
+                Мы получили вашу заявку. Менеджер свяжется с вами
+                в ближайшее время и сообщит цену и сроки поставки.
+            </p>
+
+            <a href="{% url 'catalog:index' %}" class="btn btn-danger">
+                Вернуться в каталог
+            </a>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

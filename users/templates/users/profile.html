@@ -1,0 +1,63 @@
+{% extends 'users/base_cabinet.html' %}
+{% load static %}
+
+{% block title %}Мой кабинет - PRO-инструмент{% endblock %}
+
+{% block cabinet_content %}
+<div class="card">
+    <div class="card-header" style="background-color: #f8f9fa;">
+        <h5 class="mb-0">Мой кабинет</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+
+            {# Личные данные #}
+            <div class="col-md-6">
+                <h6 class="mb-3">Личные данные</h6>
+                <p><strong>ID:</strong> {{ user.id }}</p>
+                <p><strong>Имя:</strong> {{ user.get_full_name|default:'Не указано' }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Телефон:</strong> {{ user.phone|default:'Не указан' }}</p>
+                <p><strong>Пол:</strong> {{ user.get_gender_display|default:'Не указан' }}</p>
+                <p><strong>Дата рождения:</strong> {{ user.birth_date|default:'Не указана' }}</p>
+            </div>
+
+            {# Организации #}
+            <div class="col-md-6">
+                <h6 class="mb-3">Организации</h6>
+
+                {% if user.default_organization %}
+                    <p class="mb-1">
+                        <strong>Основная:</strong>
+                        {{ user.default_organization.name }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>ИНН:</strong>
+                        {{ user.default_organization.inn }}
+                    </p>
+                    {% if user.default_organization.kpp %}
+                        <p class="mb-1">
+                            <strong>КПП:</strong>
+                            {{ user.default_organization.kpp }}
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted mb-2">Организации не добавлены</p>
+                {% endif %}
+
+                <div class="mt-3">
+                    <a href="{% url 'users:organizations' %}"
+                       class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-building me-1"></i>
+                        Мои организации
+                        {% if user.organizations.count %}
+                            ({{ user.organizations.count }})
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

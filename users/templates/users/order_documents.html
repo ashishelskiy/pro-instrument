@@ -1,0 +1,52 @@
+{% extends 'users/base_cabinet.html' %}
+{% load static %}
+
+{% block title %}Документы по заказам - PRO-инструмент{% endblock %}
+
+{% block cabinet_content %}
+<div class="card">
+    <div class="card-header" style="background-color: #f8f9fa;">
+        <h5 class="mb-0">Документы по заказам</h5>
+    </div>
+    <div class="card-body">
+
+        {% if orders %}
+            {% for order in orders %}
+                <div class="card mb-3 org-card">
+                    <div class="card-body">
+
+                        <div class="org-card__head">
+                            <div>
+                                <h5 class="org-card__name">Заказ №{{ order.pk }}</h5>
+                                <p class="org-card__requisites">
+                                    от {{ order.created_at|date:"d.m.Y" }}
+                                    {% if order.organization %}
+                                        · 🏢 {{ order.organization.name }}
+                                    {% else %}
+                                        · 👤 Физическое лицо
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-3 flex-wrap">
+                            <a href="{% url 'orders:order_invoice' order.pk %}"
+                               target="_blank"
+                               class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-file-invoice"></i> Счёт
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-alt fa-4x mb-3" style="color: #dee2e6;"></i>
+                <p class="text-muted mb-0">Документов пока нет</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

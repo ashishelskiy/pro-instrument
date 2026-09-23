@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Корзина - PRO-инструмент{% endblock %}
+
+{% block breadcrumb_extra %}
+<li class="breadcrumb-item active">Корзина</li>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="fw-normal mb-4" style="color: #1c2126; font-size: 1.6rem;">
+    Корзина
+</h1>
+
+{% if cart.items.all %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">Фото</th>
+                    <th>Товар</th>
+                    <th>Цена</th>
+                    <th style="width: 160px;">Кол-во</th>
+                    <th>Сумма</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart.items.all %}
+                    <tr>
+                        <td>
+                            <a href="{{ item.product.get_absolute_url }}">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}"
+                                         alt="{{ item.product.name }}"
+                                         style="width: 60px; height: 60px; object-fit: contain; display: block;">
+                                {% else %}
+                                    <div style="width: 60px; height: 60px; background: #f8f9fa; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-image" style="color: #ced4da; font-size: 20px;"></i>
+                                    </div>
+                                {% endif %}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ item.product.get_absolute_url }}" style="color: #333; text-decoration: none;">
+                                {{ item.product.name }}
+                            </a>
+                            {% if item.product.article %}
+                                <div class="text-muted small">Арт. {{ item.product.article }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.product.price }} ₽</td>
+                        <td>
+                            <form method="post"
+                                  action="{% url 'cart:cart_update' item.id %}"
+                                  class="d-flex gap-1">
+                                {% csrf_token %}
+                                <input type="number"
+                                       name="quantity"
+                                       value="{{ item.quantity }}"
+                                       min="0"
+                                       class="form-control form-control-sm"
+                                       style="width: 70px;">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-sync"></i>
+                                </button>
+                            </form>
+                        </td>
+                        <td><strong>{{ item.subtotal }} ₽</strong></td>
+                        <td>
+                            <form method="post"
+                                  action="{% url 'cart:cart_remove' item.id %}"
+                                  class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="4" class="text-end">Итого:</th>
+                    <th colspan="2">{{ cart.total_price }} ₽</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <a href="{% url 'catalog:category_list' %}" class="btn btn-link">
+            ← Продолжить покупки
+        </a>
+        <a href="{% url 'orders:order_create' %}" class="btn btn-danger">
+            Оформить заказ
+        </a>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-4x mb-3" style="color: #dee2e6;"></i>
+        <p class="text-muted mb-3">Корзина пуста</p>
+        <a href="{% url 'catalog:index' %}" class="btn btn-danger">
+            Перейти в каталог
+        </a>
+    </div>
+{% endif %}
+
+{% endblock %}

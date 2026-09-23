@@ -1,0 +1,37 @@
+{% extends 'users/base_cabinet.html' %}
+{% load static %}
+
+{% block title %}Поддержка - PRO-инструмент{% endblock %}
+
+{% block cabinet_content %}
+<div class="card">
+    <div class="card-header" style="background-color: #f8f9fa;">
+        <h5 class="mb-0">Поддержка</h5>
+    </div>
+    <div class="card-body">
+
+        <p class="text-muted mb-4">
+            Если у вас есть вопросы или проблемы — напишите нам.
+        </p>
+
+        <div class="mb-3">
+            <p class="mb-1">
+                <i class="fas fa-envelope text-danger me-2"></i>
+                <strong>Email:</strong>
+                <a href="mailto:support@pro-instrument.ru">support@pro-instrument.ru</a>
+            </p>
+            <p class="mb-1">
+                <i class="fas fa-phone text-danger me-2"></i>
+                <strong>Телефон:</strong>
+                <a href="tel:+70000000000">+7 (000) 000-00-00</a>
+            </p>
+            <p class="mb-1">
+                <i class="fas fa-clock text-danger me-2"></i>
+                <strong>Время работы:</strong>
+                Пн–Пт, 9:00–18:00
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

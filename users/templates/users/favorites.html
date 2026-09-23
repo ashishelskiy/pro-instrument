@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Избранное - PRO-инструмент{% endblock %}
+
+{% block breadcrumb_extra %}
+<li class="breadcrumb-item active">Избранное</li>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="fw-normal mb-4" style="color: #1c2126; font-size: 1.6rem;">
+    Избранное
+</h1>
+
+{% if favorites %}
+    <div class="row">
+        <div class="col-md-9">
+            <div class="row">
+                {% for product in favorites %}
+                    <div class="col-6 col-md-4 col-lg-3 mb-4">
+                        <div class="card h-100 product-card d-flex flex-column">
+
+                            {# Картинка — ссылка на товар #}
+                            <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
+                                {% if product.image %}
+                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
+                                {% endif %}
+                            </a>
+
+                            <div class="card-body d-flex flex-column">
+
+                                {# Название — ссылка на товар #}
+                                <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
+                                    <h5 class="product-title">{{ product.name }}</h5>
+                                </a>
+
+                                {# Цена #}
+                                <div class="mb-1">
+                                    <span class="product-price">{{ product.price }} ₽</span>
+                                    {% if product.old_price %}
+                                    <br><span class="product-old-price">{{ product.old_price }} ₽</span>
+                                    {% endif %}
+                                </div>
+
+                                {# Артикул #}
+                                {% if product.article %}
+                                <div class="product-article">Арт: {{ product.article }}</div>
+                                {% endif %}
+
+                                {# Статус #}
+                                <div class="mb-1">
+                                    {% if product.in_stock %}
+                                    <span class="product-stock in-stock"><i class="fas fa-check-circle"></i> В наличии</span>
+                                    {% else %}
+                                    <span class="product-stock on-order"><i class="fas fa-clock"></i> Под заказ</span>
+                                    {% endif %}
+                                </div>
+
+                                {# Кнопки: корзина/уведомить + избранное #}
+                                <div class="d-flex gap-2 mt-auto">
+
+                                    {% if product.in_stock %}
+                                        <form method="post" action="{% url 'cart:cart_add' product.id %}" class="flex-grow-1">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-cart w-100">
+                                                <i class="fas fa-shopping-cart"></i> В корзину
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        {% if product.id in user_stock_notification_ids %}
+                                            <form method="post" action="{% url 'users:stock_notification_remove_by_product' product.id %}" class="w-100">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn-cart w-100" style="background: #adb5bd;">
+                                                    <i class="fas fa-times"></i> Отписаться
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <button type="button"
+                                                    class="btn-cart w-100"
+                                                    style="background: #666;"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#stockModal{{ product.id }}">
+                                                <i class="fas fa-bell"></i> Уведомить
+                                            </button>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <form method="post" action="{% url 'users:favorite_remove' product.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-fav btn-fav--active" title="Удалить из избранного">
+                                            <i class="fas fa-heart"></i>
+                                        </button>
+                                    </form>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        {% if not product.in_stock %}
+                            <div class="modal fade" id="stockModal{{ product.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form method="post" action="{% url 'users:stock_notification_add' product.id %}">
+                                            {% csrf_token %}
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Уведомить о поступлении</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p class="mb-3">Товар: <strong>{{ product.name|truncatechars:60 }}</strong></p>
+                                                <label class="form-label">Email</label>
+                                                <input type="email" name="email" class="form-control" required
+                                                       placeholder="your@email.com"
+                                                       value="{{ user.email|default:'' }}">
+                                                <p class="text-muted small mt-2 mb-0">
+                                                    Мы пришлём письмо, когда товар появится в наличии.
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                                <button type="submit" class="btn btn-danger">Подписаться</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-heart fa-4x mb-3" style="color: #dee2e6;"></i>
+        <p class="text-muted mb-3">В избранном пока нет товаров</p>
+        <a href="{% url 'catalog:index' %}" class="btn btn-danger">
+            Перейти в каталог
+        </a>
+    </div>
+{% endif %}
+
+{% endblock %}

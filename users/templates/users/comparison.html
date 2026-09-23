@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Сравнение товаров - PRO-инструмент{% endblock %}
+
+{% block breadcrumb_extra %}
+<li class="breadcrumb-item active">Сравнение</li>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="fw-normal mb-4" style="color: #1c2126; font-size: 1.6rem;">
+    Сравнение товаров
+</h1>
+
+{% if total_count %}
+    <div class="mb-3 text-start">
+        <a href="{% url 'users:comparison_clear' %}" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-trash"></i> Очистить всё
+        </a>
+    </div>
+{% endif %}
+
+{% if groups %}
+    <div class="row">
+        <div class="col-md-9">
+            {# ===== ВКЛАДКИ КАТЕГОРИЙ ===== #}
+            <ul class="comparison-tabs mb-3" id="comparisonTabs" role="tablist">
+                {% for group in groups %}
+                    <li class="comparison-tab__item" role="presentation">
+                        <button class="comparison-tab {% if forloop.first %}active{% endif %}"
+                                id="tab-{{ forloop.counter }}"
+                                data-bs-toggle="tab"
+                                data-bs-target="#pane-{{ forloop.counter }}"
+                                type="button"
+                                role="tab"
+                                aria-controls="pane-{{ forloop.counter }}"
+                                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                            {% if group.category %}
+                                <i class="fas fa-folder-open"></i>
+                            {% endif %}
+                            {{ group.category_name }}
+                            <span class="comparison-tab__badge">{{ group.products_count }}</span>
+                        </button>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {# ===== СОДЕРЖИМОЕ ВКЛАДОК ===== #}
+            <div class="tab-content" id="comparisonTabsContent">
+                {% for group in groups %}
+                    <div class="tab-pane fade {% if forloop.first %}show active{% endif %}"
+                         id="pane-{{ forloop.counter }}"
+                         role="tabpanel"
+                         aria-labelledby="tab-{{ forloop.counter }}"
+                         tabindex="0">
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th style="min-width: 180px; background: #f8f9fa;">Характеристика</th>
+                                        {% for product in group.products %}
+                                            <th style="min-width: 220px;">
+                                                <div class="position-relative">
+                                                    <form method="post"
+                                                          action="{% url 'users:comparison_remove' product.id %}"
+                                                          class="position-absolute" style="top: 0; right: 0;">
+                                                        {% csrf_token %}
+                                                        <button type="submit"
+                                                                class="btn btn-sm btn-link text-danger p-0"
+                                                                title="Удалить из сравнения">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+
+                                                    {% if product.image %}
+                                                        <a href="{% url 'catalog:product_detail' product.slug %}">
+                                                            <img src="{{ product.image.url }}"
+                                                                 alt="{{ product.name }}"
+                                                                 style="height: 100px; object-fit: contain; display: block; margin: 0 auto;">
+                                                        </a>
+                                                    {% endif %}
+
+                                                    <a href="{% url 'catalog:product_detail' product.slug %}"
+                                                       style="color: #333; text-decoration: none; font-size: 0.85rem; display: block; margin-top: 8px;">
+                                                        {{ product.name|truncatechars:60 }}
+                                                    </a>
+                                                </div>
+                                            </th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {# Цена #}
+                                    <tr>
+                                        <td style="background: #f8f9fa;"><strong>Цена</strong></td>
+                                        {% for product in group.products %}
+                                            <td>
+                                                <span class="product-price">{{ product.price }} ₽</span>
+                                                {% if product.old_price %}
+                                                    <br><span class="product-old-price">{{ product.old_price }} ₽</span>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+
+                                    {# Наличие #}
+                                    <tr>
+                                        <td style="background: #f8f9fa;"><strong>Наличие</strong></td>
+                                        {% for product in group.products %}
+                                            <td>
+                                                {% if product.in_stock %}
+                                                    <span class="product-stock in-stock">
+                                                        <i class="fas fa-check-circle"></i> В наличии
+                                                    </span>
+                                                {% else %}
+                                                    <span class="product-stock on-order">
+                                                        <i class="fas fa-clock"></i> Под заказ
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+
+                                    {# Бренд #}
+                                    <tr>
+                                        <td style="background: #f8f9fa;"><strong>Бренд</strong></td>
+                                        {% for product in group.products %}
+                                            <td>{{ product.brand.name|default:'—' }}</td>
+                                        {% endfor %}
+                                    </tr>
+
+                                    {# Артикул #}
+                                    <tr>
+                                        <td style="background: #f8f9fa;"><strong>Артикул</strong></td>
+                                        {% for product in group.products %}
+                                            <td>{{ product.article|default:'—' }}</td>
+                                        {% endfor %}
+                                    </tr>
+
+                                    {# Характеристики группы #}
+                                    {% for row in group.properties_table %}
+                                        <tr>
+                                            <td style="background: #f8f9fa;"><strong>{{ row.name }}</strong></td>
+                                            {% for value in row.values %}
+                                                <td>{{ value }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+
+                                    {# Кнопка «В корзину» #}
+                                    <tr>
+                                        <td style="background: #f8f9fa;"></td>
+                                        {% for product in group.products %}
+                                            <td>
+                                                {% if product.in_stock %}
+                                                    <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn-cart w-100">
+                                                            <i class="fas fa-shopping-cart"></i> В корзину
+                                                        </button>
+                                                    </form>
+                                                {% else %}
+                                                    <span class="text-muted small">Под заказ</span>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-chart-simple fa-4x mb-3" style="color: #dee2e6;"></i>
+        <p class="text-muted mb-3">В сравнении пока нет товаров</p>
+        <a href="{% url 'catalog:index' %}" class="btn btn-danger">
+            Перейти в каталог
+        </a>
+    </div>
+{% endif %}
+
+<style>
+    /* ===== ТАБЛИЦА ===== */
+    .comparison-table th,
+    .comparison-table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .comparison-table td:first-child {
+        text-align: left;
+    }
+
+    /* ===== ВКЛАДКИ ===== */
+    .comparison-tabs {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 4px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        padding: 0;
+        margin: 0 0 1rem 0;
+        list-style: none;
+        scrollbar-width: thin;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .comparison-tab__item {
+        flex-shrink: 0;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .comparison-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+        color: #6c757d;
+        font-family: inherit;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        white-space: nowrap;
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.15s, border-color 0.15s;
+    }
+
+    .comparison-tab:hover {
+        color: #212529;
+        border-bottom-color: #ced4da;
+        background: transparent;
+        text-decoration: none;
+    }
+
+    .comparison-tab:focus,
+    .comparison-tab:focus-visible {
+        outline: none;
+        box-shadow: none;
+        color: #212529;
+    }
+
+    .comparison-tab.active {
+        color: #212529;
+        font-weight: 500;
+        border-bottom-color: #6c757d;
+        background: transparent;
+    }
+
+    .comparison-tab__badge {
+        display: inline-block;
+        padding: 1px 7px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #fff;
+        background: #adb5bd;
+        border-radius: 10px;
+        line-height: 1.4;
+    }
+
+    .comparison-tab.active .comparison-tab__badge {
+        background: #6c757d;
+    }
+
+    /* Скроллбар вкладок (WebKit) */
+    .comparison-tabs::-webkit-scrollbar {
+        height: 6px;
+    }
+    .comparison-tabs::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+    }
+</style>
+
+{% endblock %}

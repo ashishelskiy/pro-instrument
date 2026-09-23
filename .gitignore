@@ -1,7 +1,6 @@
 # Виртуальное окружение
 venv/
 env/
-.env/
 .venv/
 
 # Python
@@ -35,17 +34,13 @@ db.sqlite3-journal
 *.log
 logs/
 
-# Медиа файлы (если есть)
+# Медиа файлы (загружаются пользователями, не хранятся в Git)
 media/
 uploads/
 
-# Django
+# Собранная статика (генерируется collectstatic)
 staticfiles/
-#static/
 
 # Файлы отладки
 .DS_Store
 Thumbs.db
-
-*.json
-!requirements.txt

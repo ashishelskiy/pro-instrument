@@ -4,13 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}PRO-инструмент{% endblock %}</title>
+    <title>{% block title %}{{ site_settings.site_name }}{% endblock %}</title>
     <meta name="description" content="{% block description %}Интернет-магазин профессионального инструмента{% endblock %}">
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'users/css/users.css' %}">
 
     <style>
         /* ============================================================
@@ -30,6 +31,7 @@
             line-height: 1.42857143;
             color: #333;
             background: #fff;
+            -webkit-text-size-adjust: 100%;
         }
 
         a {
@@ -51,12 +53,6 @@
             list-style: none;
         }
 
-        /*.container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }*/
-
         .visually-hidden {
             position: absolute !important;
             width: 1px !important;
@@ -77,7 +73,6 @@
             position: relative;
         }
 
-        /* ----- ВЕРХНЯЯ ПАНЕЛЬ ----- */
         .header__top {
             background: #000;
             padding: 8px 0;
@@ -91,7 +86,6 @@
             flex-wrap: wrap;
         }
 
-        /* Социальные иконки */
         .social-icons {
             display: flex;
             gap: 10px;
@@ -109,7 +103,6 @@
             text-decoration: none;
         }
 
-        /* Аккаунт */
         .header__account .account-link {
             color: #fff;
             font-family: "poster-gothic-atf", sans-serif;
@@ -132,7 +125,6 @@
             text-decoration: none;
         }
 
-        /* ----- ОСНОВНАЯ ЧАСТЬ ШАПКИ ----- */
         .header__main {
             display: flex;
             align-items: center;
@@ -142,7 +134,6 @@
             background: #000;
         }
 
-        /* Бургер-кнопка (для мобильных) */
         .nav-toggle {
             display: none;
             flex-direction: column;
@@ -165,7 +156,6 @@
             border-radius: 2px;
         }
 
-        /* Логотип */
         .logo {
             flex-shrink: 0;
         }
@@ -175,7 +165,6 @@
             height: auto;
         }
 
-        /* Поиск */
         .search-block {
             flex: 1;
             max-width: 600px;
@@ -217,7 +206,6 @@
             color: #666;
         }
 
-        /* Корзина */
         .cart-icon {
             display: flex;
             align-items: center;
@@ -264,7 +252,6 @@
             margin-right: 8px;
         }
 
-        /* ----- ПРОМО-БАННЕР (под шапкой) ----- */
         .promo-banner {
             background: #d6d9e1;
             padding: 8px 0;
@@ -283,7 +270,7 @@
         }
 
         /* ============================================================
-           НАВИГАЦИЯ (С fullmenu-bg.png)
+           НАВИГАЦИЯ
            ============================================================ */
         .nav {
             background: #d82a20;
@@ -309,7 +296,7 @@
 
         .nav__item {
             margin: 0;
-            padding 0;
+            padding: 0;
         }
 
         .nav__link {
@@ -324,7 +311,6 @@
             transition: background 0.3s;
         }
 
-        /* Разделители между пунктами */
         .nav__item:not(:last-child) .nav__link::before {
             content: '';
             position: absolute;
@@ -341,7 +327,6 @@
             text-decoration: none;
         }
 
-        /* Выделенный пункт "Top Tool Deals" */
         .nav__item--highlight .nav__link {
             background: #000;
         }
@@ -350,7 +335,6 @@
             background: #1a1a1a;
         }
 
-        /* ----- ВЫПАДАЮЩЕЕ МЕНЮ (Megamenu) ----- */
         .nav__submenu {
             display: none;
             position: absolute;
@@ -415,7 +399,297 @@
         }
 
         /* ============================================================
-           АДАПТИВ (мобильные)
+           АККАУНТ В ШАПКЕ
+           ============================================================ */
+        .header__account-wrap {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-shrink: 0;
+        }
+
+        .header__icon-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .header__icon-link:hover {
+            text-decoration: none;
+        }
+
+        .info-account {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .header__icon-title {
+            color: #fff;
+            font-family: "poster-gothic-atf", sans-serif;
+            font-size: 14px;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
+        .header__icon-title--name {
+            text-transform: none;
+        }
+
+        .header__icon-login {
+            font-size: 12px;
+        }
+
+        .header__icon-status {
+            color: #999;
+            text-decoration: none;
+            text-transform: none;
+        }
+
+        /* --- Аккаунт с выпадающим меню --- */
+        .header__account-dropdown {
+            position: relative;
+        }
+
+        .header__account-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .header__account-toggle:hover {
+            text-decoration: none;
+        }
+
+        .header__caret {
+            font-size: 10px;
+            margin-left: 4px;
+            opacity: 0.7;
+            transition: transform 0.2s;
+        }
+
+        .header__account-dropdown.is-open .header__caret {
+            transform: rotate(180deg);
+        }
+
+        /* --- Выпадающее меню --- */
+        .header__dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 280px;
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            padding: 6px 0;
+            z-index: 1000;
+            overflow: hidden;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .header__account-dropdown.is-open .header__dropdown-menu {
+            display: block;
+        }
+
+        .header__dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: #333;
+            font-size: 14px;
+            text-decoration: none;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            font-family: inherit;
+            touch-action: manipulation;
+        }
+
+        .header__dropdown-item i {
+            width: 16px;
+            color: #d82a20;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .header__dropdown-item:hover {
+            background: #f5f5f5;
+            color: #d82a20;
+            text-decoration: none;
+        }
+
+        .header__dropdown-item--logout {
+            color: #333;
+        }
+
+        .header__dropdown-item--logout:hover {
+            background: #f5f5f5;
+        }
+
+        .header__dropdown-divider {
+            height: 1px;
+            background: #eee;
+            margin: 4px 0;
+        }
+
+        /* --- Заголовок раздела "Организации" в меню --- */
+        .header__dropdown-section {
+            padding: 8px 16px 4px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+            font-weight: 700;
+        }
+
+        /* --- Пункт-организация --- */
+        .header__org-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 16px;
+            color: #333;
+            font-size: 13px;
+            text-decoration: none;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            font-family: inherit;
+            line-height: 1.3;
+            touch-action: manipulation;
+        }
+
+        .header__org-item:hover {
+            background: #f5f5f5;
+            color: #d82a20;
+            text-decoration: none;
+        }
+
+        .header__org-item i {
+            width: 16px;
+            color: #d82a20;
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .header__org-item.is-active {
+            color: #333;
+            cursor: default;
+        }
+
+        .header__org-item.is-active:hover {
+            background: #f5f5f5;
+        }
+
+        .header__org-item-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .header__org-item-name {
+            font-size: 13px;
+        }
+
+        .header__org-item-inn {
+            font-size: 11px;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .header__org-item.is-active .header__org-item-inn {
+            font-size: 11px;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .header__org-form {
+            margin: 0;
+            padding: 0;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            background: #d82a20;
+            color: #fff;
+            border-radius: 50%;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .comparison-badge {
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            background: #d82a20;
+            color: #fff;
+            border-radius: 50%;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ============================================================
+           УВЕДОМЛЕНИЯ (FIXED — не двигают контент)
+           ============================================================ */
+        .messages-fixed {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        .messages-fixed .alert {
+            pointer-events: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 10px;
+        }
+
+        /* ============================================================
+           МОБИЛЬНАЯ НИЖНЯЯ НАВИГАЦИЯ
+           ============================================================ */
+        .mobile-bottom-nav {
+            display: none; /* по умолчанию скрыта */
+        }
+
+        /* ============================================================
+           АДАПТИВ
            ============================================================ */
         @media (max-width: 1024px) {
             .header__main {
@@ -431,7 +705,14 @@
         }
 
         @media (max-width: 768px) {
-            /* Верхняя панель */
+            /* Уведомления на мобильных */
+            .messages-fixed {
+                top: 70px;
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+
             .header__top-inner {
                 justify-content: center;
             }
@@ -444,17 +725,14 @@
                 font-size: 20px;
             }
 
-            /* Бургер */
             .nav-toggle {
                 display: flex;
             }
 
-            /* Логотип меньше */
             .logo img {
                 max-width: 130px;
             }
 
-            /* Корзина — только иконка */
             .cart-icon__text {
                 display: none;
             }
@@ -465,7 +743,6 @@
                 font-size: 12px;
             }
 
-            /* Навигация становится вертикальной */
             .nav {
                 padding-top: 0;
                 margin-top: 0;
@@ -496,7 +773,6 @@
                 display: none;
             }
 
-            /* Подменю на мобилках */
             .nav__submenu {
                 display: none !important;
                 position: relative;
@@ -511,7 +787,6 @@
                 display: none !important;
             }
 
-            /* Открываем подменю по клику через JS */
             .nav__item--open .nav__submenu {
                 display: block !important;
             }
@@ -550,6 +825,156 @@
             .promo-banner p {
                 font-size: 13px;
             }
+
+            /* ============================================================
+               УПРОЩАЕМ ШАПКУ НА МОБИЛЬНЫХ
+               ============================================================ */
+
+            /* Скрываем имя и подпись под иконкой аккаунта */
+            .header__account-wrap .info-account {
+                display: none;
+            }
+
+            /* Скрываем подпись "Корзина" */
+            .header__icon-title {
+                display: none;
+            }
+
+            /* Иконки аккаунта и корзины компактнее */
+            .header__account-toggle img,
+            .header__icon-link img {
+                width: 30px;
+                height: 30px;
+            }
+
+            /* Скрываем стрелку-каретку у аккаунта */
+            .header__caret {
+                display: none;
+            }
+
+            /* ============================================================
+               МОБИЛЬНОЕ МЕНЮ АККАУНТА
+               ============================================================ */
+            .header__dropdown-menu {
+                position: fixed;
+                top: 60px;
+                left: 8px;
+                right: 8px;
+                min-width: 0;
+                width: auto;
+                max-height: 70vh;
+                overflow-y: auto;
+                z-index: 2000;
+            }
+
+            .header__dropdown-item,
+            .header__org-item {
+                color: #333;
+            }
+
+            .header__dropdown-item:hover,
+            .header__org-item:hover {
+                background: #f5f5f5;
+            }
+
+            .header__org-item.is-active {
+                background: #fff5f4;
+                color: #d82a20;
+            }
+
+            /* ============================================================
+               НИЖНЯЯ НАВИГАЦИЯ
+               ============================================================ */
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 60px;
+                background: #fff;
+                border-top: 1px solid #e0e0e0;
+                box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+                z-index: 999;
+                padding-bottom: env(safe-area-inset-bottom, 0);
+                transform: translateZ(0);
+            }
+
+            .mobile-nav-item {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 2px;
+                color: #666;
+                font-size: 11px;
+                text-decoration: none;
+                -webkit-tap-highlight-color: transparent;
+                transition: color 0.15s;
+            }
+
+            .mobile-nav-item i {
+                font-size: 20px;
+            }
+
+            .mobile-nav-item.active,
+            .mobile-nav-item:active {
+                color: #d82a20;
+            }
+
+            .mobile-nav-item span {
+                line-height: 1;
+            }
+
+            /* Отступ снизу для контента */
+            body {
+                padding-bottom: 60px;
+            }
+
+            /* ============================================================
+               СКРЫВАЕМ ВЕРХНЕЕ МЕНЮ НА МОБИЛЬНЫХ
+               ============================================================ */
+            .sections.nav-sections {
+                display: none;
+            }
+
+            /* ============================================================
+               СКРЫВАЕМ АККАУНТ И КОРЗИНУ ИЗ ШАПКИ
+               (они есть в нижней навигации)
+               ============================================================ */
+            .header__auth-block,
+            .header__cart-link {
+                display: none !important;
+            }
+
+            /* ============================================================
+               ПЕРЕНОС ПОИСКА НА ВТОРУЮ СТРОКУ
+               ============================================================ */
+            .header.content {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 10px 15px 12px;
+                gap: 10px;
+            }
+
+            .header.content .navbar-brand {
+                order: 1;
+                flex: 0 0 auto;
+            }
+
+            .header.content .flex-grow-1 {
+                order: 3;
+                flex-basis: 100%;
+                max-width: 100%;
+                margin: 0;
+            }
+
+            .header.content .header__auth-block,
+            .header.content .header__cart-link {
+                order: 2;
+            }
+
         }
 
         @media (max-width: 480px) {
@@ -557,6 +982,54 @@
                 max-width: 100px;
             }
         }
+
+        /* ============================================================
+           ПЛАНШЕТ (портрет): 769px – 1024px
+           ============================================================ */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .header__cart-link .header__icon-title {
+                display: none;
+            }
+
+            .header__account-wrap .info-account {
+                display: none;
+            }
+
+            .header__caret {
+                display: none;
+            }
+
+            .mobile-bottom-nav {
+                display: none !important;
+            }
+
+            body {
+                padding-bottom: 0;
+            }
+
+            /* ФИКС: меню аккаунта не вылазит за экран */
+            .header__dropdown-menu {
+                position: fixed;
+                top: 70px;
+                right: 10px;
+                left: auto;
+                width: 320px;              /* фиксированная ширина вместо min-width */
+                max-width: calc(100vw - 20px);
+                max-height: 70vh;
+                overflow-y: auto;
+                z-index: 2000;
+            }
+
+            /* Названия организаций и пункты меню — переносим на новую строку */
+            .header__dropdown-menu .header__org-item-name,
+            .header__dropdown-menu .header__dropdown-item,
+            .header__dropdown-menu .header__org-item-text {
+                white-space: normal;
+                word-break: break-word;
+                overflow-wrap: anywhere;
+            }
+        }
+    </style>
     </style>
 </head>
 <body>
@@ -578,33 +1051,233 @@
                 </button>
             </form>
         </div>
-        <!--                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" style="width: 40px; height: 40px; fill: #ffffff; flex-shrink: 0;">&lt;!&ndash;!Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.&ndash;&gt;<path d="M463 448.2C440.9 409.8 399.4 384 352 384L288 384C240.6 384 199.1 409.8 177 448.2C212.2 487.4 263.2 512 320 512C376.8 512 427.8 487.3 463 448.2zM64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576C178.6 576 64 461.4 64 320zM320 336C359.8 336 392 303.8 392 264C392 224.2 359.8 192 320 192C280.2 192 248 224.2 248 264C248 303.8 280.2 336 320 336z"/></svg>-->
-        <a href="#" class="header__icon-link" style="display: flex; align-items: center; text-decoration: none;">
-            <img src="{% static 'images/ico-account.png' %}" alt="Пользователь" width="35" height="35" style="display: block; flex-shrink: 0;">
-            <div class="info-account">
-                <span class="header__icon-title">Мой аккаунт</span>
-                <span class="header__icon-login">(Войти)</span>
+
+        <!-- ===== АККАУНТ ===== -->
+        {% if user.is_authenticated %}
+            <div class="header__account-wrap header__auth-block">
+
+                <div class="header__account-dropdown" id="accountDropdown">
+                    <button type="button"
+                            class="header__icon-link header__account-toggle"
+                            onclick="toggleAccountMenu(event)"
+                            aria-expanded="false">
+<!--                        <img src="{% static 'images/ico-account.png' %}"-->
+<!--                             alt="Пользователь" width="35" height="35">-->
+    {% if user.default_organization %}
+    <span style="
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+        background: #fff;
+        border-radius: 50%;
+        flex-shrink: 0;
+    ">
+        <i class="fas fa-briefcase" style="font-size: 16px; color: #000;"></i>
+    </span>
+{% else %}
+    <span style="
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+        background: #fff;
+        border-radius: 50%;
+        flex-shrink: 0;
+    ">
+        <i class="fas fa-user" style="font-size: 16px; color: #000;"></i>
+    </span>
+{% endif %}
+                        <div class="info-account">
+                            <span class="header__icon-title header__icon-title--name">
+                                {{ user.get_header_name }}
+                                <i class="fas fa-caret-down header__caret"></i>
+                            </span>
+                            <span class="header__icon-status">{{ user.get_header_subtitle }}</span>
+                        </div>
+                    </button>
+
+                    <div class="header__dropdown-menu" id="accountMenu">
+
+                        {# ===== ВЫБРАННОЕ — САМАЯ ПЕРВАЯ СТРОКА МЕНЮ ===== #}
+                        {% if user.default_organization %}
+                            {# Выбрана организация #}
+                            {% for org in user.organizations.all %}
+                                {% if org.is_default %}
+                                    <div class="header__org-item is-active" title="Текущая организация">
+                                        <i class="fas fa-briefcase"></i>
+                                        <span class="header__org-item-text">
+                                            <span class="header__org-item-name">{{ org.name }}</span>
+                                            <span class="header__org-item-inn">ИНН {{ org.inn }}</span>
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {# Выбрано физлицо #}
+                            <div class="header__org-item is-active" title="Текущий выбор">
+                                <i class="fas fa-user"></i>
+                                <span class="header__org-item-text">
+                                    <span class="header__org-item-name">{{ user.get_display_name }} (физлицо)</span>
+                                </span>
+                            </div>
+                        {% endif %}
+
+<!--                        <div class="header__dropdown-divider"></div>-->
+
+                        {# ===== ОБЫЧНЫЕ ПУНКТЫ МЕНЮ ===== #}
+                        <a href="{% url 'users:profile' %}" class="header__dropdown-item">
+                            Мой кабинет
+                        </a>
+                        <a href="{% url 'users:organizations' %}" class="header__dropdown-item">
+                            Мои организации
+                        </a>
+                        <a href="{% url 'users:orders' %}" class="header__dropdown-item">
+                            Мои заказы
+                        </a>
+                        <a href="{% url 'users:favorites' %}" class="header__dropdown-item">
+                            Избранное
+                        </a>
+
+                        {# ===== РАЗДЕЛ «МОИ ОРГАНИЗАЦИИ» ===== #}
+                        <div class="header__dropdown-section">Мои организации</div>
+
+                        {# ---------- 1. ОРГАНИЗАЦИИ (все, кроме выбранной) ---------- #}
+                        {% for org in user.organizations.all %}
+                            {% if not org.is_default %}
+                                <form method="post"
+                                      action="{% url 'users:organization_set_default' org.pk %}"
+                                      class="header__org-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="header__org-item">
+                                        <i class="fas fa-briefcase"></i>
+                                        <span class="header__org-item-text">
+                                            <span class="header__org-item-name">{{ org.name }}</span>
+                                            <span class="header__org-item-inn">ИНН {{ org.inn }}</span>
+                                        </span>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% endfor %}
+
+                        {# ---------- 2. КНОПКА «+ Добавить новую организацию» ---------- #}
+                        <a href="{% url 'users:organization_add' %}" class="header__dropdown-item">
+                            <i class="fas fa-plus" style="color: inherit;"></i> Добавить новую организацию
+                        </a>
+
+                        {# ---------- 3. ФИЗЛИЦО — только если оно НЕ выбрано ---------- #}
+                        {% if user.default_organization %}
+                            <form method="post"
+                                  action="{% url 'users:organization_unset_default' %}"
+                                  class="header__org-form">
+                                {% csrf_token %}
+                                <button type="submit" class="header__org-item">
+                                    <i class="fas fa-user"></i>
+                                    <span class="header__org-item-text">
+                                        <span class="header__org-item-name">{{ user.get_display_name }} (физлицо)</span>
+                                    </span>
+                                </button>
+                            </form>
+                        {% endif %}
+
+<!--                        <div class="header__dropdown-divider"></div>-->
+
+                        {# ===== ВЫХОД ===== #}
+                        <form method="post" action="{% url 'users:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="header__dropdown-item header__dropdown-item--logout">
+                                Выход
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
             </div>
-        </a>
-        <a href="#" class="header__icon-link" style="display: flex; align-items: center; text-decoration: none;">
-            <img src="{% static 'images/toolbox-icon.png' %}" alt="Корзина" width="35" height="35" style="display: block; flex-shrink: 0;">
+        {% else %}
+            <a href="{% url 'users:login' %}" class="header__icon-link header__auth-block" style="display:flex;align-items:center;text-decoration:none;">
+                <img src="{% static 'images/ico-account.png' %}" alt="Пользователь" width="35" height="35">
+                <div class="info-account">
+                    <span class="header__icon-title">Мой аккаунт</span>
+                    <span class="header__icon-login">(Войти)</span>
+                </div>
+            </a>
+        {% endif %}
+
+<!--        <a href="{% url 'cart:cart_detail' %}" class="header__icon-link header__cart-link" style="display: flex; align-items: center; text-decoration: none;">-->
+<!--            <img src="{% static 'images/toolbox-icon.png' %}" alt="Корзина" width="35" height="35" style="display: block; flex-shrink: 0;">-->
+<!--            <span class="header__icon-title">Корзина</span>-->
+<!--        </a>-->
+        <a href="{% url 'cart:cart_detail' %}" class="header__icon-link header__cart-link" style="display: flex; align-items: center; text-decoration: none;">
+            <span style="position: relative; display: inline-block; flex-shrink: 0;">
+                <img src="{% static 'images/toolbox-icon.png' %}" alt="Корзина" width="35" height="35" style="display: block;">
+                {% if cart_total_items %}
+                    <span class="cart-badge">{{ cart_total_items }}</span>
+                {% endif %}
+            </span>
             <span class="header__icon-title">Корзина</span>
         </a>
 
+        {# Избранное #}
+        <a href="{% url 'users:favorites' %}" class="header__icon-link header__cart-link" style="display: flex; align-items: center; text-decoration: none;">
+            <span style="position: relative; display: inline-block; flex-shrink: 0;">
+                <span style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 35px;
+                    height: 35px;
+                    background: #fff;
+                    border-radius: 50%;
+                ">
+                    {% if favorites_count %}
+                        <i class="fas fa-heart" style="font-size: 16px; color: #000;"></i>
+                    {% else %}
+                        <i class="far fa-heart" style="font-size: 16px; color: #000;"></i>
+                    {% endif %}
+                </span>
+                {% if favorites_count %}
+                    <span class="cart-badge">{{ favorites_count }}</span>
+                {% endif %}
+            </span>
+        </a>
+
+        {# Сравнение #}
+        <a href="{% url 'users:comparison' %}" class="header__icon-link header__cart-link" style="display: flex; align-items: center; text-decoration: none;">
+            <span style="position: relative; display: inline-block; flex-shrink: 0;">
+                <span style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 35px;
+                    height: 35px;
+                    background: #fff;
+                    border-radius: 50%;
+                ">
+                    {% if comparison_count %}
+                        <i class="fas fa-chart-simple" style="font-size: 16px; color: #000;"></i>
+                    {% else %}
+                        <i class="fas fa-chart-simple" style="font-size: 16px; color: #000;"></i>
+                    {% endif %}
+                </span>
+                {% if comparison_count %}
+                    <span class="cart-badge">{{ comparison_count }}</span>
+                {% endif %}
+            </span>
+        </a>
 
     </div>
         </header>
 
-        <!-- ===== НАВИГАЦИЯ (НОВОЕ МЕНЮ) ===== -->
+        <!-- ===== НАВИГАЦИЯ ===== -->
         <div class="sections nav-sections">
             <div class="section-items nav-sections-items">
-
                 <div class="section-item-content nav-sections-item-content">
                     <nav class="navigation">
                         <ul class="nav__list">
-                            <!-- Каталог (с подменю) -->
                             <li class="nav__item nav__item--has-submenu">
-                                <a href="{% url 'catalog:index' %}" class="nav__link">
+                                <a href="{% url 'catalog:category_list' %}" class="nav__link">
                                     <span>Каталог</span>
                                 </a>
                                 <div class="nav__submenu">
@@ -624,24 +1297,20 @@
                                 </div>
                             </li>
 
-                            <!-- О компании -->
                             <li class="nav__item">
-                                <a href="/about/" class="nav__link">О компании</a>
+                                <a href="{% url 'pages:page_detail' slug='about' %}" class="nav__link">О компании</a>
                             </li>
 
-                            <!-- Новости -->
                             <li class="nav__item">
-                                <a href="/news/" class="nav__link">Новости</a>
+                                <a href="{% url 'pages:news_list' %}" class="nav__link">Новости</a>
                             </li>
 
-                            <!-- Оплата и доставка -->
                             <li class="nav__item">
-                                <a href="/delivery/" class="nav__link">Оплата и доставка</a>
+                                <a href="{% url 'pages:page_detail' slug='delivery' %}" class="nav__link">Оплата и доставка</a>
                             </li>
 
-                            <!-- Контакты -->
                             <li class="nav__item">
-                                <a href="/contacts/" class="nav__link">Контакты</a>
+                                <a href="{% url 'pages:page_detail' slug='contacts' %}" class="nav__link">Контакты</a>
                             </li>
                         </ul>
                     </nav>
@@ -649,24 +1318,156 @@
             </div>
         </div>
 
-        <!-- ===== MAIN ===== -->
+        {% if messages %}
+            <div class="messages-fixed">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show d-flex align-items-center" role="alert">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                        {% elif message.tags == 'info' %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         <main>
-    <div class="container-fluid mt-4">
-        <div class="row">
-            <section class="col-12">
-                {% block content %}{% endblock %}
-            </section>
-        </div>
-    </div>
-</main>
+            <div class="container-fluid mt-4">
+                {% block breadcrumb %}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">Главная</a></li>
+                        {% block breadcrumb_extra %}{% endblock %}
+                    </ol>
+                </nav>
+                {% endblock %}
+                <div class="row">
+                    <section class="col-12">
+                        {% block content %}{% endblock %}
+                    </section>
+                </div>
+            </div>
+        </main>
 
         <footer class="footer">
             <div class="container">
-                <div class="copyright">© 2026 pro-instrument.ru<br>ООО "ЭКСИНУС"</div>
+                <div class="copyright">
+                    © 2026 {{ site_settings.site_name }}<br>
+                    {{ site_settings.company_name|default:'ООО "ЭКСИНУС"' }}
+                </div>
+                <div class="footer-contacts">
+                    {% if site_settings.phone %}
+                        <div><i class="fas fa-phone"></i> {{ site_settings.phone }}</div>
+                    {% endif %}
+                    {% if site_settings.email %}
+                        <div><i class="fas fa-envelope"></i> <a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a></div>
+                    {% endif %}
+                </div>
+                <div class="footer-links">
+                    <a href="{% url 'pages:page_detail' slug='offer' %}">Публичная оферта</a>
+                    <span style="margin: 0 8px; opacity: 0.5;">|</span>
+                    <a href="{% url 'pages:page_detail' slug='privacy' %}">Политика конфиденциальности</a>
+                    <span style="margin: 0 8px; opacity: 0.5;">|</span>
+                    <a href="{% url 'users:price_request' %}">Запросить цену</a>
+                </div>
             </div>
         </footer>
+
+        <!-- ===== МОБИЛЬНАЯ НИЖНЯЯ НАВИГАЦИЯ ===== -->
+        <nav class="mobile-bottom-nav">
+            <a href="{% url 'catalog:index' %}"
+               class="mobile-nav-item {% if request.resolver_match.app_name == 'catalog' and request.resolver_match.url_name == 'index' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                <span>Главная</span>
+            </a>
+            <a href="{% url 'catalog:category_list' %}"
+               class="mobile-nav-item {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}">
+                <i class="fas fa-th-large"></i>
+                <span>Каталог</span>
+            </a>
+<!--            <a href="{% url 'cart:cart_detail' %}"-->
+<!--               class="mobile-nav-item {% if request.resolver_match.app_name == 'users' and request.resolver_match.url_name == 'cart' %}active{% endif %}">-->
+<!--                <i class="fas fa-shopping-cart"></i>-->
+<!--                <span>Корзина</span>-->
+<!--            </a>-->
+            <a href="{% url 'cart:cart_detail' %}"
+               class="mobile-nav-item {% if request.resolver_match.app_name == 'users' and request.resolver_match.url_name == 'cart' %}active{% endif %}"
+               style="position: relative;">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Корзина</span>
+                {% if cart_total_items %}
+                    <span class="cart-badge" style="top: 4px; right: 20%;">{{ cart_total_items }}</span>
+                {% endif %}
+            </a>
+
+<!--            <a href="{% url 'users:favorites' %}"-->
+<!--               class="mobile-nav-item {% if request.resolver_match.url_name == 'favorites' %}active{% endif %}">-->
+<!--                <i class="fas fa-heart"></i>-->
+<!--                <span>Избранное</span>-->
+<!--            </a>-->
+            <a href="{% url 'users:favorites' %}"
+               class="mobile-nav-item {% if request.resolver_match.url_name == 'favorites' %}active{% endif %}"
+               style="position: relative;">
+                <i class="fas fa-heart"></i>
+                <span>Избранное</span>
+                {% if favorites_count %}
+                    <span class="cart-badge" style="top: 4px; right: 20%;">{{ favorites_count }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'users:profile' %}"
+               class="mobile-nav-item {% if request.resolver_match.app_name == 'users' and request.resolver_match.url_name != 'favorites' %}active{% endif %}">
+                <i class="fas fa-user"></i>
+                <span>Профиль</span>
+            </a>
+        </nav>
     </div>
+
+    {# Модалки — в конце body, вне контейнеров #}
+    {% block modals %}{% endblock %}
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/main.js' %}"></script>
+
+    <script>
+    function toggleAccountMenu(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const dropdown = document.getElementById('accountDropdown');
+        if (!dropdown) return;
+        dropdown.classList.toggle('is-open');
+        const toggle = dropdown.querySelector('.header__account-toggle');
+        toggle.setAttribute('aria-expanded', dropdown.classList.contains('is-open'));
+    }
+
+    // Клик вне меню — закрыть
+    document.addEventListener('click', function (e) {
+        const dropdown = document.getElementById('accountDropdown');
+        if (!dropdown) return;
+        if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove('is-open');
+        }
+    });
+
+    // Esc — закрыть
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            const dropdown = document.getElementById('accountDropdown');
+            if (dropdown) dropdown.classList.remove('is-open');
+        }
+    });
+
+    setTimeout(() => {
+        document.querySelectorAll('.alert-dismissible').forEach(el => {
+            bootstrap.Alert.getOrCreateInstance(el).close();
+        });
+    }, 3000);
+    </script>
 </body>
 </html>

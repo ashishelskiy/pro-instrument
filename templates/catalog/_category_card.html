@@ -1,0 +1,17 @@
+{% load static %}
+<div class="category-card-horizontal">
+    <div class="category-card-inner">
+        <div class="category-image-wrapper-horizontal">
+            {% if category.image %}
+                <img src="{{ category.image.url }}" alt="{{ category.name }}">
+            {% else %}
+                <div class="category-image-placeholder-horizontal">
+                    <i class="fas {{ category.icon|default:'fa-folder-open' }}"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="category-content">
+            <h5 class="category-title">{{ category.name }}</h5>
+        </div>
+    </div>
+</div>

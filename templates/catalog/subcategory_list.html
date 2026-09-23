@@ -40,15 +40,15 @@
                             <!-- Текст -->
                             <div class="category-content">
                                 <h5 class="category-title">{{ subcategory.name }}</h5>
-                                <p class="category-subtitle">
-                                    {% with count=subcategory.products.count %}
-                                        {% if count > 0 %}
-                                            {{ count }} товар{{ count|pluralize:"а,ов" }}
-                                        {% else %}
-                                            Нет товаров
-                                        {% endif %}
-                                    {% endwith %}
-                                </p>
+<!--                                <p class="category-subtitle">-->
+<!--                                    {% with count=subcategory.products.count %}-->
+<!--                                        {% if count > 0 %}-->
+<!--                                            {{ count }} товар{{ count|pluralize:"а,ов" }}-->
+<!--                                        {% else %}-->
+<!--                                            Нет товаров-->
+<!--                                        {% endif %}-->
+<!--                                    {% endwith %}-->
+<!--                                </p>-->
                             </div>
                         </div>
                     </div>
