@@ -1,474 +1,62 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}PRO-инструмент - Интернет-магазин профессионального инструмента{% endblock %}
+{% block title %}Новости - PRO-инструмент{% endblock %}
 
 {% block content %}
-{% block breadcrumb %}{% endblock %}
-<!-- Десктоп: карусель категорий -->
-{% if categories %}
-    <div class="row mb-4 d-none d-md-block">
-    <div class="col-12">
-        <div id="categoriesCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
-            <div class="carousel-inner">
-                {% for category in categories %}
-                    {% if forloop.counter0|divisibleby:4 %}
-                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                            <div class="row g-3">
-                    {% endif %}
-
-                    <div class="col-md-3">
-                        <a href="{% url 'catalog:category_detail' category.slug %}" class="text-decoration-none">
-                            {% include 'catalog/_category_card.html' with category=category %}
-                        </a>
-                    </div>
-
-                    {% if forloop.counter0|add:1|divisibleby:4 or forloop.last %}
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-
-            <button class="carousel-control-prev" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Предыдущая</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Следующая</span>
-            </button>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<!-- Мобильные: горизонтальная скролл-лента -->
-{% if categories %}
-    <div class="d-md-none mb-4">
-        <div class="categories-scroll">
-            {% for category in categories %}
-                <a href="{% url 'catalog:category_detail' category.slug %}"
-                   class="category-scroll-item">
-                    {% include 'catalog/_category_card.html' with category=category %}
-                </a>
-            {% endfor %}
-        </div>
-    </div>
-{% endif %}
-
 <div class="row">
-    <aside class="col-lg-3 d-none d-lg-block">
-        <!-- КАТЕГОРИИ -->
-        {% if menu_data %}
-            <div class="sidebar-catalog">
-            <div class="sidebar-catalog__header">
-                <span class="sidebar-catalog__title">Категории</span>
-            </div>
-            <ul class="sidebar-catalog__list">
-                {% for item in menu_data %}
-                <li class="sidebar-catalog__item {% if item.has_children %}has-children{% endif %}">
-                    <a href="{% url 'catalog:category_detail' item.category.slug %}"
-                       class="sidebar-catalog__link {% if item.has_children %}has-children{% endif %}">
-                        <span class="sidebar-catalog__name">{{ item.category.name }}</span>
-                        {% if item.has_children %}
-                            <span class="sidebar-catalog__arrow">
-                                <i class="fas fa-chevron-down"></i>
-                            </span>
-                        {% endif %}
-                    </a>
-                    {% if item.has_children %}
-                    <ul class="sidebar-catalog__children">
-                        {% for sub in item.children %}
-                        <li class="sidebar-catalog__child">
-                            <a href="{% url 'catalog:category_detail' sub.slug %}" class="sidebar-catalog__child-link">
-                                <span class="sidebar-catalog__child-name">{{ sub.name }}</span>
-                                <span class="sidebar-catalog__child-count">({{ sub.products.count }})</span>
-                            </a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
+    <div class="col-12">
+        <h1 class="mb-4">Новости</h1>
 
-        <!-- ===== НОВОСТИ ===== -->
-        {% if latest_news %}
-            <div class="sidebar-news">
-            <div class="sidebar-news__header">
-                <span class="sidebar-news__title">Новости</span>
-                <a href="{% url 'pages:news_list' %}" class="sidebar-news__all">Все новости</a>
-            </div>
-            <div class="sidebar-news__list">
-                {% for news in latest_news %}
-                    <a href="{{ news.get_absolute_url }}" class="sidebar-news__item">
-                        <div class="sidebar-news__date">{{ news.published_at|date:"d.m.Y" }}</div>
-                        <div class="sidebar-news__title-text">{{ news.title|truncatechars:60 }}</div>
-                    </a>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- НОВИНКИ -->
-        {% if new_products %}
-            <div class="sidebar-new-products">
-                <div class="sidebar-new-products__header">
-                    <span class="sidebar-new-products__title">Новинки</span>
-    <!--                <a href="{% url 'catalog:index' %}" class="sidebar-new-products__all">Все</a>-->
-                </div>
-                <div class="sidebar-new-products__list">
-                    {% for product in new_products|slice:":3" %}
-                    <a href="{% url 'catalog:product_detail' product.slug %}" class="sidebar-new-products__item">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="sidebar-new-products__img">
-                        {% endif %}
-                        <div class="sidebar-new-products__info">
-                            <div class="sidebar-new-products__name">{{ product.name|truncatechars:30 }}</div>
-                            <div class="sidebar-new-products__price">{{ product.price }} ₽</div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
-    </aside>
-
-    <section class="col-12 col-lg-9">
-        <!-- ===== БАННЕР ===== -->
-        <div class="row">
-            <div class="col-12">
-                {% if banners %}
-                <div id="bannerCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
-                    <div class="carousel-indicators">
-                        {% for banner in banners %}
-                        <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
-                                {% if forloop.first %}class="active"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
-                        {% endfor %}
-                    </div>
-                    <div class="carousel-inner">
-                        {% for banner in banners %}
-                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                <a href="{{ banner.get_click_url }}">
-                                    <img src="{{ banner.image.url }}" class="d-block w-100" alt="{{ banner.title }}">
-                                </a>
-                                {% if banner.title or banner.description %}
-                                <div class="carousel-caption d-none d-md-block">
-                                    {% if banner.title %}<h5>{{ banner.title }}</h5>{% endif %}
-                                    {% if banner.description %}<p>{{ banner.description }}</p>{% endif %}
-                                </div>
+        {% if news_list %}
+            <div class="row g-4">
+                {% for news in news_list %}
+                    <div class="col-md-6 col-lg-4">
+                        <a href="{{ news.get_absolute_url }}" class="text-decoration-none">
+                            <div class="card h-100 product-card">
+                                {% if news.image %}
+                                    <img src="{{ news.image.url }}"
+                                         class="card-img-top"
+                                         alt="{{ news.title }}"
+                                         style="height: 200px; object-fit: cover;">
                                 {% endif %}
+                                <div class="card-body">
+                                    <div class="text-muted small mb-2">
+                                        {{ news.published_at|date:"d.m.Y" }}
+                                    </div>
+                                    <h5 class="product-title">{{ news.title }}</h5>
+                                    {% if news.short_description %}
+                                        <p class="text-muted small mb-0">
+                                            {{ news.short_description|truncatechars:120 }}
+                                        </p>
+                                    {% endif %}
+                                </div>
                             </div>
-                            {% endfor %}
-                    </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Предыдущий</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Следующий</span>
-                    </button>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- ===== BENTO КАРТОЧКИ КАТЕГОРИЙ ===== -->
-<!--        {% if category_cards %}-->
-<!--        <div class="row">-->
-<!--            <div class="col-12">-->
-<!--                <div class="bento-categories">-->
-<!--                    <div class="bento-grid">-->
-<!--                        <a href="{{ category_cards.0.link }}" class="bento-card bento-1">-->
-<!--                            <img src="{{ category_cards.0.image }}" alt="{{ category_cards.0.title }}">-->
-<!--                            <div class="bento-card-overlay"></div>-->
-<!--                            <div class="bento-card-content"><h3>{{ category_cards.0.title }}</h3></div>-->
-<!--                        </a>-->
-<!--                        <a href="{{ category_cards.1.link }}" class="bento-card bento-2">-->
-<!--                            <img src="{{ category_cards.1.image }}" alt="{{ category_cards.1.title }}">-->
-<!--                            <div class="bento-card-overlay"></div>-->
-<!--                            <div class="bento-card-content"><h3>{{ category_cards.1.title }}</h3></div>-->
-<!--                        </a>-->
-<!--                        <a href="{{ category_cards.2.link }}" class="bento-card bento-3">-->
-<!--                            <img src="{{ category_cards.2.image }}" alt="{{ category_cards.2.title }}">-->
-<!--                            <div class="bento-card-overlay"></div>-->
-<!--                            <div class="bento-card-content"><h3>{{ category_cards.2.title }}</h3></div>-->
-<!--                        </a>-->
-<!--                        <a href="{{ category_cards.3.link }}" class="bento-card bento-4">-->
-<!--                            <img src="{{ category_cards.3.image }}" alt="{{ category_cards.3.title }}">-->
-<!--                            <div class="bento-card-overlay"></div>-->
-<!--                            <div class="bento-card-content"><h3>{{ category_cards.3.title }}</h3></div>-->
-<!--                        </a>-->
-<!--                        <a href="{{ category_cards.4.link }}" class="bento-card bento-5">-->
-<!--                            <img src="{{ category_cards.4.image }}" alt="{{ category_cards.4.title }}">-->
-<!--                            <div class="bento-card-overlay"></div>-->
-<!--                            <div class="bento-card-content"><h3>{{ category_cards.4.title }}</h3></div>-->
-<!--                        </a>-->
-<!--                        <a href="{{ category_cards.5.link }}" class="bento-card bento-6">-->
-<!--                            <img src="{{ category_cards.5.image }}" alt="{{ category_cards.5.title }}">-->
-<!--                            <div class="bento-card-overlay"></div>-->
-<!--                            <div class="bento-card-content"><h3>{{ category_cards.5.title }}</h3></div>-->
-<!--                        </a>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--        {% endif %}-->
-
-        <!-- ===== BENTO КАРТОЧКИ КАТЕГОРИЙ ===== -->
-        {% if category_cards %}
-            <div class="row">
-            <div class="col-12">
-                <div class="bento-categories">
-                    <div class="bento-grid">
-                        {% for card in category_cards %}
-                            <a href="{{ card.link }}" class="bento-card bento-{{ forloop.counter }}">
-                                {% if card.image %}
-                                    <img src="{{ card.image }}" alt="{{ card.title }}">
-                                {% endif %}
-                                <div class="bento-card-overlay"></div>
-                                <div class="bento-card-content">
-                                    <h3>{{ card.title }}</h3>
-                                </div>
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- ===== БРЕНДЫ ===== -->
-        {% if featured_brands %}
-            <div class="row mb-4">
-            <div class="col-12">
-                <h3 class="mb-3">Бренды</h3>
-                <div class="brands-grid">
-                    {% for brand in featured_brands %}
-                        <a href="{{ brand.get_absolute_url }}" class="brand-card">
-                            {% if brand.logo %}
-                                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
-                            {% else %}
-                                <div class="brand-card__placeholder">{{ brand.name|first }}</div>
-                            {% endif %}
-                            <div class="brand-card__name">{{ brand.name }}</div>
                         </a>
-                    {% endfor %}
-                </div>
+                    </div>
+                {% endfor %}
             </div>
-        </div>
-        {% endif %}
 
-        <!-- ===== ЛИДЕРЫ ПРОДАЖ ===== -->
-        {% if top_products %}
-            <div class="row mb-4">
-            <div class="col-12">
-                <h3 class="mb-3">Лидеры продаж</h3>
-                <div class="row">
-                    {% for product in top_products %}
-                        <div class="col-6 col-md-4 col-lg-3 mb-4">
-                            <div class="card h-100 product-card d-flex flex-column">
-
-                                <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
-                                    {% if product.image %}
-                                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
-                                    {% endif %}
-                                </a>
-
-                                <div class="card-body d-flex flex-column">
-                                    <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
-                                        <h5 class="product-title">{{ product.name|truncatechars:40 }}</h5>
-                                    </a>
-
-                                    <div class="mb-1">
-                                        <span class="product-price">{{ product.price }} ₽</span>
-                                    </div>
-
-                                    <div class="mb-1">
-                                        {% if product.in_stock %}
-                                            <span class="product-stock in-stock"><i class="fas fa-check-circle"></i> В наличии</span>
-                                        {% else %}
-                                            <span class="product-stock on-order"><i class="fas fa-clock"></i> Под заказ</span>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="d-flex gap-2 mt-auto">
-                                        <form method="post" action="{% url 'cart:cart_add' product.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn-cart">
-                                                <i class="fas fa-shopping-cart"></i> В корзину
-                                            </button>
-                                        </form>
-                                        {% if product.id in user_favorite_ids %}
-                                            <form method="post" action="{% url 'users:favorite_remove' product.id %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn-fav btn-fav--active" title="Удалить из избранного">
-                                                    <i class="fas fa-heart"></i>
-                                                </button>
-                                            </form>
-                                        {% else %}
-                                            <form method="post" action="{% url 'users:favorite_add' product.id %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn-fav" title="В избранное">
-                                                    <i class="far fa-heart"></i>
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
+            {# Пагинация #}
+            {% if is_paginated %}
+                <nav class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">←</a></li>
+                        {% endif %}
+                        <li class="page-item active"><span class="page-link">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+                        {% if page_obj.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">→</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-newspaper fa-4x mb-3" style="color: #dee2e6;"></i>
+                <p class="text-muted">Новостей пока нет</p>
             </div>
-        </div>
         {% endif %}
-
-        <!-- Новинки -->
-        {% if new_products %}
-            <div class="row">
-            <div class="col-12">
-                <h3 class="mb-3">Новинки</h3>
-                <div class="row">
-                    {% for product in new_products %}
-                        <div class="col-6 col-md-4 col-lg-3 mb-4">
-                            <div class="card h-100 product-card d-flex flex-column">
-
-                                {# Картинка — ссылка #}
-                                <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
-                                    {% if product.image %}
-                                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
-                                    {% endif %}
-                                </a>
-
-                                <div class="card-body d-flex flex-column">
-
-                                    {# Название — ссылка #}
-                                    <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
-                                        <h5 class="product-title">{{ product.name }}</h5>
-                                    </a>
-
-                                    {# Цена #}
-                                    <div class="mb-1">
-                                        <span class="product-price">{{ product.price }} ₽</span>
-                                        {% if product.old_price %}
-                                            <br><span class="product-old-price">{{ product.old_price }} ₽</span>
-                                        {% endif %}
-                                    </div>
-
-                                    {# Артикул #}
-                                    {% if product.article %}
-                                        <div class="product-article">Арт: {{ product.article }}</div>
-                                    {% endif %}
-
-                                    {# Статус #}
-                                    <div class="mb-1">
-                                        {% if product.in_stock %}
-                                            <span class="product-stock in-stock">
-                                                <i class="fas fa-check-circle"></i> В наличии
-                                            </span>
-                                        {% else %}
-                                            <span class="product-stock on-order">
-                                                <i class="fas fa-clock"></i> Под заказ
-                                            </span>
-                                        {% endif %}
-                                    </div>
-
-                                    {# Кнопки: корзина/уведомить + избранное #}
-                                    <div class="d-flex gap-2 mt-auto">
-
-                                        {% if product.in_stock %}
-                                            {# В наличии — в корзину #}
-                                            <form method="post" action="{% url 'cart:cart_add' product.id %}" class="flex-grow-1">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn-cart w-100">
-                                                    <i class="fas fa-shopping-cart"></i> В корзину
-                                                </button>
-                                            </form>
-                                        {% else %}
-                                            {% if product.id in user_stock_notification_ids %}
-                                                {# Уже подписан #}
-                                                <form method="post" action="{% url 'users:stock_notification_remove_by_product' product.id %}" class="w-100">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn-cart w-100" style="background: #adb5bd;">
-                                                        <i class="fas fa-times"></i> Отписаться
-                                                    </button>
-                                                </form>
-                                            {% else %}
-                                                {# Не подписан — кнопка «Уведомить» #}
-                                                <button type="button"
-                                                        class="btn-cart w-100"
-                                                        style="background: #666;"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#stockModal{{ product.id }}">
-                                                    <i class="fas fa-bell"></i> Уведомить
-                                                </button>
-                                            {% endif %}
-                                        {% endif %}
-
-                                        {# Избранное #}
-                                        {% if product.id in user_favorite_ids %}
-                                            <form method="post" action="{% url 'users:favorite_remove' product.id %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn-fav btn-fav--active" title="Удалить из избранного">
-                                                    <i class="fas fa-heart"></i>
-                                                </button>
-                                            </form>
-                                        {% else %}
-                                            <form method="post" action="{% url 'users:favorite_add' product.id %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn-fav" title="В избранное">
-                                                    <i class="far fa-heart"></i>
-                                                </button>
-                                            </form>
-                                        {% endif %}
-
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            {# Модалка для уведомления о поступлении #}
-                            {% if not product.in_stock %}
-                                <div class="modal fade" id="stockModal{{ product.id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <form method="post" action="{% url 'users:stock_notification_add' product.id %}">
-                                                {% csrf_token %}
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Уведомить о поступлении</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p class="mb-3">Товар: <strong>{{ product.name|truncatechars:60 }}</strong></p>
-                                                    <label class="form-label">Email</label>
-                                                    <input type="email" name="email" class="form-control" required
-                                                           placeholder="your@email.com"
-                                                           value="{{ user.email|default:'' }}">
-                                                    <p class="text-muted small mt-2 mb-0">
-                                                        Мы пришлём письмо, когда товар появится в наличии.
-                                                    </p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                                                    <button type="submit" class="btn btn-danger">Подписаться</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </section>
+    </div>
 </div>
-
 {% endblock %}

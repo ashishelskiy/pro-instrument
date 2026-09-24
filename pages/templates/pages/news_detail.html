@@ -10,15 +10,15 @@
 {% endblock %}
 
 {% block content %}
-<div class="container my-4">
+
     <div class="row justify-content-center">
-        <div class="col-lg-9">
+        <div class="col-lg-12">
 
             <div class="text-muted small mb-2">
                 {{ news.published_at|date:"d.m.Y" }}
             </div>
 
-            <h1 class="mb-4">{{ news.title }}</h1>
+            <h2 class="page-title">{{ news.title }}</h2>
 
             {% if news.image %}
                 <img src="{{ news.image.url }}"
@@ -39,5 +39,5 @@
 
         </div>
     </div>
-</div>
+
 {% endblock %}

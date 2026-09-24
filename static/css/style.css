@@ -2397,3 +2397,22 @@ main {
         text-decoration: none;
     }
 }
+
+/* ================================================================
+   ===== ЕДИНЫЙ ЗАГОЛОВОК СТРАНИЦЫ =====
+   ================================================================ */
+.page-title {
+    font-weight: 400;              /* fw-normal */
+    color: #1c2126;
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;         /* = mb-4 */
+    line-height: 1.2;
+}
+
+/* На мобильных чуть меньше */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.35rem;
+        margin-bottom: 1rem;
+    }
+}
