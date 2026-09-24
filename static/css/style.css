@@ -2361,8 +2361,8 @@ main {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    padding: 0 12px 8px;
-    margin: 0 -12px;
+    padding: 0 0px 8px;
+    margin: 0 0px;
     scrollbar-width: none;
 }
 
@@ -2386,8 +2386,8 @@ main {
         overflow-x: auto;
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
-        padding: 0 12px 8px;
-        margin: 0 -12px;
+        padding: 0 0px 8px;
+        margin: 0 0px;
         scrollbar-width: none;
     }
     .categories-scroll::-webkit-scrollbar { display: none; }
