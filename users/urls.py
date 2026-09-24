@@ -17,7 +17,6 @@ from .views import (
     StockNotificationsView,
     PriceRequestView, PriceRequestSuccessView,
     comparison_add, comparison_remove, comparison_clear, ComparisonView,
-    CustomPasswordResetView
 )
 
 app_name = 'users'
@@ -73,17 +72,14 @@ urlpatterns = [
     path('request-price/success/', PriceRequestSuccessView.as_view(), name='price_request_success'),
 
     # Восстановление пароля
-    # path('password-reset/',
-    #      auth_views.PasswordResetView.as_view(
-    #          template_name='users/password_reset.html',
-    #          email_template_name='users/password_reset_email.html',
-    #          subject_template_name='users/password_reset_subject.txt',
-    #          success_url=reverse_lazy('users:password_reset_done'),
-    #      ),
-    #      name='password_reset'),
-
     path('password-reset/',
-         CustomPasswordResetView.as_view(),
+         auth_views.PasswordResetView.as_view(
+             template_name='users/password_reset.html',
+             email_template_name='emails/password_reset.txt',
+             html_email_template_name='emails/password_reset.html',
+             subject_template_name='emails/password_reset_subject.txt',
+             success_url=reverse_lazy('users:password_reset_done'),
+         ),
          name='password_reset'),
 
     path('password-reset/done/',
