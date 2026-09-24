@@ -75,8 +75,33 @@ class MyPasswordChangeView(PasswordChangeView):
     success_url = reverse_lazy('users:profile_edit')
 
     def form_valid(self, form):
+        response = super().form_valid(form)
         messages.success(self.request, 'Пароль успешно изменён.')
-        return super().form_valid(form)
+
+        # Письмо-уведомление о смене пароля
+        try:
+            user = self.request.user
+            context = {
+                'user': user,
+                'site_url': settings.SITE_URL,
+            }
+            subject = 'Пароль изменён — PRO-Инструмент'
+
+            text_content = render_to_string('emails/password_changed.txt', context)
+            html_content = render_to_string('emails/password_changed.html', context)
+
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[user.email],
+            )
+            msg.attach_alternative(html_content, 'text/html')
+            msg.send(fail_silently=True)
+        except Exception:
+            pass
+
+        return response
 
 
 class OrdersView(LoginRequiredMixin, ListView):
