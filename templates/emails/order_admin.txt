@@ -28,4 +28,4 @@ Email: {{ order.email }}
 {% endif %}
 --
 Открыть в админке:
-https://pro-instrument.ru/panel/orders/order/{{ order.pk }}/change/
+{{ site_url }}/panel/orders/order/{{ order.pk }}/change/

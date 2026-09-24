@@ -124,7 +124,10 @@ class OrderCreateView(CreateView):
 
         # 1. Письмо админу — через HTML-шаблон
         try:
-            context = {'order': order}
+            context = {
+                'order': order,
+                'site_url': settings.SITE_URL,
+            }
             subject = f'🆕 Новый заказ №{order.pk} на {order.total_price} ₽'
 
             text_content = render_to_string('emails/order_admin.txt', context)
@@ -143,7 +146,10 @@ class OrderCreateView(CreateView):
 
         # 2. Письмо клиенту
         try:
-            context = {'order': order}
+            context = {
+                'order': order,
+                'site_url': settings.SITE_URL,
+            }
             subject = f'Заказ №{order.pk} принят — PRO-Инструмент'
 
             text_content = render_to_string('emails/order_client.txt', context)
