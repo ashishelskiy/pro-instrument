@@ -106,7 +106,7 @@ class MyPasswordChangeView(PasswordChangeView):
 from django.contrib.auth.views import PasswordResetView as BasePasswordResetView
 
 class CustomPasswordResetView(BasePasswordResetView):
-    """Сброс пароля — с site_url в контексте для шапки и логотипа."""
+    """Кастомная вьюха сброса пароля — добавляет site_url в контекст."""
     template_name = 'users/password_reset.html'
     email_template_name = 'emails/password_reset.txt'
     html_email_template_name = 'emails/password_reset.html'
@@ -117,6 +117,23 @@ class CustomPasswordResetView(BasePasswordResetView):
         context = super().get_context_data(**kwargs)
         context['site_url'] = settings.SITE_URL
         return context
+
+    def form_valid(self, form):
+        """Передаём site_url в контекст письма через extra_email_context."""
+        opts = {
+            'use_https': self.request.is_secure(),
+            'token_generator': self.token_generator,
+            'from_email': self.from_email,
+            'email_template_name': self.email_template_name,
+            'subject_template_name': self.subject_template_name,
+            'request': self.request,
+            'html_email_template_name': self.html_email_template_name,
+            'extra_email_context': {
+                'site_url': settings.SITE_URL,
+            },
+        }
+        form.save(**opts)
+        return super().form_valid(form)
 
 
 class OrdersView(LoginRequiredMixin, ListView):
