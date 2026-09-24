@@ -52,13 +52,6 @@ class ProfileView(LoginRequiredMixin, DetailView):
     context_object_name = 'user_profile'
 
     def get_object(self):
-        send_mail(
-            'Тест SMTP',
-            'Это тестовое письмо из Django.',
-            'noreply@pro-instrument.ru',
-            ['ваш@email.ru'],
-            fail_silently=False,
-        )
         return self.request.user
 
 
