@@ -199,7 +199,7 @@ else:
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='')
 
 # Email администратора — куда приходят уведомления о заказах
-ADMIN_EMAIL = config('ADMIN_EMAIL', default='ooo-eksinus@yandex.ru')
+ADMIN_EMAIL = config('ADMIN_EMAIL', default='pro-instrument@a2infinity.ru')
 
 # ============================================================
 # SITE
