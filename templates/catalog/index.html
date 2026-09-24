@@ -45,7 +45,7 @@
 
 <!-- Мобильные: горизонтальная скролл-лента -->
 {% if categories %}
-    <div class="d-md-none mb-4">
+    <div class="d-md-none mb-2">
         <div class="categories-scroll">
             {% for category in categories %}
                 <a href="{% url 'catalog:category_detail' category.slug %}"
