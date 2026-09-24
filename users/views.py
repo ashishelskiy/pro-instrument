@@ -1,5 +1,6 @@
 # users/views.py
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -181,27 +182,26 @@ class RegisterView(CreateView):
         response = super().form_valid(form)
         # Приветственное письмо
         try:
-            send_mail(
-                subject='Добро пожаловать в PRO-инструмент!',
-                message=(
-                    f'Здравствуйте, {self.object.get_display_name()}!\n\n'
-                    f'Спасибо за регистрацию на сайте pro-instrument.ru.\n\n'
-                    f'Теперь вы можете:\n'
-                    f'• добавлять товары в корзину и оформлять заказы;\n'
-                    f'• сохранять товары в избранное;\n'
-                    f'• подписываться на уведомления о поступлении;\n'
-                    f'• добавлять организации для заказа от юрлица.\n\n'
-                    f'Ваш логин: {self.object.username}\n\n'
-                    f'С уважением,\n'
-                    f'команда PRO-инструмент\n'
-                    f'https://pro-instrument.ru'
-                ),
+            context = {
+                'user': self.object,
+                'site_url': settings.SITE_URL,
+            }
+            subject = 'Добро пожаловать в PRO-Инструмент!'
+
+            text_content = render_to_string('emails/welcome.txt', context)
+            html_content = render_to_string('emails/welcome.html', context)
+
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[self.object.email],
-                fail_silently=True,
+                to=[self.object.email],
             )
+            msg.attach_alternative(html_content, 'text/html')
+            msg.send(fail_silently=True)
         except Exception:
             pass
+
         return response
 
 @require_POST
@@ -442,53 +442,92 @@ class PriceRequestView(CreateView):
 
         return response
 
+    # def _send_price_request_emails(self, price_request):
+    #     """Письма админу и клиенту о новой заявке на цену."""
+    #
+    #     # 1. Письмо админу
+    #     try:
+    #         send_mail(
+    #             subject=f'📩 Новая заявка на цену от {price_request.name}',
+    #             message=(
+    #                 f'Новая заявка на цену №{price_request.pk}\n'
+    #                 f'Дата: {price_request.created_at:%d.%m.%Y %H:%M}\n\n'
+    #                 f'Клиент: {price_request.name}\n'
+    #                 f'Телефон: {price_request.phone or "—"}\n'
+    #                 f'Email: {price_request.email}\n\n'
+    #                 f'Описание товара:\n{price_request.description}\n\n'
+    #                 f'Комментарий:\n{price_request.comment or "—"}\n\n'
+    #                 f'Открыть в админке: '
+    #                 f'https://pro-instrument.ru/admin/users/pricerequest/{price_request.pk}/change/'
+    #             ),
+    #             from_email=settings.DEFAULT_FROM_EMAIL,
+    #             recipient_list=[settings.ADMIN_EMAIL],
+    #             fail_silently=True,
+    #         )
+    #     except Exception:
+    #         pass
+    #
+    #     # 2. Письмо клиенту — подтверждение
+    #     try:
+    #         send_mail(
+    #             subject=f'Заявка на цену принята — PRO-инструмент',
+    #             message=(
+    #                 f'Здравствуйте, {price_request.name}!\n\n'
+    #                 f'Мы получили вашу заявку на подбор товара:\n\n'
+    #                 f'{price_request.description}\n\n'
+    #                 f'Наш менеджер свяжется с вами в ближайшее время '
+    #                 f'по телефону {price_request.phone} или email {price_request.email} '
+    #                 f'и сообщит цену и сроки поставки.\n\n'
+    #                 f'С уважением,\n'
+    #                 f'команда PRO-инструмент\n'
+    #                 f'https://pro-instrument.ru'
+    #             ),
+    #             from_email=settings.DEFAULT_FROM_EMAIL,
+    #             recipient_list=[price_request.email],
+    #             fail_silently=True,
+    #         )
+    #     except Exception:
+    #         pass
     def _send_price_request_emails(self, price_request):
         """Письма админу и клиенту о новой заявке на цену."""
+        context = {
+            'price_request': price_request,
+            'site_url': settings.SITE_URL,
+        }
 
         # 1. Письмо админу
         try:
-            send_mail(
-                subject=f'📩 Новая заявка на цену от {price_request.name}',
-                message=(
-                    f'Новая заявка на цену №{price_request.pk}\n'
-                    f'Дата: {price_request.created_at:%d.%m.%Y %H:%M}\n\n'
-                    f'Клиент: {price_request.name}\n'
-                    f'Телефон: {price_request.phone or "—"}\n'
-                    f'Email: {price_request.email}\n\n'
-                    f'Описание товара:\n{price_request.description}\n\n'
-                    f'Комментарий:\n{price_request.comment or "—"}\n\n'
-                    f'Открыть в админке: '
-                    f'https://pro-instrument.ru/admin/users/pricerequest/{price_request.pk}/change/'
-                ),
+            subject = f'📩 Новая заявка на цену от {price_request.name}'
+            text_content = render_to_string('emails/price_request_admin.txt', context)
+            html_content = render_to_string('emails/price_request_admin.html', context)
+
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.ADMIN_EMAIL],
-                fail_silently=True,
+                to=[settings.ADMIN_EMAIL],
             )
+            msg.attach_alternative(html_content, 'text/html')
+            msg.send(fail_silently=True)
         except Exception:
             pass
 
-        # 2. Письмо клиенту — подтверждение
+        # 2. Письмо клиенту
         try:
-            send_mail(
-                subject=f'Заявка на цену принята — PRO-инструмент',
-                message=(
-                    f'Здравствуйте, {price_request.name}!\n\n'
-                    f'Мы получили вашу заявку на подбор товара:\n\n'
-                    f'{price_request.description}\n\n'
-                    f'Наш менеджер свяжется с вами в ближайшее время '
-                    f'по телефону {price_request.phone} или email {price_request.email} '
-                    f'и сообщит цену и сроки поставки.\n\n'
-                    f'С уважением,\n'
-                    f'команда PRO-инструмент\n'
-                    f'https://pro-instrument.ru'
-                ),
+            subject = 'Заявка на цену принята — PRO-Инструмент'
+            text_content = render_to_string('emails/price_request_client.txt', context)
+            html_content = render_to_string('emails/price_request_client.html', context)
+
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[price_request.email],
-                fail_silently=True,
+                to=[price_request.email],
             )
+            msg.attach_alternative(html_content, 'text/html')
+            msg.send(fail_silently=True)
         except Exception:
             pass
-
 
 class PriceRequestSuccessView(TemplateView):
     """Страница «Спасибо за заявку»."""

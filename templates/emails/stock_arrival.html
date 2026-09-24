@@ -1,0 +1,32 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Товар снова в наличии{% endblock %}
+
+{% block content %}
+    <h1>🔔 Товар снова в наличии</h1>
+
+    <p>Здравствуйте!</p>
+
+    <p>Товар, который вы ждали, снова в наличии:</p>
+
+    <div class="info-block">
+        <p><strong>{{ product.name }}</strong></p>
+        {% if product.article %}
+            <p style="margin-top: 6px;">Артикул: {{ product.article }}</p>
+        {% endif %}
+        <p style="margin-top: 6px;">Цена: <strong>{{ product.price }} ₽</strong></p>
+    </div>
+
+    <p>Спешите оформить заказ — количество ограничено.</p>
+
+    <p style="text-align: center; margin: 24px 0;">
+        <a href="{{ site_url }}{{ product.get_absolute_url }}" class="button">
+            Открыть товар →
+        </a>
+    </p>
+
+    <p style="color: #888; font-size: 13px;">
+        Если товар вам больше не нужен — проигнорируйте это письмо.
+        Подписка автоматически снимается после отправки уведомления.
+    </p>
+{% endblock %}

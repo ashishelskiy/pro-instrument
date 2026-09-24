@@ -214,25 +214,50 @@ def notify_stock_arrival(sender, instance, created, **kwargs):
         notified=False,
     ).select_related('user')
 
+    # for n in notifications:
+    #     try:
+    #         send_mail(
+    #             subject=f'🔔 Товар «{instance.name[:60]}» снова в наличии',
+    #             message=(
+    #                 f'Здравствуйте!\n\n'
+    #                 f'Товар, который вы ждали, снова в наличии:\n\n'
+    #                 f'• {instance.name}\n'
+    #                 f'• Артикул: {instance.article or "—"}\n'
+    #                 f'• Цена: {instance.price} ₽\n\n'
+    #                 f'Ссылка: https://pro-instrument.ru{instance.get_absolute_url()}\n\n'
+    #                 f'Спешите оформить заказ — количество ограничено.\n\n'
+    #                 f'С уважением,\n'
+    #                 f'команда PRO-инструмент'
+    #             ),
+    #             from_email=settings.DEFAULT_FROM_EMAIL,
+    #             recipient_list=[n.email],
+    #             fail_silently=True,
+    #         )
+    #         n.notified = True
+    #         n.notified_at = timezone.now()
+    #         n.save(update_fields=['notified', 'notified_at'])
+    #     except Exception:
+    #         pass
     for n in notifications:
         try:
-            send_mail(
-                subject=f'🔔 Товар «{instance.name[:60]}» снова в наличии',
-                message=(
-                    f'Здравствуйте!\n\n'
-                    f'Товар, который вы ждали, снова в наличии:\n\n'
-                    f'• {instance.name}\n'
-                    f'• Артикул: {instance.article or "—"}\n'
-                    f'• Цена: {instance.price} ₽\n\n'
-                    f'Ссылка: https://pro-instrument.ru{instance.get_absolute_url()}\n\n'
-                    f'Спешите оформить заказ — количество ограничено.\n\n'
-                    f'С уважением,\n'
-                    f'команда PRO-инструмент'
-                ),
+            context = {
+                'product': instance,
+                'site_url': settings.SITE_URL,
+            }
+            subject = f'🔔 Товар «{instance.name[:60]}» снова в наличии'
+
+            text_content = render_to_string('emails/stock_arrival.txt', context)
+            html_content = render_to_string('emails/stock_arrival.html', context)
+
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[n.email],
-                fail_silently=True,
+                to=[n.email],
             )
+            msg.attach_alternative(html_content, 'text/html')
+            msg.send(fail_silently=True)
+
             n.notified = True
             n.notified_at = timezone.now()
             n.save(update_fields=['notified', 'notified_at'])

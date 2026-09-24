@@ -1,0 +1,42 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Новая заявка на цену{% endblock %}
+
+{% block content %}
+    <h1>📩 Новая заявка на цену</h1>
+
+    <p><strong>Заявка №{{ price_request.pk }}</strong></p>
+
+    <h2>Клиент</h2>
+    <div class="info-block">
+        <p><strong>{{ price_request.name }}</strong></p>
+        {% if price_request.phone %}
+            <p style="margin-top: 4px;">Телефон: {{ price_request.phone }}</p>
+        {% endif %}
+        <p style="margin-top: 4px;">Email: {{ price_request.email }}</p>
+    </div>
+
+    <h2>Описание товара</h2>
+    <div class="info-block">
+        <p>{{ price_request.description|linebreaksbr }}</p>
+    </div>
+
+    {% if price_request.comment %}
+    <h2>Комментарий</h2>
+    <div class="info-block">
+        <p>{{ price_request.comment|linebreaksbr }}</p>
+    </div>
+    {% endif %}
+
+    <div class="divider"></div>
+
+    <p style="text-align: center; margin: 20px 0;">
+        <a href="{{ site_url }}/panel/users/pricerequest/{{ price_request.pk }}/change/" class="button">
+            Открыть в админке →
+        </a>
+    </p>
+
+    <p style="text-align: center; color: #888; font-size: 13px;">
+        Заявка от {{ price_request.created_at|date:"d.m.Y в H:i" }}
+    </p>
+{% endblock %}

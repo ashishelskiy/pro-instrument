@@ -1,0 +1,18 @@
+НОВАЯ ЗАЯВКА НА ЦЕНУ №{{ price_request.pk }}
+
+Дата: {{ price_request.created_at|date:"d.m.Y H:i" }}
+
+КЛИЕНТ:
+{{ price_request.name }}
+Телефон: {{ price_request.phone|default:"—" }}
+Email: {{ price_request.email }}
+
+ОПИСАНИЕ ТОВАРА:
+{{ price_request.description }}
+{% if price_request.comment %}
+КОММЕНТАРИЙ:
+{{ price_request.comment }}
+{% endif %}
+--
+Открыть в админке:
+{{ site_url }}/panel/users/pricerequest/{{ price_request.pk }}/change/

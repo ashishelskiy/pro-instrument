@@ -1,0 +1,32 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Добро пожаловать в PRO-Инструмент{% endblock %}
+
+{% block content %}
+    <h1>Добро пожаловать, {{ user.get_display_name }}!</h1>
+
+    <p>Спасибо за регистрацию на сайте <a href="{{ site_url }}">PRO-Инструмент</a>.</p>
+
+    <p>Теперь вам доступны:</p>
+
+    <ul>
+        <li>оформление заказов и корзина;</li>
+        <li>избранное — сохранение понравившихся товаров;</li>
+        <li>подписка на уведомления о поступлении;</li>
+        <li>личный кабинет с историей покупок;</li>
+        <li>заказы от имени организации (для юрлиц).</li>
+    </ul>
+
+    <div class="info-block">
+        <p><strong>Ваш логин:</strong> {{ user.username }}</p>
+        {% if user.email %}
+            <p style="margin-top: 6px;"><strong>Email:</strong> {{ user.email }}</p>
+        {% endif %}
+    </div>
+
+    <p style="text-align: center; margin: 24px 0;">
+        <a href="{{ site_url }}" class="button">Перейти в магазин →</a>
+    </p>
+
+    <p>Если у вас есть вопросы — позвоните нам или напишите на почту. Мы всегда рады помочь.</p>
+{% endblock %}

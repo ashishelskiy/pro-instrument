@@ -1,0 +1,28 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Заявка на цену принята{% endblock %}
+
+{% block content %}
+    <h1>Заявка принята</h1>
+
+    <p>Здравствуйте, <strong>{{ price_request.name }}</strong>!</p>
+
+    <p>Мы получили вашу заявку на подбор товара:</p>
+
+    <div class="info-block">
+        <p>{{ price_request.description|linebreaksbr }}</p>
+    </div>
+
+    <p>Наш менеджер свяжется с вами в ближайшее время
+        {% if price_request.phone %}по телефону <strong>{{ price_request.phone }}</strong>{% endif %}
+        {% if price_request.phone and price_request.email %}или{% endif %}
+        {% if price_request.email %}по email <strong>{{ price_request.email }}</strong>{% endif %}
+        и сообщит цену и сроки поставки.</p>
+
+    <div class="divider"></div>
+
+    <p style="text-align: center; color: #888; font-size: 13px;">
+        С уважением,<br>
+        <strong style="color: #1c2126;">команда PRO-Инструмент</strong>
+    </p>
+{% endblock %}
