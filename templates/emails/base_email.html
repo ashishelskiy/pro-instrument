@@ -36,18 +36,24 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
-        /* Шапка — белая, логотип JPG на белом фоне */
+        /* Шапка — чёрная, логотип по центру */
         .header {
-            background: #ffffff;
+            background: #000000;
             padding: 24px 30px;
             text-align: center;
             border-bottom: 6px solid #BD0000;
         }
 
+        .header a {
+            display: block;
+            text-align: center;
+        }
+
         .header img {
+            display: block;
+            margin: 0 auto;
             max-width: 200px;
             height: auto;
-            display: inline-block;
         }
 
         /* Тело */
@@ -216,10 +222,13 @@
         <div class="container">
 
             <!-- Шапка -->
-            <a href="{{ site_url }}">
-                <img src="{{ site_url }}/static/images/logo_new4.jpg"
-                     alt="PRO-Инструмент">
-            </a>
+            <div class="header">
+                <a href="{{ site_url }}">
+                    <img src="{{ site_url }}/static/images/logo_new4.jpg"
+                         alt="PRO-Инструмент"
+                         style="display: block; margin: 0 auto; max-width: 200px; height: auto;">
+                </a>
+            </div>
 
             <!-- Тело письма -->
             <div class="body">
