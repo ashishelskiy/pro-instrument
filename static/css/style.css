@@ -1720,6 +1720,12 @@ main {
 }
 
 @media (max-width: 768px) {
+    #bannerCarousel {
+        margin-left: -12px;
+        margin-right: -12px;
+
+    }
+
     #bannerCarousel .carousel-item img {
         height: 200px;
     }
@@ -2080,8 +2086,10 @@ main {
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto auto;
-        gap: 10px;
+        gap: 8px;
         margin-bottom: 16px;
+        margin-left: -12px;
+        margin-right: -12px;
     }
 
     .bento-1, .bento-2, .bento-3,
