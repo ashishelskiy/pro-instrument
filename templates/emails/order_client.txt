@@ -1,0 +1,28 @@
+Здравствуйте, {{ order.name }}!
+
+Ваш заказ №{{ order.pk }} от {{ order.created_at|date:"d.m.Y" }} принят и передан в обработку.
+
+СОСТАВ ЗАКАЗА:
+{% for item in order.items.all %}• {{ item.product_name }} × {{ item.quantity }} = {{ item.subtotal }} ₽
+{% endfor %}{% if order.delivery_price %}Доставка: {{ order.delivery_price }} ₽
+{% endif %}Итого: {{ order.total_price }} ₽
+
+ДОСТАВКА:
+{{ order.delivery_method_name|default:"Уточним при подтверждении заказа" }}{% if order.delivery_price %}
+Стоимость: {{ order.delivery_price }} ₽{% endif %}{% if order.address %}
+Адрес: {{ order.address }}{% endif %}
+Наш менеджер свяжется с вами по телефону {{ order.phone }} для подтверждения заказа.
+
+Если у вас есть вопросы — позвоните нам или ответьте на это письмо.
+
+--
+С уважением,
+команда PRO-Инструмент
+
+г. Таганрог, Мариупольское шоссе 1А
+Тел: +7 (904) 347-57-88
+Email: info@pro-instrument.ru
+Сайт: pro-instrument.ru
+Пн–Пт 9:00–18:00, Сб-Вс 9:00–17:00
+
+ООО «ЭКСИНУС» · ИНН 6154160855 · ОГРН 1216100022313

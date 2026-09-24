@@ -65,6 +65,15 @@ class OrderForm(forms.ModelForm):
 
         delivery_field.label_from_instance = delivery_label
 
+        # По умолчанию — самовывоз (если форма не связана с данными и поле ещё не выбрано)
+        if not self.is_bound and not self.instance.pk:
+            default_delivery = DeliveryMethod.objects.filter(
+                name__iexact='Самовывоз',
+                is_active=True
+            ).first()
+            if default_delivery:
+                delivery_field.initial = default_delivery.pk
+
     def clean(self):
         cleaned = super().clean()
         delivery = cleaned.get('delivery_method')

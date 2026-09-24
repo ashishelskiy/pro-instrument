@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PRO-Инструмент{% endblock %}</title>
+    <style>
+        /* Сброс */
+        body, table, td, p, a, li { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+
+        /* Основное */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .wrapper {
+            width: 100%;
+            background: #f5f5f5;
+            padding: 30px 15px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Шапка — белая, логотип JPG на белом фоне */
+        .header {
+            background: #ffffff;
+            padding: 24px 30px;
+            text-align: center;
+            border-bottom: 6px solid #BD0000;
+        }
+
+        .header img {
+            max-width: 200px;
+            height: auto;
+            display: inline-block;
+        }
+
+        /* Тело */
+        .body {
+            padding: 32px 30px;
+            color: #333;
+        }
+
+        .body h1 {
+            font-size: 22px;
+            line-height: 1.3;
+            color: #1c2126;
+            margin: 0 0 16px;
+            font-weight: 600;
+        }
+
+        .body h2 {
+            font-size: 18px;
+            line-height: 1.3;
+            color: #1c2126;
+            margin: 24px 0 12px;
+            font-weight: 600;
+        }
+
+        .body p {
+            margin: 0 0 14px;
+            color: #333;
+        }
+
+        .body a {
+            color: #BD0000;
+            text-decoration: underline;
+        }
+
+        .body a:hover {
+            text-decoration: none;
+        }
+
+        /* Таблица товаров */
+        .items {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .items th {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #1c2126;
+            border-bottom: 2px solid #e9ecef;
+            font-size: 13px;
+        }
+
+        .items td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+        }
+
+        .items tfoot td {
+            border-bottom: none;
+            padding-top: 14px;
+        }
+
+        .items .total {
+            font-size: 17px;
+            font-weight: 700;
+            color: #BD0000;
+        }
+
+        .items .total-row td {
+            border-top: 2px solid #e9ecef;
+            padding-top: 14px;
+        }
+
+        /* Кнопка */
+        .button {
+            display: inline-block;
+            background: #BD0000;
+            color: #ffffff !important;
+            padding: 12px 28px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 15px;
+            margin: 16px 0;
+        }
+
+        .button:hover {
+            background: #a00000;
+        }
+
+        /* Информационный блок */
+        .info-block {
+            background: #f8f9fa;
+            border-left: 4px solid #BD0000;
+            padding: 14px 18px;
+            margin: 16px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .info-block p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Разделитель */
+        .divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 24px 0;
+        }
+
+        /* Футер */
+        .footer {
+            background: #f8f9fa;
+            padding: 24px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        .footer a {
+            color: #BD0000;
+            text-decoration: none;
+        }
+
+        .footer strong {
+            color: #1c2126;
+            font-size: 13px;
+        }
+
+        .footer .contacts {
+            margin: 12px 0;
+        }
+
+        .footer .contacts div {
+            margin-bottom: 4px;
+        }
+
+        .footer .legal {
+            color: #aaa;
+            margin-top: 14px;
+            font-size: 11px;
+            border-top: 1px solid #e9ecef;
+            padding-top: 12px;
+        }
+
+        /* Адаптив */
+        @media (max-width: 600px) {
+            .wrapper { padding: 15px 10px; }
+            .body { padding: 24px 20px; }
+            .header { padding: 18px 20px; }
+            .footer { padding: 18px 20px; }
+            .body h1 { font-size: 20px; }
+            .items th, .items td { padding: 8px 8px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="container">
+
+            <!-- Шапка -->
+            <div class="header">
+                <a href="https://pro-instrument.ru">
+                    <img src="https://pro-instrument.ru/static/images/logo_new4.jpg"
+                         alt="PRO-Инструмент">
+                </a>
+            </div>
+
+            <!-- Тело письма -->
+            <div class="body">
+                {% block content %}{% endblock %}
+            </div>
+
+            <!-- Футер -->
+            <div class="footer">
+                <strong>PRO-Инструмент</strong>
+                <div class="contacts">
+                    <div>г. Таганрог, Мариупольское шоссе 1А</div>
+                    <div>Тел: <a href="tel:+79043475788">+7 (904) 347-57-88</a></div>
+                    <div>Email: <a href="mailto:info@pro-instrument.ru">info@pro-instrument.ru</a></div>
+                    <div>Сайт: <a href="https://pro-instrument.ru">pro-instrument.ru</a></div>
+                    <div>Пн–Пт 9:00–18:00, Сб-Вс 9:00–17:00</div>
+                </div>
+                <div class="legal">
+                    ООО «ЭКСИНУС» · ИНН 6154160855 · ОГРН 1216100022313<br>
+                    Это письмо отправлено автоматически, не отвечайте на него.
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 # orders/views.py
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -8,7 +9,7 @@ from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.db import transaction
 from cart.models import Cart
-from .models import Order, OrderItem
+from .models import Order, OrderItem, DeliveryMethod
 from .forms import OrderForm
 
 
@@ -52,7 +53,6 @@ class OrderCreateView(CreateView):
         context['organization'] = self.request.user.default_organization
 
         # Список способов доставки для JS
-        from .models import DeliveryMethod
         context['delivery_methods_json'] = [
             {'id': d.pk, 'price': float(d.price)}
             for d in DeliveryMethod.objects.filter(is_active=True)
@@ -72,11 +72,26 @@ class OrderCreateView(CreateView):
 
         # Снимок способа доставки и стоимость
         delivery = form.cleaned_data.get('delivery_method')
+        # if delivery:
+        #     order.delivery_method_name = delivery.name
+        #     order.delivery_price = delivery.price
+        # else:
+        #     order.delivery_method_name = ''
+        #     order.delivery_price = 0
+
+        # Если не выбрано — берём самовывоз по умолчанию
+        if not delivery:
+            delivery = DeliveryMethod.objects.filter(
+                name__iexact='Самовывоз',
+                is_active=True
+            ).first()
+
         if delivery:
+            order.delivery_method = delivery
             order.delivery_method_name = delivery.name
             order.delivery_price = delivery.price
         else:
-            order.delivery_method_name = ''
+            order.delivery_method_name = 'Самовывоз'
             order.delivery_price = 0
 
         # Итого = товары + доставка
@@ -106,61 +121,42 @@ class OrderCreateView(CreateView):
 
     def _send_order_emails(self, order):
         """Отправляет письма админу и клиенту о новом заказе."""
-        # Составляем список товаров
-        items_text = '\n'.join(
-            f'• {item.product_name} × {item.quantity} = {item.subtotal} ₽'
-            for item in order.items.all()
-        )
 
-        # Кто покупает
-        if order.organization:
-            buyer = f'{order.organization.name} (ИНН {order.organization.inn})'
-        else:
-            buyer = f'{order.name} (физлицо)'
-
-        # 1. Письмо админу
+        # 1. Письмо админу — через HTML-шаблон
         try:
-            send_mail(
-                subject=f'🆕 Новый заказ №{order.pk} на {order.total_price} ₽',
-                message=(
-                    f'Новый заказ №{order.pk}\n'
-                    f'Дата: {order.created_at:%d.%m.%Y %H:%M}\n\n'
-                    f'Покупатель: {buyer}\n'
-                    f'Контакт: {order.name}, {order.phone}, {order.email}\n'
-                    f'Доставка: {order.get_delivery_method_display()}\n'
-                    f'Адрес: {order.address or "—"}\n'
-                    f'Оплата: {order.get_payment_method_display()}\n\n'
-                    f'Товары:\n{items_text}\n\n'
-                    f'Итого: {order.total_price} ₽\n\n'
-                    f'Комментарий: {order.comment or "—"}\n\n'
-                    f'Открыть в админке: https://pro-instrument.ru/admin/orders/order/{order.pk}/change/'
-                ),
+            context = {'order': order}
+            subject = f'🆕 Новый заказ №{order.pk} на {order.total_price} ₽'
+
+            text_content = render_to_string('emails/order_admin.txt', context)
+            html_content = render_to_string('emails/order_admin.html', context)
+
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.ADMIN_EMAIL],
-                fail_silently=True,
+                to=[settings.ADMIN_EMAIL],
             )
+            msg.attach_alternative(html_content, 'text/html')
+            msg.send(fail_silently=True)
         except Exception:
             pass
 
         # 2. Письмо клиенту
         try:
-            send_mail(
-                subject=f'Заказ №{order.pk} принят',
-                message=(
-                    f'Здравствуйте, {order.name}!\n\n'
-                    f'Ваш заказ №{order.pk} от {order.created_at:%d.%m.%Y} принят.\n\n'
-                    f'Состав заказа:\n{items_text}\n\n'
-                    f'Итого: {order.total_price} ₽\n\n'
-                    f'Мы свяжемся с вами по телефону {order.phone} '
-                    f'для подтверждения заказа.\n\n'
-                    f'С уважением,\n'
-                    f'команда PRO-инструмент\n'
-                    f'https://pro-instrument.ru'
-                ),
+            context = {'order': order}
+            subject = f'Заказ №{order.pk} принят — PRO-Инструмент'
+
+            text_content = render_to_string('emails/order_client.txt', context)
+            html_content = render_to_string('emails/order_client.html', context)
+
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[order.email],
-                fail_silently=True,
+                to=[order.email],
             )
+            msg.attach_alternative(html_content, 'text/html')
+            msg.send(fail_silently=True)
         except Exception:
             pass
 

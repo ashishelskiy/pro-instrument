@@ -1,0 +1,74 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Заказ №{{ order.pk }} принят{% endblock %}
+
+{% block content %}
+    <h1>Спасибо за заказ, {{ order.name }}!</h1>
+
+    <p>Ваш заказ <strong>№{{ order.pk }}</strong> от {{ order.created_at|date:"d.m.Y" }} принят и передан в обработку.</p>
+
+    <h2>Состав заказа</h2>
+
+    <table class="items">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th style="width: 60px; text-align: center;">Кол-во</th>
+                <th style="width: 100px; text-align: right;">Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr>
+                <td>
+                    {{ item.product_name }}
+                    {% if item.product_article %}
+                        <br><small style="color: #999;">Арт: {{ item.product_article }}</small>
+                    {% endif %}
+                </td>
+                <td style="text-align: center;">{{ item.quantity }}</td>
+                <td style="text-align: right;">{{ item.subtotal }} ₽</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            {% if order.delivery_price %}
+            <tr>
+                <td colspan="2" style="text-align: right;">Доставка:</td>
+                <td style="text-align: right;">{{ order.delivery_price }} ₽</td>
+            </tr>
+            {% endif %}
+            <tr class="total-row">
+                <td colspan="2" style="text-align: right;"><strong>Итого:</strong></td>
+                <td class="total" style="text-align: right;">{{ order.total_price }} ₽</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <h2>Доставка</h2>
+    <div class="info-block">
+        <p>
+            <strong>
+                {{ order.delivery_method_name|default:"Уточним при подтверждении заказа" }}
+            </strong>
+        </p>
+        {% if order.delivery_price %}
+            <p style="margin-top: 6px;">Стоимость доставки: {{ order.delivery_price }} ₽</p>
+        {% endif %}
+        {% if order.address %}
+            <p style="margin-top: 6px;">Адрес: {{ order.address }}</p>
+        {% endif %}
+    </div>
+
+    <h2>Что дальше</h2>
+    <p>Наш менеджер свяжется с вами по телефону <strong>{{ order.phone }}</strong> для подтверждения заказа и уточнения деталей доставки.</p>
+
+    <p>Если у вас есть вопросы — позвоните нам или ответьте на это письмо.</p>
+
+    <div class="divider"></div>
+
+    <p style="text-align: center; color: #888; font-size: 13px;">
+        С уважением,<br>
+        <strong style="color: #1c2126;">команда PRO-Инструмент</strong>
+    </p>
+{% endblock %}

@@ -1,0 +1,31 @@
+НОВЫЙ ЗАКАЗ №{{ order.pk }} на {{ order.total_price }} ₽
+
+Дата: {{ order.created_at|date:"d.m.Y H:i" }}
+
+ПОКУПАТЕЛЬ:
+{% if order.organization %}{{ order.organization.name }} (ИНН {{ order.organization.inn }}){% else %}{{ order.name }} (физлицо){% endif %}
+
+КОНТАКТ:
+Имя: {{ order.name }}
+Телефон: {{ order.phone }}
+Email: {{ order.email }}
+
+ДОСТАВКА:
+{{ order.delivery_method_name|default:"не выбрана" }}{% if order.delivery_price %}
+Стоимость: {{ order.delivery_price }} ₽{% endif %}{% if order.address %}
+Адрес: {{ order.address }}{% endif %}
+
+ОПЛАТА:
+{{ order.get_payment_method_display }}
+
+ТОВАРЫ:
+{% for item in order.items.all %}• {{ item.product_name }} × {{ item.quantity }} = {{ item.subtotal }} ₽
+{% endfor %}
+Итого: {{ order.total_price }} ₽
+{% if order.comment %}
+КОММЕНТАРИЙ КЛИЕНТА:
+{{ order.comment }}
+{% endif %}
+--
+Открыть в админке:
+https://pro-instrument.ru/panel/orders/order/{{ order.pk }}/change/

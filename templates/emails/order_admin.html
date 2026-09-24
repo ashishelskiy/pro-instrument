@@ -1,0 +1,96 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Новый заказ №{{ order.pk }}{% endblock %}
+
+{% block content %}
+    <h1>🆕 Новый заказ №{{ order.pk }}</h1>
+
+    <p><strong>Сумма: {{ order.total_price }} ₽</strong></p>
+
+    <h2>Покупатель</h2>
+    <div class="info-block">
+        {% if order.organization %}
+            <p><strong>{{ order.organization.name }}</strong></p>
+            <p style="margin-top: 4px;">ИНН: {{ order.organization.inn }}</p>
+        {% else %}
+            <p><strong>{{ order.name }} (физлицо)</strong></p>
+        {% endif %}
+    </div>
+
+    <h2>Контакт</h2>
+    <p>
+        Имя: <strong>{{ order.name }}</strong><br>
+        Телефон: <strong>{{ order.phone }}</strong><br>
+        Email: <strong>{{ order.email }}</strong>
+    </p>
+
+    <h2>Доставка</h2>
+    <div class="info-block">
+        <p><strong>{{ order.delivery_method_name|default:"не выбрана" }}</strong></p>
+        {% if order.delivery_price %}
+            <p style="margin-top: 6px;">Стоимость доставки: {{ order.delivery_price }} ₽</p>
+        {% endif %}
+        {% if order.address %}
+            <p style="margin-top: 6px;">Адрес: {{ order.address }}</p>
+        {% endif %}
+    </div>
+
+    <h2>Оплата</h2>
+    <p>{{ order.get_payment_method_display }}</p>
+
+    <h2>Состав заказа</h2>
+    <table class="items">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th style="width: 60px; text-align: center;">Кол-во</th>
+                <th style="width: 100px; text-align: right;">Сумма</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr>
+                <td>
+                    {{ item.product_name }}
+                    {% if item.product_article %}
+                        <br><small style="color: #999;">Арт: {{ item.product_article }}</small>
+                    {% endif %}
+                </td>
+                <td style="text-align: center;">{{ item.quantity }}</td>
+                <td style="text-align: right;">{{ item.subtotal }} ₽</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            {% if order.delivery_price %}
+            <tr>
+                <td colspan="2" style="text-align: right;">Доставка:</td>
+                <td style="text-align: right;">{{ order.delivery_price }} ₽</td>
+            </tr>
+            {% endif %}
+            <tr class="total-row">
+                <td colspan="2" style="text-align: right;"><strong>Итого:</strong></td>
+                <td class="total" style="text-align: right;">{{ order.total_price }} ₽</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    {% if order.comment %}
+    <h2>Комментарий клиента</h2>
+    <div class="info-block">
+        <p>{{ order.comment|linebreaksbr }}</p>
+    </div>
+    {% endif %}
+
+    <div class="divider"></div>
+
+    <p style="text-align: center; margin: 20px 0;">
+        <a href="https://pro-instrument.ru/panel/orders/order/{{ order.pk }}/change/" class="button">
+            Открыть заказ в админке →
+        </a>
+    </p>
+
+    <p style="text-align: center; color: #888; font-size: 13px;">
+        Заказ от {{ order.created_at|date:"d.m.Y в H:i" }}
+    </p>
+{% endblock %}
