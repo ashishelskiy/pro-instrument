@@ -1753,6 +1753,9 @@ main {
     #bannerCarousel .carousel-control-next {
         right: 10px;
     }
+    #bannerCarousel .carousel-indicators {
+        display: none;
+    }
 }
 
 @media (max-width: 576px) {
@@ -1771,6 +1774,9 @@ main {
 
     #bannerCarousel .carousel-caption {
         padding: 15px 15px 15px 20px;
+    }
+    #bannerCarousel .carousel-indicators {
+        display: none;
     }
 }
 
