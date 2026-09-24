@@ -182,11 +182,21 @@ LOGOUT_REDIRECT_URL = '/'
 # EMAIL
 # ============================================================
 
-# Для разработки — письма печатаются в консоль
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Если DEBUG — письма печатаются в консоль.
+# В продакшене — реальная отправка через SMTP Beget.
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = config('EMAIL_HOST', default='smtp.beget.com')
+    EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
+    EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=True, cast=bool)
+    EMAIL_USE_TLS = False
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 # От кого письма
-DEFAULT_FROM_EMAIL = 'noreply@pro-instrument.ru'
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='')
 
 # Email администратора — куда приходят уведомления о заказах
-ADMIN_EMAIL = 'ashishelskiyo@gmail.com'
+ADMIN_EMAIL = config('ADMIN_EMAIL', default='ooo-eksinus@yandex.ru')
