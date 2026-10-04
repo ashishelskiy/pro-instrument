@@ -86,8 +86,6 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('catalog:category_detail', kwargs={'slug': self.slug})
 
-    description = models.TextField('Описание', blank=True, max_length=500)
-
     # ===== BENTO НА ГЛАВНОЙ =====
     show_in_bento = models.BooleanField(
         'Показывать в bento на главной',
@@ -101,8 +99,6 @@ class Category(models.Model):
         help_text='Чем меньше — тем раньше. Только для категорий с галочкой выше.',
     )
 
-    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
-    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
 
 class Brand(models.Model):
     """Модель бренда"""
