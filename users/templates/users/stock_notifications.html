@@ -30,9 +30,9 @@
                         {% for n in notifications %}
                             <tr>
                                 <td>
-                                    {% if n.product.image %}
+                                    {% if n.product %}
                                         <a href="{% url 'catalog:product_detail' n.product.slug %}">
-                                            <img src="{{ n.product.image.url }}"
+                                            <img src="{{ n.product.display_image_url }}"
                                                  alt="{{ n.product.name }}"
                                                  style="width: 60px; height: 60px; object-fit: contain;">
                                         </a>

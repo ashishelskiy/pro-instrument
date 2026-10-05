@@ -1,0 +1,253 @@
+id,parent_id,name,slug
+1,,Автотовары,avtotovary
+2,1,Домкраты,domkraty
+3,1,Мойки высокого давления,moyki-vysokogo-davleniya
+4,3,Аккумуляторные мойки высокого давления,akkumulyatornye-moyki-vysokogo-davleniya
+5,3,Сетевые мойки высокого давления,setevye-moyki-vysokogo-davleniya
+6,1,Полировальные машины,polirovalnye-mashiny
+7,1,Стеклодомкраты и вакуумные присоски,steklodomkraty-i-vakuumnye-prisoski
+8,,Климат и отопление,klimat-i-otoplenie
+9,8,Водонагреватели,vodonagrevateli
+10,9,Накопительные водонагреватели (бойлеры),nakopitelnye-vodonagrevateli-boylery
+11,9,Проточные водонагреватели,protochnye-vodonagrevateli
+12,8,Газовые котлы,gazovye-kotly
+13,8,Конвекторы,konvektory
+14,13,"Конвекторы серии ""Е""",konvektory-serii-e
+15,13,"Конвекторы серии ""С""",konvektory-serii-s
+16,13,"Конвекторы серии ""СН""",konvektory-serii-sn
+17,13,Электрические конвекторы,elektricheskie-konvektory
+18,8,Обогреватели,obogrevateli
+19,18,Масляные радиаторы,maslyanye-radiatory
+20,18,Инфракрасные обогреватели,infrakrasnye-obogrevateli
+21,18,Тепловентиляторы,teploventilyatory
+22,18,Тепловые завесы,teplovye-zavesy
+23,8,Тепловые пушки,teplovye-pushki
+24,23,Газовые тепловые пушки,gazovye-teplovye-pushki
+25,23,Дизельные тепловые пушки,dizelnye-teplovye-pushki
+26,23,Электрические тепловые пушки,elektricheskie-teplovye-pushki
+27,8,Увлажнители воздуха,uvlazhniteli-vozdukha
+28,,Насосное оборудование,nasosnoe-oborudovanie
+29,28,Автоматика для насосов,avtomatika-dlya-nasosov
+30,28,Вибрационные насосы,vibratsionnye-nasosy
+31,28,Гидроаккумуляторы,gidroakkumulyatory
+32,28,Дренажные насосы,drenazhnye-nasosy
+33,28,Канализационные насосы,kanalizatsionnye-nasosy
+34,28,Насосные станции,nasosnye-stantsii
+35,28,Поверхностные насосы,poverkhnostnye-nasosy
+36,28,Скважинные насосы,skvazhinnye-nasosy
+37,28,Фекальные насосы,fekalnye-nasosy
+38,28,Циркуляционные насосы,tsirkulyatsionnye-nasosy
+39,28,Мотопомпы,motopompy
+40,,Садовая техника,sadovaya-tekhnika
+41,40,Аккумуляторные секаторы,akkumulyatornye-sekatory
+42,40,Воздуходувки,vozdukhoduvki
+43,42,Воздуходувки бензиновые,vozdukhoduvki-benzinovye
+44,42,Воздуходувки электрические,vozdukhoduvki-elektricheskie
+45,42,Воздуходувки аккумуляторные,vozdukhoduvki-akkumulyatornye
+46,40,Газонокосилки и скарификаторы,gazonokosilki-i-skarifikatory
+47,46,Газонокосилки аккумуляторные,gazonokosilki-akkumulyatornye
+48,46,Газонокосилки бензиновые,gazonokosilki-benzinovye
+49,46,Газонокосилки механические,gazonokosilki-mekhanicheskie
+50,46,Газонокосилки электрические,gazonokosilki-elektricheskie
+51,46,Скарификаторы,skarifikatory
+52,40,Двигатели,dvigateli
+53,40,Дровоколы,drovokoly
+54,40,Зернодробилки,zernodrobilki
+55,40,Культиваторы и мотоблоки,kultivatory-i-motobloki
+56,55,Аккумуляторные культиваторы,akkumulyatornye-kultivatory
+57,55,Мотоблоки,motobloki
+58,55,Мотокультиваторы,motokultivatory
+59,55,Электрические культиваторы,elektricheskie-kultivatory
+60,40,Лодочные моторы,lodochnye-motory
+61,40,Мотобуры,motobury
+62,40,Опрыскиватели,opryskivateli
+63,62,Аккумуляторные опрыскиватели,akkumulyatornye-opryskivateli
+64,62,Бензиновые опрыскиватели,benzinovye-opryskivateli
+65,40,Садовые измельчители,sadovye-izmelchiteli
+66,65,Садовые измельчители электрические,sadovye-izmelchiteli-elektricheskie
+67,65,Садовые измельчители бензиновые,sadovye-izmelchiteli-benzinovye
+68,40,Снегоуборщики,snegouborshchiki
+69,68,Снегоуборщики аккумуляторные,snegouborshchiki-akkumulyatornye
+70,68,Снегоуборщики бензиновые,snegouborshchiki-benzinovye
+71,68,Снегоуборщики электрические,snegouborshchiki-elektricheskie
+72,40,Триммеры и кусторезы,trimmery-i-kustorezy
+73,72,Триммеры аккумуляторные,trimmery-akkumulyatornye
+74,72,Триммеры бензиновые,trimmery-benzinovye
+75,72,Триммеры электрические,trimmery-elektricheskie
+76,72,Кусторезы,kustorezy
+77,40,Умывальники,umyvalniki
+78,77,Умывальники с подогревом,umyvalniki-s-podogrevom
+79,77,Умывальники без подогрева,umyvalniki-bez-podogreva
+80,77,Душ с подогревом,dush-s-podogrevom
+81,40,Цепные пилы,tsepnye-pily
+82,81,Бензопилы,benzopily
+83,81,Аккумуляторные пилы,akkumulyatornye-pily
+84,81,Электропилы,elektropily
+85,,Электроинструмент,elektroinstrument
+86,85,Аккумуляторные отвертки,akkumulyatornye-otvertki
+87,85,Виброшлифовальные машины,vibroshlifovalnye-mashiny
+88,85,Гайковерты,gaykoverty
+89,88,Гайковерты аккумуляторные,gaykoverty-akkumulyatornye
+90,88,Гайковерты сетевые,gaykoverty-setevye
+91,85,Гвоздезабивные пистолеты,gvozdezabivnye-pistolety
+92,85,Граверы,gravery
+93,85,Дрели ударные,dreli-udarnye
+94,85,Краскопульты,kraskopulty
+95,85,Лобзики,lobziki
+96,85,Ленточные шлифмашины,lentochnye-shlifmashiny
+97,85,Реноваторы,renovatory
+98,85,Отбойные молотки,otboynye-molotki
+99,85,Отрезные пилы,otreznye-pily
+100,85,Перфораторы,perforatory
+101,85,Пилы торцовочные,pily-tortsovochnye
+102,85,Рейсмусовые станки,reysmusovye-stanki
+103,85,Сабельные пилы,sabelnye-pily
+104,85,Станки для заточки цепей,stanki-dlya-zatochki-tsepey
+105,85,Степлеры электрические,steplery-elektricheskie
+106,85,Строительные миксеры,stroitelnye-miksery
+107,85,Строительные пылесосы,stroitelnye-pylesosy
+108,85,Термопистолеты и строительные фены,termopistolety-i-stroitelnye-feny
+109,85,Точильные станки,tochilnye-stanki
+110,85,Угловые шлифовальные машины,uglovye-shlifovalnye-mashiny
+111,85,Фрезерные машины,frezernye-mashiny
+112,85,Шуруповерты,shurupoverty
+113,85,Циркулярные (дисковые) пилы,tsirkulyarnye-diskovye-pily
+114,85,Циркулярные станки,tsirkulyarnye-stanki
+115,85,Штроборезы,shtroborezy
+116,85,Эксцентриковые (орбитальные) шлифмашины,ekstsentrikovye-orbitalnye-shlifmashiny
+117,85,Электрические плиткорезы,elektricheskie-plitkorezy
+118,85,Электрические рубанки,elektricheskie-rubanki
+119,,Ручной инструмент,ruchnoy-instrument
+120,119,Измерительный инструмент,izmeritelnyy-instrument
+121,119,Крепежный инструмент,krepezhnyy-instrument
+122,119,Наборы инструмента,nabory-instrumenta
+123,119,Отделочный инструмент,otdelochnyy-instrument
+124,119,Прочий инструмент,prochiy-instrument
+125,119,Режущий инструмент,rezhushchiy-instrument
+126,119,Садовый инвентарь,sadovyy-inventar
+127,119,Слесарный инструмент,slesarnyy-instrument
+128,119,Столярный инструмент,stolyarnyy-instrument
+129,119,Сумки для инструмента,sumki-dlya-instrumenta
+130,,Измерительные приборы,izmeritelnye-pribory
+131,130,Детекторы металла,detektory-metalla
+132,130,Измерительные клещи,izmeritelnye-kleshchi
+133,130,Индикаторные отвертки,indikatornye-otvertki
+134,130,Лазерные дальномеры,lazernye-dalnomery
+135,130,Лазерные уровни,lazernye-urovni
+136,130,Штативы,shtativy
+137,130,Мультиметры,multimetry
+138,130,Тестеры напряжения,testery-napryazheniya
+139,,Сварочное оборудование,svarochnoe-oborudovanie
+140,139,Сварочные краги,svarochnye-kragi
+141,139,Сварочные аппараты для ПВХ труб,svarochnye-apparaty-dlya-pvkh-trub
+142,139,Сварочные аппараты,svarochnye-apparaty
+143,142,Инверторные сварочные аппараты (ММА),invertornye-svarochnye-apparaty-mma
+144,142,Сварочные полуавтоматы (MIG/MAG),svarochnye-poluavtomaty-mig-mag
+145,142,Инверторные сварочные аппараты (TIG),invertornye-svarochnye-apparaty-tig
+146,142,Инверторные аппараты для воздушно-плазменной резки (ИПР),invertornye-apparaty-dlya-vozdushno-plazmennoy-rezki-ipr
+147,139,Сварочные горелки,svarochnye-gorelki
+148,139,Сварочные маски,svarochnye-maski
+149,,Силовая техника,silovaya-tekhnika
+150,149,Автоматические устройства защиты,avtomaticheskie-ustroystva-zashchity
+151,149,Автотрансформаторы,avtotransformatory
+152,149,Генераторы,generatory
+153,152,Блоки автоматического ввода резерва,bloki-avtomaticheskogo-vvoda-rezerva
+154,152,Однофазные генераторы,odnofaznye-generatory
+155,152,Трехфазные генераторы,trekhfaznye-generatory
+156,149,Источники бесперебойного питания,istochniki-bespereboynogo-pitaniya
+157,149,Компрессоры,kompressory
+158,149,Пневмоинструмент,pnevmoinstrument
+159,149,Стабилизаторы напряжения,stabilizatory-napryazheniya
+160,159,Однофазные стабилизаторы,odnofaznye-stabilizatory
+161,159,Трёхфазные стабилизаторы,trekhfaznye-stabilizatory
+162,149,Удлинители силовые,udliniteli-silovye
+163,,Все для строительства,vse-dlya-stroitelstva
+164,163,Бензорезы,benzorezy
+165,163,Бетономешалки,betonomeshalki
+166,163,Виброплиты и коврики,vibroplity-i-kovriki
+167,166,Виброплиты,vibroplity
+168,166,Коврики для виброплит,kovriki-dlya-vibroplit
+169,163,Лестницы и стремянки,lestnitsy-i-stremyanki
+170,169,Вышка-тура и лестница-помост,vyshka-tura-i-lestnitsa-pomost
+171,169,Лестницы алюминиевые двухсекционные,lestnitsy-alyuminievye-dvukhsektsionnye
+172,169,Лестницы алюминиевые трёхсекционные,lestnitsy-alyuminievye-trekhsektsionnye
+173,169,Лестницы-трансформеры,lestnitsy-transformery
+174,169,Стремянки алюминиевые,stremyanki-alyuminievye
+175,169,Стремянки стальные,stremyanki-stalnye
+176,,Лампы,lampy
+177,176,GX53,gx53
+178,176,GU5.3,gu5-3
+179,176,Е14,e14
+180,176,Е27,e27
+181,,Расходные материалы,raskhodnye-materialy
+182,181,Для электромонтажа,dlya-elektromontazha
+183,182,Клеммники,klemmniki
+184,182,Изоленты,izolenty
+185,182,Хомуты (стяжки) нейлоновые,khomuty-styazhki-neylonovye
+186,181,Для водонагревателей,dlya-vodonagrevateley
+187,181,Для генераторов,dlya-generatorov
+188,181,Для насосов,dlya-nasosov
+189,181,Для садовой техники,dlya-sadovoy-tekhniki
+190,189,Масла,masla
+191,189,Для бензопил,dlya-benzopil
+192,189,Для аккумуляторных пил,dlya-akkumulyatornykh-pil
+193,189,Для электропил,dlya-elektropil
+194,189,Для моек высокого давления,dlya-moek-vysokogo-davleniya
+195,189,Для бензотриммеров,dlya-benzotrimmerov
+196,189,Для электротриммеров,dlya-elektrotrimmerov
+197,189,Для газонокосилок,dlya-gazonokosilok
+198,189,Для культиваторов и мотоблоков,dlya-kultivatorov-i-motoblokov
+199,189,Для снегоуборщиков,dlya-snegouborshchikov
+200,189,Для мотобуров,dlya-motoburov
+201,189,Для зернодробилок,dlya-zernodrobilok
+202,181,Для сварки,dlya-svarki
+203,202,Сварочные электроды,svarochnye-elektrody
+204,202,Сварочные принадлежности,svarochnye-prinadlezhnosti
+205,181,Для электроинструмента,dlya-elektroinstrumenta
+206,205,Оснастка для дрелей и шуруповертов,osnastka-dlya-dreley-i-shurupovertov
+207,205,Оснастка для заточных станков,osnastka-dlya-zatochnykh-stankov
+208,205,Оснастка для лобзиков,osnastka-dlya-lobzikov
+209,205,Оснастка для отрезных пил,osnastka-dlya-otreznykh-pil
+210,205,Оснастка для перфораторов,osnastka-dlya-perforatorov
+211,205,Оснастка для сабельных пил,osnastka-dlya-sabelnykh-pil
+212,205,Оснастка для строительных миксеров,osnastka-dlya-stroitelnykh-mikserov
+213,205,Оснастка для УШМ,osnastka-dlya-ushm
+214,205,Оснастка для фрезеров,osnastka-dlya-frezerov
+215,205,"Оснастка для циркулярных пил и станков, торцовочных пил",osnastka-dlya-tsirkulyarnykh-pil-i-stankov-tortsovochnykh-pil
+216,205,Оснастка для штроборезов,osnastka-dlya-shtroborezov
+217,205,Оснастка для эксцентриковых шлифмашин,osnastka-dlya-ekstsentrikovykh-shlifmashin
+218,205,Вилки и розетки,vilki-i-rozetki
+219,205,Мешки для строительных пылесосов,meshki-dlya-stroitelnykh-pylesosov
+220,205,Аккумуляторы для электроинструмента и техники,akkumulyatory-dlya-elektroinstrumenta-i-tekhniki
+221,205,Биты,bity
+222,205,Буры по бетону,bury-po-betonu
+223,205,Зарядные устройства,zaryadnye-ustroystva
+224,205,Зубила и пики,zubila-i-piki
+225,205,Ключи для электроинструмента,klyuchi-dlya-elektroinstrumenta
+226,205,Коронки по бетону и керамике,koronki-po-betonu-i-keramike
+227,205,Насадки-миксеры,nasadki-miksery
+228,205,Патроны для дрели,patrony-dlya-dreli
+229,205,Пилки для лобзиков,pilki-dlya-lobzikov
+230,205,Полотна для сабельных пил,polotna-dlya-sabelnykh-pil
+231,205,Ручки для электроинструмента,ruchki-dlya-elektroinstrumenta
+232,205,Сверла,sverla
+233,205,Фрезы,frezy
+234,205,Цанги,tsangi
+235,181,Крепеж,krepezh
+236,235,Заклёпки алюминиевые,zaklepki-alyuminievye
+237,235,Скобы для степлера,skoby-dlya-steplera
+238,235,Хомуты металлические,khomuty-metallicheskie
+239,181,Леска и диски для триммеров,leska-i-diski-dlya-trimmerov
+240,,Оригинальные запчасти,originalnye-zapchasti
+241,240,Для бензопил,zapchasti-dlya-benzopil
+242,240,Для аккумуляторных пил,zapchasti-dlya-akkumulyatornykh-pil
+243,240,Для электропил,zapchasti-dlya-elektropil
+244,240,Для моек высокого давления,zapchasti-dlya-moek-vysokogo-davleniya
+245,240,Для бензотриммеров,zapchasti-dlya-benzotrimmerov
+246,240,Для электротриммеров,zapchasti-dlya-elektrotrimmerov
+247,240,Для газонокосилок,zapchasti-dlya-gazonokosilok
+248,240,Для культиваторов и мотоблоков,zapchasti-dlya-kultivatorov-i-motoblokov
+249,240,Для снегоуборщиков,zapchasti-dlya-snegouborshchikov
+250,240,Для мотобуров,zapchasti-dlya-motoburov
+251,240,Для зернодробилок,zapchasti-dlya-zernodrobilok
+252,240,Для электроинструмента,zapchasti-dlya-elektroinstrumenta

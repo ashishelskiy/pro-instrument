@@ -16,16 +16,14 @@
 {% block content %}
 <div class="row">
     <div class="col-md-6">
-        {% if product.image %}
-        <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
-        {% endif %}
+        <img src="{{ product.display_image_url }}" class="img-fluid" alt="{{ product.name }}">
 
         <!-- Дополнительные изображения -->
         {% if product.images.all %}
             <div class="row row-cols-4 g-1 mt-3" style="max-width: 420px;">
                 {% for image in product.images.all %}
                 <div class="col">
-                    <img src="{{ image.image.url }}" class="img-thumbnail" alt="{{ product.name }}" style="height: 100px; object-fit: cover; cursor: pointer;" onclick="document.querySelector('.img-fluid').src=this.src">
+                    <img src="{{ image.display_image_url }}" class="img-thumbnail" alt="{{ product.name }}" style="height: 100px; object-fit: cover; cursor: pointer;" onclick="document.querySelector('.img-fluid').src=this.src">
                 </div>
                 {% endfor %}
             </div>
@@ -244,9 +242,7 @@
                 <div class="card h-100 product-card d-flex flex-column">
 
                     <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
-                        {% endif %}
+                        <img src="{{ product.display_image_url  }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
                     </a>
 
                     <div class="card-body d-flex flex-column">

@@ -123,9 +123,7 @@
                 <div class="sidebar-new-products__list">
                     {% for product in new_products|slice:":3" %}
                     <a href="{% url 'catalog:product_detail' product.slug %}" class="sidebar-new-products__item">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="sidebar-new-products__img">
-                        {% endif %}
+                        <img src="{{ product.display_image_url }}" alt="{{ product.name }}" class="sidebar-new-products__img">
                         <div class="sidebar-new-products__info">
                             <div class="sidebar-new-products__name">{{ product.name|truncatechars:30 }}</div>
                             <div class="sidebar-new-products__price">{{ product.price }} ₽</div>
@@ -274,9 +272,7 @@
                             <div class="card h-100 product-card d-flex flex-column">
 
                                 <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
-                                    {% if product.image %}
-                                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
-                                    {% endif %}
+                                    <img src="{{ product.display_image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
                                 </a>
 
                                 <div class="card-body d-flex flex-column">
@@ -340,9 +336,7 @@
 
                                 {# Картинка — ссылка #}
                                 <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
-                                    {% if product.image %}
-                                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
-                                    {% endif %}
+                                    <img src="{{ product.display_image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
                                 </a>
 
                                 <div class="card-body d-flex flex-column">

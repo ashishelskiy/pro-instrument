@@ -123,9 +123,7 @@
 
                         {# Картинка — ссылка на товар #}
                         <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
-                            {% if product.image %}
-                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
-                            {% endif %}
+                            <img src="{{ product.display_image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
                         </a>
 
                         <div class="card-body d-flex flex-column">

@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.text import slugify
+from django.templatetags.static import static
 
 
 # class Category(models.Model):
@@ -86,8 +87,6 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('catalog:category_detail', kwargs={'slug': self.slug})
 
-    description = models.TextField('Описание', blank=True, max_length=500)
-
     # ===== BENTO НА ГЛАВНОЙ =====
     show_in_bento = models.BooleanField(
         'Показывать в bento на главной',
@@ -101,8 +100,6 @@ class Category(models.Model):
         help_text='Чем меньше — тем раньше. Только для категорий с галочкой выше.',
     )
 
-    created_at = models.DateTimeField('Дата создания', auto_now_add=True)
-    updated_at = models.DateTimeField('Дата обновления', auto_now=True)
 
 class Brand(models.Model):
     """Модель бренда"""
@@ -169,6 +166,14 @@ class Product(models.Model):
         null=True,
         help_text='Рекомендуемый размер: 800x800',
     )
+    image_url = models.URLField(
+        'Ссылка на изображение у поставщика',
+        max_length=1000,
+        blank=True,
+        db_index=True,
+        help_text='Заполняется автоматически при импорте. '
+                  'Показывается только если не загружено своё изображение.',
+    )
 
     brand = models.ForeignKey(
         Brand,
@@ -232,6 +237,18 @@ class Product(models.Model):
         return reverse('catalog:product_detail', kwargs={'slug': self.slug})
 
     @property
+    def display_image_url(self):
+        """
+        URL картинки с фолбэком:
+        1) своя загруженная → 2) ссылка поставщика → 3) заглушка.
+        """
+        if self.image:
+            return self.image.url
+        if self.image_url:
+            return self.image_url
+        return static('images/no-image.png')
+
+    @property
     def sales_count(self):
         """Количество проданных единиц (из заказов)."""
         from orders.models import OrderItem
@@ -248,7 +265,19 @@ class ProductImage(models.Model):
         verbose_name='Товар',
         related_name='images'
     )
-    image = models.ImageField('Изображение', upload_to='products/gallery/')
+    # image = models.ImageField('Изображение', upload_to='products/gallery/')
+    image = models.ImageField(
+        'Изображение',
+        upload_to='products/gallery/',
+        null=True,
+        blank=True,
+    )
+    image_url = models.URLField(
+        'Ссылка на изображение у поставщика',
+        max_length=1000,
+        blank=True,
+        db_index=True,
+    )
     is_main = models.BooleanField('Главное изображение', default=False)
     order = models.PositiveIntegerField('Порядок', default=0)
 
@@ -259,6 +288,14 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f'Изображение для {self.product.name}'
+
+    @property
+    def display_image_url(self):
+        if self.image:
+            return self.image.url
+        if self.image_url:
+            return self.image_url
+        return static('images/no-image.png')
 
 
 class ProductProperty(models.Model):

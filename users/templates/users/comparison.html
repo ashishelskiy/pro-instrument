@@ -74,13 +74,11 @@
                                                         </button>
                                                     </form>
 
-                                                    {% if product.image %}
                                                         <a href="{% url 'catalog:product_detail' product.slug %}">
-                                                            <img src="{{ product.image.url }}"
+                                                            <img src="{{ product.display_image_url }}"
                                                                  alt="{{ product.name }}"
                                                                  style="height: 100px; object-fit: contain; display: block; margin: 0 auto;">
                                                         </a>
-                                                    {% endif %}
 
                                                     <a href="{% url 'catalog:product_detail' product.slug %}"
                                                        style="color: #333; text-decoration: none; font-size: 0.85rem; display: block; margin-top: 8px;">

@@ -14,7 +14,7 @@ from .models import (
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
-    fields = ('image', 'is_main', 'order')
+    fields = ('image', 'image_url', 'is_main', 'order')
     ordering = ('order',)
 
 
@@ -62,6 +62,12 @@ class PriceUpdateResource(resources.ModelResource):
         widget=ForeignKeyWidget(Category, field='name'),
     )
     image = fields.Field(column_name='image', attribute='image', widget=CharWidget())
+    image_url = fields.Field(
+        column_name='image_url',
+        attribute='image_url',
+        widget=CharWidget(),
+        default='',
+    )
     description = fields.Field(
         column_name='description', attribute='description', default='', widget=CharWidget(),
     )
@@ -78,6 +84,7 @@ class PriceUpdateResource(resources.ModelResource):
             'brand__name',
             'category__name',
             'image',
+            'image_url',
             'description',
         )
         export_order = fields
@@ -104,6 +111,10 @@ class PriceUpdateResource(resources.ModelResource):
         if not row.get('description'):
             row['description'] = ''
 
+        # Пустой image_url — не затираем существующий
+        if not row.get('image_url'):
+            row.pop('image_url', None)
+
         return row
 
     def after_import_row(self, row, row_result, **kwargs):
@@ -122,16 +133,6 @@ class PriceUpdateResource(resources.ModelResource):
 
     def dehydrate_in_stock(self, product):
         return 'True' if product.in_stock else 'False'
-
-
-# @admin.register(Category)
-# class CategoryAdmin(admin.ModelAdmin):
-#     list_display = ('name', 'parent', 'created_at')
-#     list_filter = ('parent',)
-#     search_fields = ('name', 'slug')
-#     prepopulated_fields = {'slug': ('name',)}
-#     ordering = ('name',)
-#     inlines = [CategoryPropertyInline]
 
 
 @admin.register(Category)
@@ -196,7 +197,7 @@ class ProductAdmin(ImportExportModelAdmin):
             'fields': (
                 'name', 'slug', 'article',
                 'price', 'old_price', 'in_stock',
-                'image', 'image_preview',
+                'image', 'image_url', 'image_preview',
                 'brand', 'category',
             ),
         }),
@@ -227,12 +228,12 @@ class ProductAdmin(ImportExportModelAdmin):
 
     @admin.display(description='Превью')
     def image_preview(self, obj):
-        if obj.image:
-            return format_html(
-                '<img src="{}" style="max-height: 80px; max-width: 120px;" />',
-                obj.image.url,
-            )
-        return '—'
+        if not obj.pk:
+            return '—'
+        return format_html(
+            '<img src="{}" style="max-height: 80px; max-width: 120px; object-fit: contain;" />',
+            obj.display_image_url,
+        )
 
 
 @admin.register(ProductCertificate)
@@ -253,7 +254,6 @@ class ProductCertificateAdmin(admin.ModelAdmin):
     @admin.display(description='Файл', boolean=True)
     def has_file(self, obj):
         return bool(obj.file)
-
 
 
 @admin.register(ProductProperty)

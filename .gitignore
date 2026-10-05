@@ -1,6 +1,4 @@
 # Виртуальное окружение
-venv/
-env/
 .venv/
 
 # Python
@@ -44,3 +42,6 @@ staticfiles/
 # Файлы отладки
 .DS_Store
 Thumbs.db
+
+# Данные для импорта
+data/
