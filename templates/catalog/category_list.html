@@ -39,7 +39,7 @@
                             <div class="category-content">
                                 <h5 class="category-title">{{ category.name }}</h5>
                                 <p class="category-subtitle">
-                                    {% with count=category.products.count %}
+                                    {% with count=category.total_products_count %}
                                         {% if count > 0 %}
                                             {{ count }} товар{{ count|pluralize:"а,ов" }}
                                         {% else %}

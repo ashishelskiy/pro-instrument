@@ -100,6 +100,14 @@ class Category(models.Model):
         help_text='Чем меньше — тем раньше. Только для категорий с галочкой выше.',
     )
 
+    @property
+    def total_products_count(self):
+        """Товары в категории + во всех вложенных."""
+        count = self.products.count()
+        for child in self.children.all():
+            count += child.total_products_count
+        return count
+
 
 class Brand(models.Model):
     """Модель бренда"""
