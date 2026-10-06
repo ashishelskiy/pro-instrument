@@ -1,4 +1,4 @@
-id,parent_id,name,slug
+﻿id,parent_id,name,slug
 1,,Автотовары,avtotovary
 2,1,Домкраты,domkraty
 3,1,Мойки высокого давления,moyki-vysokogo-davleniya
