@@ -2432,3 +2432,18 @@ main {
         margin-bottom: 1rem;
     }
 }
+
+/* ================================================================
+   ===== ССЫЛКИ В БЛОКЕ «ДОКУМЕНТАЦИЯ» =====
+   ================================================================ */
+.docs-list a {
+    color: #212529;              /* обычный цвет текста */
+    text-decoration: none;
+    transition: color 0.15s ease-in-out;
+}
+
+.docs-list a:hover,
+.docs-list a:focus {
+    color: #BD0000;              /* красный при наведении */
+    text-decoration: underline;
+}

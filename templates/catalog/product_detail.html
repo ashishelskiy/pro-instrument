@@ -177,37 +177,100 @@
         </div>
 
         {# ДОКУМЕНТАЦИЯ #}
+<!--        {% if product.certificates.exists %}-->
+<!--            <div class="mt-4 pt-3" style="border-top: 1px solid #eee;">-->
+<!--                <h6 class="mb-3">Документация</h6>-->
+
+<!--                {% for cert in product.certificates.all %}-->
+<!--                    <div class="mb-3 pb-2" style="border-bottom: 1px dashed #eee;">-->
+<!--                        <div class="mb-1">-->
+<!--                            <strong style="font-size: 0.9rem;">{{ cert.name }}</strong>-->
+<!--                        </div>-->
+<!--                        <div class="text-muted small mb-2">-->
+<!--                            {% if cert.number %}№ {{ cert.number }}{% endif %}-->
+<!--                            {% if cert.valid_until %}· до {{ cert.valid_until|date:"d.m.Y" }}{% endif %}-->
+<!--                        </div>-->
+<!--                        <div class="d-flex gap-2 flex-wrap">-->
+<!--                            {% if cert.file %}-->
+<!--                                <a href="{{ cert.file.url }}"-->
+<!--                                   target="_blank"-->
+<!--                                   class="btn btn-sm btn-outline-secondary">-->
+<!--                                    <i class="fas fa-file-pdf"></i> Скачать-->
+<!--                                </a>-->
+<!--                            {% endif %}-->
+<!--                            {% if cert.url %}-->
+<!--                                <a href="{{ cert.url }}"-->
+<!--                                   target="_blank"-->
+<!--                                   class="btn btn-sm btn-outline-secondary">-->
+<!--                                    <i class="fas fa-external-link-alt"></i> Проверить в реестре-->
+<!--                                </a>-->
+<!--                            {% endif %}-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                {% endfor %}-->
+<!--            </div>-->
+<!--        {% elif product.no_certificate_required %}-->
+<!--            <div class="mt-4 pt-3" style="border-top: 1px solid #eee;">-->
+<!--                <h6 class="mb-2">Сертификация</h6>-->
+<!--                <p class="text-muted small mb-0">-->
+<!--                    <i class="fas fa-info-circle"></i>-->
+<!--                    Товар не подлежит обязательной сертификации-->
+<!--                </p>-->
+<!--            </div>-->
+<!--        {% endif %}-->
+        {# ДОКУМЕНТАЦИЯ #}
         {% if product.certificates.exists %}
             <div class="mt-4 pt-3" style="border-top: 1px solid #eee;">
                 <h6 class="mb-3">Документация</h6>
 
-                {% for cert in product.certificates.all %}
-                    <div class="mb-3 pb-2" style="border-bottom: 1px dashed #eee;">
-                        <div class="mb-1">
-                            <strong style="font-size: 0.9rem;">{{ cert.name }}</strong>
-                        </div>
-                        <div class="text-muted small mb-2">
-                            {% if cert.number %}№ {{ cert.number }}{% endif %}
-                            {% if cert.valid_until %}· до {{ cert.valid_until|date:"d.m.Y" }}{% endif %}
-                        </div>
-                        <div class="d-flex gap-2 flex-wrap">
+                <div class="docs-list">
+                    {% for cert in product.certificates.all %}
+                        {% with name_lower=cert.name|lower %}
+                        <p class="mb-2">
+                            <em class="fa fa-file" style="margin-top: -3px;"></em>
+
                             {% if cert.file %}
                                 <a href="{{ cert.file.url }}"
                                    target="_blank"
-                                   class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-file-pdf"></i> Скачать
+                                   rel="noopener"
+                                   style="padding-left: 10px;">
+                                    {{ cert.name }}
                                 </a>
-                            {% endif %}
-                            {% if cert.url %}
+                            {% elif cert.url %}
                                 <a href="{{ cert.url }}"
                                    target="_blank"
-                                   class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-external-link-alt"></i> Проверить в реестре
+                                   rel="noopener"
+                                   style="padding-left: 10px;">
+                                    {{ cert.name }}
+
+                                    {# стрелочка «внешняя ссылка» — только для реестров #}
+                                    {% if 'сертификат' in name_lower or 'декларац' in name_lower %}
+                                        <svg style="width: 12px; height: 12px; min-width: 12px; margin-left: 6px; vertical-align: -1px; fill: none; stroke: currentColor;"
+                                             viewBox="0 0 24 24" stroke-width="2"
+                                             stroke-linecap="round" stroke-linejoin="round"
+                                             aria-hidden="true">
+                                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                            <polyline points="15 3 21 3 21 9"></polyline>
+                                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                                        </svg>
+                                    {% endif %}
                                 </a>
+                            {% else %}
+                                {# ни файла, ни ссылки — просто текст #}
+                                <span style="padding-left: 10px;">{{ cert.name }}</span>
                             {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
+
+                            {# дополнительная инфа: номер и срок — тихо, серым #}
+                            {% if cert.number or cert.valid_until %}
+                                <span class="text-muted small" style="margin-left: 6px;">
+                                    {% if cert.number %}№ {{ cert.number }}{% endif %}
+                                    {% if cert.valid_until %}· до {{ cert.valid_until|date:"d.m.Y" }}{% endif %}
+                                </span>
+                            {% endif %}
+                        </p>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
             </div>
         {% elif product.no_certificate_required %}
             <div class="mt-4 pt-3" style="border-top: 1px solid #eee;">
