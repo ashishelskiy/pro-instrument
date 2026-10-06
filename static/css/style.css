@@ -1064,7 +1064,6 @@ main {
     align-items: baseline;
     font-size: 0.9rem;
     padding: 4px 0;
-    border-bottom: 1px dashed #dee2e6;
 }
 
 .characteristic-item:last-child {
@@ -2437,13 +2436,13 @@ main {
    ===== ССЫЛКИ В БЛОКЕ «ДОКУМЕНТАЦИЯ» =====
    ================================================================ */
 .docs-list a {
-    color: #212529;              /* обычный цвет текста */
+    color: #212529;
     text-decoration: none;
     transition: color 0.15s ease-in-out;
 }
 
 .docs-list a:hover,
 .docs-list a:focus {
-    color: #BD0000;              /* красный при наведении */
+    color: #BD0000;
     text-decoration: underline;
 }
