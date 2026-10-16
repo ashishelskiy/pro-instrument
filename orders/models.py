@@ -130,6 +130,9 @@ class Order(models.Model):
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Обновлён', auto_now=True)
 
+    paid = models.BooleanField('Оплачен', default=False)
+    payment_id = models.CharField('ID платежа в Т-Банке', max_length=100, blank=True, null=True)
+
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'

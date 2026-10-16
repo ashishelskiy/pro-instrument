@@ -12,7 +12,10 @@ from cart.models import Cart
 from .models import Order, OrderItem, DeliveryMethod
 from .forms import OrderForm
 
-
+from tbank_securepay import PaymentInitParams, TKassaClient
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 class OrderCreateView(CreateView):
     """Оформление заказа."""
@@ -117,6 +120,30 @@ class OrderCreateView(CreateView):
 
         messages.success(self.request, f'Заказ №{order.pk} оформлен!')
         self.request.session['last_order_id'] = order.pk
+
+        # === НОВОЕ: создаём платёж в Т-Банке ===
+        if order.payment_method == 'card':  # или как у вас называется онлайн-оплата
+            with TKassaClient(
+                    terminal_key=settings.TBANK_TERMINAL_KEY,
+                    password=settings.TBANK_PASSWORD
+            ) as client:
+                result = client.payment_init(
+                    PaymentInitParams(
+                        amount=int(order.total_price * 100),  # в копейках
+                        order_id=str(order.pk),
+                        description=f"Оплата заказа №{order.pk}",
+                        notification_url="https://pro-instrument.a2infinity.ru/orders/payment/webhook/",
+                    )
+                )
+                if result.success:
+                    order.payment_id = result.payment_id
+                    order.save(update_fields=['payment_id'])
+                    # Редирект на страницу оплаты банка
+                    return redirect(result.payment_url)
+                else:
+                    messages.error(self.request, f'Ошибка платежа: {result.message}')
+                    return redirect('orders:order_success')
+
         return super().form_valid(form)
 
     def _send_order_emails(self, order):
@@ -263,3 +290,36 @@ def notify_stock_arrival(sender, instance, created, **kwargs):
             n.save(update_fields=['notified', 'notified_at'])
         except Exception:
             pass
+
+
+@csrf_exempt
+def tbank_webhook(request):
+    """
+    Обработка уведомлений (вебхуков) от Т-Банка.
+    Банк отправляет POST-запрос на этот адрес после смены статуса платежа.
+    """
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return HttpResponse(status=400)
+
+    # Проверка подписи для подтверждения, что запрос действительно от Т-Банка
+    with TKassaClient(
+            terminal_key=settings.TBANK_TERMINAL_KEY,
+            password=settings.TBANK_PASSWORD
+    ) as client:
+        if not client.check_webhook_token(data):
+            return HttpResponse(status=403)
+
+    status = data.get('Status')
+    order_id = data.get('OrderId')
+
+    # После успешной оплаты помечаем заказ как оплаченный
+    if status in ('CONFIRMED', 'AUTHORIZED'):
+        Order.objects.filter(pk=order_id).update(paid=True)
+
+    # Т-Банк ожидает текстовый ответ "OK", иначе будет повторять отправку
+    return HttpResponse('OK', content_type='text/plain')

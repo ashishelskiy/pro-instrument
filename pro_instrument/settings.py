@@ -206,3 +206,12 @@ ADMIN_EMAIL = config('ADMIN_EMAIL', default='pro-instrument@a2infinity.ru')
 # ============================================================
 
 SITE_URL = config('SITE_URL', default='https://pro-instrument.a2infinity.ru')
+
+# ============================================================
+# Т-БАНК (ИНТЕРНЕТ-ЭКВАЙРИНГ)
+# ============================================================
+
+# Данные ТЕСТОВОГО терминала из личного кабинета Т-Бизнес:
+# «Магазины» → «Интернет-магазины» → ваш магазин → «Терминалы» → блок «Тестовый»
+TBANK_TERMINAL_KEY = config('TBANK_TERMINAL_KEY', default='')
+TBANK_PASSWORD = config('TBANK_PASSWORD', default='')
