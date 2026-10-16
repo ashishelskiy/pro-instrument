@@ -132,7 +132,6 @@ class OrderCreateView(CreateView):
                         amount=int(order.total_price * 100),  # в копейках
                         order_id=str(order.pk),
                         description=f"Оплата заказа №{order.pk}",
-                        notification_url="https://pro-instrument.a2infinity.ru/orders/payment/webhook/",
                     )
                 )
                 if result.success:
