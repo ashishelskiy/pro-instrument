@@ -132,6 +132,7 @@ class Order(models.Model):
 
     paid = models.BooleanField('Оплачен', default=False)
     payment_id = models.CharField('ID платежа в Т-Банке', max_length=100, blank=True, null=True)
+    payment_attempts = models.PositiveIntegerField('Попыток оплаты', default=0)
 
     class Meta:
         verbose_name = 'Заказ'
@@ -145,6 +146,10 @@ class Order(models.Model):
     def is_company_order(self):
         return self.organization is not None
 
+    @property
+    def can_be_paid(self):
+        """Можно ли оплатить заказ (только если не оплачен и не отменен)."""
+        return self.payment_method == 'card' and not self.paid and self.status != 'cancelled' and self.payment_attempts < 5
 
 class OrderItem(models.Model):
     """Позиция заказа."""

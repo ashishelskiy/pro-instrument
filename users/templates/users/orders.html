@@ -27,8 +27,15 @@
                                     {% endif %}
                                 </p>
                             </div>
+<!--                            <div>-->
+<!--                                <span class="org-card__badge">{{ order.get_status_display }}</span>-->
+<!--                            </div>-->
                             <div>
-                                <span class="org-card__badge">{{ order.get_status_display }}</span>
+                                {% if order.paid %}
+                                    <span class="org-card__badge" style="background-color: #198754; color: white;">Оплачен</span>
+                                {% else %}
+                                    <span class="org-card__badge">{{ order.get_status_display }}</span>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -42,14 +49,33 @@
                             {% endfor %}
                         </div>
 
+<!--                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2" style="border-top: 1px solid #eee;">-->
+<!--                            <strong>Итого:</strong>-->
+<!--                            <strong>{{ order.total_price }} ₽</strong>-->
+<!--                        </div>-->
+<!--                        <div class="d-flex gap-2 mt-3">-->
+<!--                            <a href="{% url 'orders:order_invoice' order.pk %}" target="_blank" class="btn btn-outline-secondary btn-sm">-->
+<!--                                <i class="fas fa-file-invoice"></i> Скачать счёт-->
+<!--                            </a>-->
+<!--                        </div>-->
                         <div class="d-flex justify-content-between align-items-center mt-3 pt-2" style="border-top: 1px solid #eee;">
-                            <strong>Итого:</strong>
-                            <strong>{{ order.total_price }} ₽</strong>
-                        </div>
-                        <div class="d-flex gap-2 mt-3">
-                            <a href="{% url 'orders:order_invoice' order.pk %}" target="_blank" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-file-invoice"></i> Скачать счёт
-                            </a>
+                            <div>
+                                <strong>Итого:</strong>
+                                <strong>{{ order.total_price }} ₽</strong>
+                            </div>
+                            <div class="d-flex gap-2">
+                                {# Кнопка "Скачать счёт" нужна всегда #}
+                                <a href="{% url 'orders:order_invoice' order.pk %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-file-invoice"></i> Скачать счёт
+                                </a>
+
+                                {# Кнопка "Оплатить" только если заказ не оплачен и оплата картой #}
+                                {% if order.can_be_paid %}
+                                    <a href="{% url 'orders:order_pay' order.pk %}" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-credit-card"></i> Оплатить
+                                    </a>
+                                {% endif %}
+                            </div>
                         </div>
 
                     </div>

@@ -122,22 +122,49 @@ class OrderCreateView(CreateView):
         self.request.session['last_order_id'] = order.pk
 
         # === НОВОЕ: создаём платёж в Т-Банке ===
-        if order.payment_method == 'card':  # или как у вас называется онлайн-оплата
+        # if order.payment_method == 'card':
+        #     with TKassaClient(
+        #             terminal_key=settings.TBANK_TERMINAL_KEY,
+        #             password=settings.TBANK_PASSWORD
+        #     ) as client:
+        #         result = client.payment_init(
+        #             PaymentInitParams(
+        #                 amount=int(order.total_price * 100),  # в копейках
+        #                 order_id=str(order.pk),
+        #                 description=f"Оплата заказа №{order.pk}",
+        #             )
+        #         )
+        #         if result.success:
+        #             order.payment_id = result.payment_id
+        #             order.save(update_fields=['payment_id'])
+        #             # Редирект на страницу оплаты банка
+        #             return redirect(result.payment_url)
+        #         else:
+        #             messages.error(self.request, f'Ошибка платежа: {result.message}')
+        #             return redirect('orders:order_success')
+
+        if order.payment_method == 'card':
             with TKassaClient(
                     terminal_key=settings.TBANK_TERMINAL_KEY,
                     password=settings.TBANK_PASSWORD
             ) as client:
+                # Увеличиваем счетчик попыток
+                order.payment_attempts += 1
+                order.save(update_fields=['payment_attempts'])
+
+                # Формируем уникальный OrderId: "21_1"
+                current_order_id = f"{order.pk}_{order.payment_attempts}"
+
                 result = client.payment_init(
                     PaymentInitParams(
-                        amount=int(order.total_price * 100),  # в копейках
-                        order_id=str(order.pk),
-                        description=f"Оплата заказа №{order.pk}",
+                        amount=int(order.total_price * 100),
+                        order_id=current_order_id,
+                        description=f"Оплата заказа №{order.pk} (попытка {order.payment_attempts})",
                     )
                 )
                 if result.success:
                     order.payment_id = result.payment_id
                     order.save(update_fields=['payment_id'])
-                    # Редирект на страницу оплаты банка
                     return redirect(result.payment_url)
                 else:
                     messages.error(self.request, f'Ошибка платежа: {result.message}')
@@ -215,6 +242,72 @@ def order_invoice(request, pk):
         return redirect('home')
 
     return render(request, 'orders/invoice.html', {'order': order})
+
+
+# def pay_order(request, pk):
+#     """Повторная попытка оплаты для неоплаченного заказа."""
+#     order = get_object_or_404(Order, pk=pk, user=request.user)
+#
+#     if not order.can_be_paid:
+#         messages.warning(request, 'Этот заказ уже оплачен или не может быть оплачен.')
+#         return redirect('orders:order_success')  # или туда, где список заказов
+#
+#     with TKassaClient(
+#         terminal_key=settings.TBANK_TERMINAL_KEY,
+#         password=settings.TBANK_PASSWORD
+#     ) as client:
+#         # Т-Банк не любит повторные OrderId, поэтому делаем уникальный
+#         import uuid
+#         unique_order_id = f"{order.pk}_{uuid.uuid4().hex[:6]}"
+#
+#         result = client.payment_init(
+#             PaymentInitParams(
+#                 amount=int(order.total_price * 100),
+#                 order_id=unique_order_id,
+#                 description=f"Повторная оплата заказа №{order.pk}",
+#             )
+#         )
+#         if result.success:
+#             order.payment_id = result.payment_id
+#             order.save(update_fields=['payment_id'])
+#             return redirect(result.payment_url)
+#         else:
+#             messages.error(request, f'Ошибка платежа: {result.message}')
+#             return redirect('orders:order_success')  # или на страницу заказов
+
+def pay_order(request, pk):
+    """Повторная попытка оплаты для неоплаченного заказа."""
+    order = get_object_or_404(Order, pk=pk, user=request.user)
+
+    if not order.can_be_paid:
+        messages.warning(request, 'Этот заказ уже оплачен, отменен или превышен лимит попыток.')
+        return redirect('users:orders')  # Убедитесь, что этот URL существует!
+
+    with TKassaClient(
+            terminal_key=settings.TBANK_TERMINAL_KEY,
+            password=settings.TBANK_PASSWORD
+    ) as client:
+        # Увеличиваем счетчик попыток
+        order.payment_attempts += 1
+        order.save(update_fields=['payment_attempts'])
+
+        # Формируем уникальный OrderId: "21_2"
+        current_order_id = f"{order.pk}_{order.payment_attempts}"
+
+        result = client.payment_init(
+            PaymentInitParams(
+                amount=int(order.total_price * 100),
+                order_id=current_order_id,
+                description=f"Повторная оплата заказа №{order.pk} (попытка {order.payment_attempts})",
+            )
+        )
+        if result.success:
+            order.payment_id = result.payment_id
+            order.save(update_fields=['payment_id'])
+            return redirect(result.payment_url)
+        else:
+            messages.error(request, f'Ошибка платежа: {result.message}')
+            return redirect('users:orders')
 
 
 # ============================================================
@@ -342,11 +435,24 @@ def tbank_webhook(request):
         logger.warning("TBANK WEBHOOK: invalid token")
         return HttpResponse(status=403)
 
+    # status = data.get('Status')
+    # order_id = data.get('OrderId')
+    # logger.warning("TBANK WEBHOOK: status=%s, order_id=%s", status, order_id)
+    #
+    # if status in ('CONFIRMED', 'AUTHORIZED'):
+    #     Order.objects.filter(pk=order_id).update(paid=True)
+    #
+    # return HttpResponse('OK', content_type='text/plain')
+
     status = data.get('Status')
-    order_id = data.get('OrderId')
-    logger.warning("TBANK WEBHOOK: status=%s, order_id=%s", status, order_id)
+    order_id_raw = data.get('OrderId')
+    logger.warning("TBANK WEBHOOK: status=%s, order_id=%s", status, order_id_raw)
 
     if status in ('CONFIRMED', 'AUTHORIZED'):
-        Order.objects.filter(pk=order_id).update(paid=True)
+        # Извлекаем настоящий pk: "21_1" -> "21"
+        real_order_id = str(order_id_raw).split('_')[0]
+
+        # Ставим оплату и меняем статус
+        Order.objects.filter(pk=real_order_id).update(paid=True, status='processing')
 
     return HttpResponse('OK', content_type='text/plain')
