@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from decouple import config, Csv
-
+import httpx_system_certs
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -215,3 +215,28 @@ SITE_URL = config('SITE_URL', default='https://pro-instrument.a2infinity.ru')
 # «Магазины» → «Интернет-магазины» → ваш магазин → «Терминалы» → блок «Тестовый»
 TBANK_TERMINAL_KEY = config('TBANK_TERMINAL_KEY', default='')
 TBANK_PASSWORD = config('TBANK_PASSWORD', default='')
+
+# ============================================================
+# LOGGING
+# ============================================================
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}

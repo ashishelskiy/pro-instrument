@@ -290,35 +290,63 @@ def notify_stock_arrival(sender, instance, created, **kwargs):
         except Exception:
             pass
 
+import hashlib
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def _check_tbank_token(data, password):
+    token_from_bank = data.get('Token')
+    if not token_from_bank:
+        return False
+
+    excluded = {'Token', 'Data', 'ForeignReceiver', 'Receipt'}
+    check_data = {}
+    for k, v in data.items():
+        if k in excluded or v is None:
+            continue
+        # Булевы значения приводим к строке в нижнем регистре
+        if isinstance(v, bool):
+            check_data[k] = 'true' if v else 'false'
+        else:
+            check_data[k] = str(v)
+
+    check_data['Password'] = password
+
+    concatenated = ''.join(check_data[k] for k in sorted(check_data.keys()))
+    calculated = hashlib.sha256(concatenated.encode('utf-8')).hexdigest()
+
+    return calculated == token_from_bank
+
 
 @csrf_exempt
 def tbank_webhook(request):
-    """
-    Обработка уведомлений (вебхуков) от Т-Банка.
-    Банк отправляет POST-запрос на этот адрес после смены статуса платежа.
-    """
+    """Обработка уведомлений от Т-Банка."""
+    logger.warning("TBANK WEBHOOK START: method=%s", request.method)
+
     if request.method != 'POST':
         return HttpResponse(status=405)
 
     try:
         data = json.loads(request.body)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.warning("TBANK WEBHOOK: JSON error: %s", e)
         return HttpResponse(status=400)
 
-    # Проверка подписи для подтверждения, что запрос действительно от Т-Банка
-    with TKassaClient(
-            terminal_key=settings.TBANK_TERMINAL_KEY,
-            password=settings.TBANK_PASSWORD
-    ) as client:
-        if not client.check_webhook_token(data):
-            return HttpResponse(status=403)
+    logger.warning("TBANK WEBHOOK DATA: %s", data)
+
+    # Проверка подписи вручную
+    if not _check_tbank_token(data, settings.TBANK_PASSWORD):
+        logger.warning("TBANK WEBHOOK: invalid token")
+        return HttpResponse(status=403)
 
     status = data.get('Status')
     order_id = data.get('OrderId')
+    logger.warning("TBANK WEBHOOK: status=%s, order_id=%s", status, order_id)
 
-    # После успешной оплаты помечаем заказ как оплаченный
     if status in ('CONFIRMED', 'AUTHORIZED'):
         Order.objects.filter(pk=order_id).update(paid=True)
 
-    # Т-Банк ожидает текстовый ответ "OK", иначе будет повторять отправку
     return HttpResponse('OK', content_type='text/plain')
