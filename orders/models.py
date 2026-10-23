@@ -100,6 +100,9 @@ class Order(models.Model):
     # Адрес доставки
     address = models.TextField('Адрес доставки', blank=True)
 
+    cdek_pvz_code = models.CharField('Код ПВЗ СДЭК', max_length=50, blank=True)
+    cdek_pvz_address = models.TextField('Адрес ПВЗ СДЭК', blank=True)
+
     # Оплата
     payment_method = models.CharField(
         'Способ оплаты',

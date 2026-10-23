@@ -61,6 +61,13 @@ class OrderCreateView(CreateView):
             for d in DeliveryMethod.objects.filter(is_active=True)
         ]
 
+        # Передаем выбранные ПВЗ в контекст, чтобы JS знал, что восстанавливать
+        if self.request.method == 'POST':
+            context['selected_pvz_code'] = self.request.POST.get('cdek_pvz_code', '')
+            context['selected_pvz_address'] = self.request.POST.get('cdek_pvz_address', '')
+            context['selected_city'] = self.request.POST.get('city', '')
+            context['selected_delivery_price'] = self.request.POST.get('cdek_delivery_price', '0')
+
         return context
 
     @transaction.atomic
@@ -73,33 +80,91 @@ class OrderCreateView(CreateView):
         order.user = user
         order.organization = user.default_organization
 
-        # Снимок способа доставки и стоимость
-        delivery = form.cleaned_data.get('delivery_method')
+        # # Снимок способа доставки и стоимость
+        # delivery = form.cleaned_data.get('delivery_method')
+        # # if delivery:
+        # #     order.delivery_method_name = delivery.name
+        # #     order.delivery_price = delivery.price
+        # # else:
+        # #     order.delivery_method_name = ''
+        # #     order.delivery_price = 0
+        #
+        # # Если не выбрано — берём самовывоз по умолчанию
+        # if not delivery:
+        #     delivery = DeliveryMethod.objects.filter(
+        #         name__iexact='Самовывоз',
+        #         is_active=True
+        #     ).first()
+        #
         # if delivery:
+        #     order.delivery_method = delivery
         #     order.delivery_method_name = delivery.name
         #     order.delivery_price = delivery.price
         # else:
-        #     order.delivery_method_name = ''
+        #     order.delivery_method_name = 'Самовывоз'
         #     order.delivery_price = 0
 
-        # Если не выбрано — берём самовывоз по умолчанию
-        if not delivery:
-            delivery = DeliveryMethod.objects.filter(
-                name__iexact='Самовывоз',
-                is_active=True
-            ).first()
+        # Снимок способа доставки и стоимость
+        # Теперь delivery_method — это строка (id из базы ИЛИ код тарифа СДЭК)
+        # delivery_id = form.cleaned_data.get('delivery_method')
+        #
+        # # Пытаемся найти способ доставки в нашей базе (самовывоз и т.д.)
+        # try:
+        #     delivery = DeliveryMethod.objects.get(pk=delivery_id)
+        #     order.delivery_method = delivery
+        #     order.delivery_method_name = delivery.name
+        #     order.delivery_price = delivery.price
+        # except (DeliveryMethod.DoesNotExist, ValueError, TypeError):
+        #     # Это тариф СДЭК (например, "136") — его нет в нашей базе
+        #     order.delivery_method = None
+        #     order.delivery_method_name = f'СДЭК (тариф {delivery_id})'
+        #
+        #     # Цену берём из скрытого поля, которое заполнит JS.
+        #     # Пока, если поля нет — ставим 0 (потом исправим).
+        #     try:
+        #         order.delivery_price = float(self.request.POST.get('cdek_delivery_price', 0))
+        #     except (ValueError, TypeError):
+        #         order.delivery_price = 0
 
-        if delivery:
+        # Берем способ доставки напрямую из POST-запроса (из скрытого поля, которое создает JS)
+        delivery_id = self.request.POST.get('delivery_method')
+
+        # Пытаемся найти способ доставки в нашей базе (самовывоз и т.д.)
+        try:
+            if not delivery_id:
+                raise ValueError("No delivery_id")
+
+            delivery = DeliveryMethod.objects.get(pk=delivery_id)
             order.delivery_method = delivery
             order.delivery_method_name = delivery.name
             order.delivery_price = delivery.price
-        else:
-            order.delivery_method_name = 'Самовывоз'
-            order.delivery_price = 0
+        except (DeliveryMethod.DoesNotExist, ValueError, TypeError):
+            # Это тариф СДЭК (например, "cdek") — его нет в нашей базе
+            order.delivery_method = None
+            order.delivery_method_name = 'СДЭК (пункт выдачи)'
+
+            # Цену берём из скрытого поля, которое заполнит JS.
+            # try:
+            #     order.delivery_price = float(self.request.POST.get('cdek_delivery_price', 0))
+            # except (ValueError, TypeError):
+            #     order.delivery_price = 0
+            # Цену берём из скрытого поля и приводим к Decimal (а не float)
+            from decimal import Decimal, InvalidOperation
+            try:
+                price_str = self.request.POST.get('cdek_delivery_price', '0').replace(',', '.')
+                order.delivery_price = Decimal(price_str)
+            except (ValueError, TypeError, InvalidOperation):
+                order.delivery_price = Decimal('0')
 
         # Итого = товары + доставка
         order.total_price = cart.total_price + order.delivery_price
         order.save()
+
+        # Сохраняем выбранный ПВЗ (если выбран)
+        order.cdek_pvz_code = self.request.POST.get('cdek_pvz_code', '').strip()
+        order.cdek_pvz_address = self.request.POST.get('cdek_pvz_address', '').strip()
+        if order.cdek_pvz_code:
+            order.save(update_fields=['cdek_pvz_code', 'cdek_pvz_address'])
 
         # Переносим позиции из корзины
         for item in cart.items.all():
@@ -456,3 +521,115 @@ def tbank_webhook(request):
         Order.objects.filter(pk=real_order_id).update(paid=True, status='processing')
 
     return HttpResponse('OK', content_type='text/plain')
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import json
+from .cdek_service import get_delivery_tariffs, get_city_code_by_name, get_pvz_list
+
+
+# @csrf_exempt
+# @require_POST
+# def cdek_calculate(request):
+#     try:
+#         data = json.loads(request.body)
+#     except json.JSONDecodeError:
+#         return JsonResponse({'error': 'Invalid JSON'}, status=400)
+#
+#     city_name = data.get('city_name')  # ← теперь ждём название, а не код
+#     if not city_name:
+#         return JsonResponse({'error': 'city_name is required'}, status=400)
+#
+#     try:
+#         # 1. Ищем код города по названию
+#         city_code = get_city_code_by_name(city_name)
+#         if not city_code:
+#             return JsonResponse({'error': f'Город «{city_name}» не найден в СДЭК'}, status=404)
+#
+#         # 2. Считаем тарифы с найденным кодом
+#         tariffs = get_delivery_tariffs(city_code=city_code)
+#         return JsonResponse({'tariffs': tariffs, 'city_code': city_code})
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_POST
+def cdek_calculate(request):
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    city_name = data.get('city_name')
+    if not city_name:
+        return JsonResponse({'error': 'city_name is required'}, status=400)
+
+    try:
+        city_code = get_city_code_by_name(city_name)
+        if not city_code:
+            return JsonResponse({'error': f'Город «{city_name}» не найден в СДЭК'}, status=404)
+
+        # 1. Считаем общий вес корзины
+        cart = request.user.cart
+        total_weight = 0
+        for item in cart.items.all():
+            # Если у товара не указан вес, считаем 1000 г по умолчанию
+            product_weight = item.product.weight if item.product.weight else 1000
+            total_weight += product_weight * item.quantity
+
+        if total_weight == 0:
+            total_weight = 1000
+
+        # 2. Запрашиваем тарифы с реальным весом
+        tariffs = get_delivery_tariffs(
+            city_code=city_code,
+            total_weight_grams=total_weight,
+            length=20, width=20, height=20  # Габариты пока стандартные
+        )
+
+        # 3. Ищем нужный тариф (для ПВЗ это обычно 136 - Посылка склад-склад)
+        pvz_tariff = None
+        for t in tariffs:
+            if t['id'] == '136':  # Если 136 нет, ищем по названию
+                pvz_tariff = t
+                break
+            if 'склад-склад' in t['name'].lower():
+                pvz_tariff = t
+                break
+
+        # Если ничего не нашли, берем самый первый тариф из списка
+        if not pvz_tariff and tariffs:
+            pvz_tariff = tariffs[0]
+
+        if not pvz_tariff:
+            return JsonResponse({'error': 'Нет доступных тарифов для этого города'}, status=404)
+
+        return JsonResponse({'tariff': pvz_tariff, 'weight': total_weight})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+@require_POST
+def cdek_pvz_list(request):
+    """Возвращает список ПВЗ для выбранного города."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    city_name = data.get('city_name')
+    if not city_name:
+        return JsonResponse({'error': 'city_name is required'}, status=400)
+
+    try:
+        city_code = get_city_code_by_name(city_name)
+        if not city_code:
+            return JsonResponse({'error': f'Город «{city_name}» не найден'}, status=404)
+
+        pvz_list = get_pvz_list(city_code)
+        return JsonResponse({'pvz': pvz_list, 'city_code': city_code})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

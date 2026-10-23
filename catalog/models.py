@@ -201,6 +201,13 @@ class Product(models.Model):
     )
     description = models.TextField('Описание', blank=True)
 
+    # ===== ВЕС И ГАБАРИТЫ =====
+    weight = models.PositiveIntegerField(
+        'Вес (в граммах)',
+        default=1000,
+        help_text='Вес товара в граммах для расчёта доставки. По умолчанию 1 кг.',
+    )
+
     # ===== СЕРТИФИКАЦИЯ =====
     no_certificate_required = models.BooleanField(
         'Не подлежит сертификации',

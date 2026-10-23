@@ -25,6 +25,16 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+if DEBUG:
+    import httpx
+    _orig_httpx_init = httpx.Client.__init__
+
+    def _patched_httpx_init(self, *args, **kwargs):
+        kwargs.setdefault('verify', False)  # ⚠️ только для локальной разработки на macOS
+        _orig_httpx_init(self, *args, **kwargs)
+
+    httpx.Client.__init__ = _patched_httpx_init
+
 ALLOWED_HOSTS = config(
     'ALLOWED_HOSTS',
     default='127.0.0.1,localhost',
@@ -215,6 +225,11 @@ SITE_URL = config('SITE_URL', default='https://pro-instrument.a2infinity.ru')
 # «Магазины» → «Интернет-магазины» → ваш магазин → «Терминалы» → блок «Тестовый»
 TBANK_TERMINAL_KEY = config('TBANK_TERMINAL_KEY', default='')
 TBANK_PASSWORD = config('TBANK_PASSWORD', default='')
+
+# Данные для интеграции со СДЭК
+CDEK_ACCOUNT = config('CDEK_ACCOUNT', default='')
+CDEK_SECRET = config('CDEK_SECRET', default='')
+CDEK_TEST_MODE = config('CDEK_TEST_MODE', default=True, cast=bool)
 
 # ============================================================
 # LOGGING
