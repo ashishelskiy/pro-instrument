@@ -204,8 +204,25 @@ class Product(models.Model):
     # ===== ВЕС И ГАБАРИТЫ =====
     weight = models.PositiveIntegerField(
         'Вес (в граммах)',
-        default=1000,
-        help_text='Вес товара в граммах для расчёта доставки. По умолчанию 1 кг.',
+        null=True,
+        blank=True,
+        help_text='Вес товара в граммах для расчёта доставки.',
+    )
+    length = models.PositiveIntegerField(
+        'Длина упаковки (см)',
+        null=True,
+        blank=True,
+        help_text='Длина места в сантиметрах. Нужна для расчёта СДЭК.',
+    )
+    width = models.PositiveIntegerField(
+        'Ширина упаковки (см)',
+        null=True,
+        blank=True,
+    )
+    height = models.PositiveIntegerField(
+        'Высота упаковки (см)',
+        null=True,
+        blank=True,
     )
 
     # ===== СЕРТИФИКАЦИЯ =====

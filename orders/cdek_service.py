@@ -2,9 +2,64 @@
 import requests
 from django.conf import settings
 
-def get_delivery_tariffs(city_code, total_weight_grams=1000, length=20, width=20, height=20):
+# def get_delivery_tariffs(city_code, total_weight_grams=1000, length=20, width=20, height=20):
+#     """
+#     Запрашивает у СДЭК тарифы через прямой HTTP-запрос.
+#     """
+#     # 1. Определяем базовый URL (тестовый или боевой)
+#     base_url = "https://api.edu.cdek.ru/v2" if settings.CDEK_TEST_MODE else "https://api.cdek.ru/v2"
+#
+#     # 2. Получаем токен авторизации
+#     auth_response = requests.post(
+#         f"{base_url}/oauth/token",
+#         params={
+#             'grant_type': 'client_credentials',
+#             'client_id': settings.CDEK_ACCOUNT,
+#             'client_secret': settings.CDEK_SECRET,
+#         }
+#     )
+#     auth_response.raise_for_status()
+#     token = auth_response.json()['access_token']
+#
+#     # 3. Запрашиваем тарифы
+#     # ВАЖНО: замените 44 на код вашего города-отправителя!
+#     response = requests.post(
+#         f"{base_url}/calculator/tarifflist",
+#         headers={'Authorization': f'Bearer {token}'},
+#         json={
+#             'type': 1,
+#             'currency': 1,
+#             'lang': 'rus',
+#             'from_location': {'code': 1069},  # ← код города отправителя (1069 = Таганрог)
+#             'to_location': {'code': int(city_code)},
+#             'packages': [{
+#                 'weight': total_weight_grams,
+#                 'length': length,
+#                 'width': width,
+#                 'height': height,
+#             }]
+#         }
+#     )
+#     response.raise_for_status()
+#     data = response.json()
+#
+#     # 4. Преобразуем ответ в удобный формат
+#     result = []
+#     for t in data.get('tariff_codes', []):
+#         result.append({
+#             'id': str(t['tariff_code']),
+#             'name': t['tariff_name'],
+#             'price': float(t['delivery_sum']),
+#             'period_min': t.get('period_min', 1),
+#             'period_max': t.get('period_max', 5),
+#         })
+#     return result
+
+
+def get_delivery_tariffs(city_code, packages):
     """
-    Запрашивает у СДЭК тарифы через прямой HTTP-запрос.
+    Запрашивает у СДЭК тарифы.
+    packages: список словарей [{'weight': 1000, 'length': 20, 'width': 20, 'height': 20}, ...]
     """
     # 1. Определяем базовый URL (тестовый или боевой)
     base_url = "https://api.edu.cdek.ru/v2" if settings.CDEK_TEST_MODE else "https://api.cdek.ru/v2"
@@ -20,9 +75,8 @@ def get_delivery_tariffs(city_code, total_weight_grams=1000, length=20, width=20
     )
     auth_response.raise_for_status()
     token = auth_response.json()['access_token']
-
+    print(f"📦 Отправляем в СДЭК: {packages}")
     # 3. Запрашиваем тарифы
-    # ВАЖНО: замените 44 на код вашего города-отправителя!
     response = requests.post(
         f"{base_url}/calculator/tarifflist",
         headers={'Authorization': f'Bearer {token}'},
@@ -30,14 +84,9 @@ def get_delivery_tariffs(city_code, total_weight_grams=1000, length=20, width=20
             'type': 1,
             'currency': 1,
             'lang': 'rus',
-            'from_location': {'code': 1069},  # ← код города отправителя (1069 = Таганрог)
+            'from_location': {'code': 1069},  # ← код города отправителя (Таганрог)
             'to_location': {'code': int(city_code)},
-            'packages': [{
-                'weight': total_weight_grams,
-                'length': length,
-                'width': width,
-                'height': height,
-            }]
+            'packages': packages,# Передаем массив мест
         }
     )
     response.raise_for_status()

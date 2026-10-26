@@ -571,42 +571,62 @@ def cdek_calculate(request):
         if not city_code:
             return JsonResponse({'error': f'Город «{city_name}» не найден в СДЭК'}, status=404)
 
-        # 1. Считаем общий вес корзины
+        # 1. Формируем список мест (упаковок)
         cart = request.user.cart
-        total_weight = 0
+        packages = []
+
         for item in cart.items.all():
-            # Если у товара не указан вес, считаем 1000 г по умолчанию
-            product_weight = item.product.weight if item.product.weight else 1000
-            total_weight += product_weight * item.quantity
+            if not item.product:
+                continue
 
-        if total_weight == 0:
-            total_weight = 1000
+            # Берем реальные данные или дефолт (если None)
+            weight = item.product.weight if item.product.weight else 1000
+            length = item.product.length if item.product.length else 20
+            width = item.product.width if item.product.width else 20
+            height = item.product.height if item.product.height else 20
 
-        # 2. Запрашиваем тарифы с реальным весом
+            # Если товаров несколько (quantity = 2), добавляем каждую единицу как отдельное место
+            for _ in range(item.quantity):
+                packages.append({
+                    'weight': weight,
+                    'length': length,
+                    'width': width,
+                    'height': height,
+                })
+
+        # Если корзина пуста (защита от ошибки) — ставим одну дефолтную коробку
+        if not packages:
+            packages.append({
+                'weight': 1000,
+                'length': 20,
+                'width': 20,
+                'height': 20,
+            })
+
+        # 2. Запрашиваем тарифы с готовым массивом мест
         tariffs = get_delivery_tariffs(
             city_code=city_code,
-            total_weight_grams=total_weight,
-            length=20, width=20, height=20  # Габариты пока стандартные
+            packages=packages
         )
 
         # 3. Ищем нужный тариф (для ПВЗ это обычно 136 - Посылка склад-склад)
         pvz_tariff = None
         for t in tariffs:
-            if t['id'] == '136':  # Если 136 нет, ищем по названию
+            if t['id'] == '136':
                 pvz_tariff = t
                 break
             if 'склад-склад' in t['name'].lower():
                 pvz_tariff = t
                 break
 
-        # Если ничего не нашли, берем самый первый тариф из списка
         if not pvz_tariff and tariffs:
             pvz_tariff = tariffs[0]
 
         if not pvz_tariff:
             return JsonResponse({'error': 'Нет доступных тарифов для этого города'}, status=404)
 
-        return JsonResponse({'tariff': pvz_tariff, 'weight': total_weight})
+        return JsonResponse({'tariff': pvz_tariff})
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 

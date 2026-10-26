@@ -183,9 +183,9 @@ class ProductAdmin(ImportExportModelAdmin):
     resource_class = PriceUpdateResource
 
     list_display = (
-        'name', 'article', 'price', 'old_price', 'in_stock', 'brand', 'category',
+        'name', 'article', 'price', 'old_price', 'in_stock', 'brand', 'category', 'weight', 'length', 'width', 'height',
     )
-    list_filter = ('in_stock', 'brand', 'category')
+    list_filter = ('in_stock', 'brand', 'category', ('weight', admin.EmptyFieldListFilter),)
     search_fields = ('name', 'article', 'external_id', 'slug')
     prepopulated_fields = {'slug': ('name',)}
     readonly_fields = ('created_at', 'updated_at', 'image_preview')
@@ -200,6 +200,11 @@ class ProductAdmin(ImportExportModelAdmin):
                 'image', 'image_url', 'image_preview',
                 'brand', 'category',
             ),
+        }),
+        ('Вес и габариты (для СДЭК)', {
+            'fields': ('weight', 'length', 'width', 'height'),
+            'description': 'Заполните для корректного расчёта доставки СДЭК.'
+                           'Если оставить пустым — будут использованы значения по умолчанию (1 кг, 20×20×20 см).',
         }),
         ('Сертификация', {
             'fields': ('no_certificate_required',),
