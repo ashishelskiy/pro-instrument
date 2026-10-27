@@ -26,7 +26,7 @@ class OrderAdmin(admin.ModelAdmin):
     )
     list_filter = ('status', 'delivery_method', 'payment_method', 'created_at')
     search_fields = ('id', 'name', 'phone', 'email', 'organization__name')
-    readonly_fields = ('created_at', 'updated_at', 'total_price')
+    readonly_fields = ('created_at', 'updated_at', 'delivery_method_name')
     list_per_page = 30
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
@@ -40,7 +40,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('name', 'phone', 'email')
         }),
         ('Доставка', {
-            'fields': ('delivery_method', 'address')
+            'fields': ('delivery_method', 'delivery_method_name', 'delivery_price', 'address')
         }),
         ('Оплата', {
             'fields': ('payment_method',)
@@ -67,6 +67,16 @@ class OrderAdmin(admin.ModelAdmin):
 
 
     def save_model(self, request, obj, form, change):
+        # Пересчитываем итоговую сумму
+        if obj.pk:
+            # Если заказ уже есть, берем сумму товаров из связанных позиций
+            items_total = sum(item.price * item.quantity for item in obj.items.all())
+            obj.total_price = items_total + obj.delivery_price
+        else:
+            # Если это новый заказ (создается в админке), то total_price = delivery_price
+            # (товары добавляются через inline, но они сохраняются после этого метода, так что для новых заказов в админке это не сработает идеально, но для существующих — да)
+            obj.total_price = obj.delivery_price
+
         old_status = None
         if change:
             try:

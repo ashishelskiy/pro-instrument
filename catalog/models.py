@@ -5,33 +5,6 @@ from django.utils.text import slugify
 from django.templatetags.static import static
 
 
-# class Category(models.Model):
-#     """Модель категории товаров"""
-#     name = models.CharField('Название', max_length=255)
-#     slug = models.SlugField('URL', max_length=255, unique=True, blank=True)
-#     parent = models.ForeignKey(
-#         'self',
-#         on_delete=models.CASCADE,
-#         verbose_name='Родительская категория',
-#         null=True,
-#         blank=True,
-#         related_name='children'
-#     )
-#     created_at = models.DateTimeField('Дата создания', auto_now_add=True)
-#     updated_at = models.DateTimeField('Дата обновления', auto_now=True)
-#
-#     class Meta:
-#         verbose_name = 'Категория'
-#         verbose_name_plural = 'Категории'
-#         ordering = ['name']
-#
-#     def __str__(self):
-#         return self.name
-#
-#     def get_absolute_url(self):
-#         return reverse('catalog:category_detail', kwargs={'slug': self.slug})
-
-
 class Category(models.Model):
     """Модель категории товаров"""
     name = models.CharField('Название', max_length=255)

@@ -126,10 +126,9 @@ class OrderCreateView(CreateView):
         #     except (ValueError, TypeError):
         #         order.delivery_price = 0
 
-        # Берем способ доставки напрямую из POST-запроса (из скрытого поля, которое создает JS)
+        # Берем способ доставки из POST
         delivery_id = self.request.POST.get('delivery_method')
 
-        # Пытаемся найти способ доставки в нашей базе (самовывоз и т.д.)
         try:
             if not delivery_id:
                 raise ValueError("No delivery_id")
@@ -137,24 +136,24 @@ class OrderCreateView(CreateView):
             delivery = DeliveryMethod.objects.get(pk=delivery_id)
             order.delivery_method = delivery
             order.delivery_method_name = delivery.name
-            order.delivery_price = delivery.price
-        except (DeliveryMethod.DoesNotExist, ValueError, TypeError):
-            # Это тариф СДЭК (например, "cdek") — его нет в нашей базе
-            order.delivery_method = None
-            order.delivery_method_name = 'СДЭК (пункт выдачи)'
 
-            # Цену берём из скрытого поля, которое заполнит JS.
-            # try:
-            #     order.delivery_price = float(self.request.POST.get('cdek_delivery_price', 0))
-            # except (ValueError, TypeError):
-            #     order.delivery_price = 0
-            # Цену берём из скрытого поля и приводим к Decimal (а не float)
-            from decimal import Decimal, InvalidOperation
-            try:
-                price_str = self.request.POST.get('cdek_delivery_price', '0').replace(',', '.')
-                order.delivery_price = Decimal(price_str)
-            except (ValueError, TypeError, InvalidOperation):
-                order.delivery_price = Decimal('0')
+            # 👇 Проверяем, что это СДЭК (по названию) 👇
+            if 'сдэк' in delivery.name.lower() or 'cdek' in delivery.name.lower():
+                # Цену берем из скрытого поля
+                from decimal import Decimal, InvalidOperation
+                try:
+                    price_str = self.request.POST.get('cdek_delivery_price', '0').replace(',', '.')
+                    order.delivery_price = Decimal(price_str)
+                except (ValueError, TypeError, InvalidOperation):
+                    order.delivery_price = Decimal('0')
+            else:
+                # Это обычный способ из базы (Самовывоз, Курьер)
+                order.delivery_price = delivery.price
+
+        except (DeliveryMethod.DoesNotExist, ValueError, TypeError):
+            order.delivery_method = None
+            order.delivery_method_name = 'Неизвестно'
+            order.delivery_price = Decimal('0')
 
         # Итого = товары + доставка
         order.total_price = cart.total_price + order.delivery_price
@@ -306,7 +305,10 @@ def order_invoice(request, pk):
     if order.user != request.user and not request.user.is_staff:
         return redirect('home')
 
-    return render(request, 'orders/invoice.html', {'order': order})
+    # Считаем сумму товаров (без доставки)
+    items_total = sum(item.price * item.quantity for item in order.items.all())
+
+    return render(request, 'orders/invoice.html', {'order': order, 'items_total': items_total,})
 
 
 # def pay_order(request, pk):

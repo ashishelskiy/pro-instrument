@@ -125,45 +125,54 @@
                         <h5 class="mb-0">Доставка</h5>
                     </div>
                     <div class="card-body">
-                        {# Поле города #}
-                        <div class="mb-3">
-                            <label for="{{ form.city.id_for_label }}" class="form-label">
-                                {{ form.city.label }} <span class="text-danger">*</span>
-                            </label>
-                            {{ form.city }}
-                            {% if form.city.errors %}
-                                <div class="text-danger small mt-1">{{ form.city.errors|striptags }}</div>
+                        {# Выбор способа #}
+                        <div class="mb-3" id="deliveryMethodsContainer">
+                            <label class="form-label">Выберите способ получения:</label>
+                            {{ form.delivery_method }}
+                            {% if form.delivery_method.errors %}
+                                <div class="text-danger small mt-1">{{ form.delivery_method.errors|striptags }}</div>
                             {% endif %}
                         </div>
 
-                        {# Блок ПВЗ (появляется после ввода города) #}
-                        <div id="pvzSection" style="display: none;">
-                            <div class="mb-2">
-                                <strong>Выберите пункт выдачи:</strong>
+                        {# Блок СДЭК (скрыт по умолчанию) #}
+                        <div id="cdekSection" style="display: none;">
+                            <div class="mb-3">
+                                <label for="{{ form.city.id_for_label }}" class="form-label">
+                                    {{ form.city.label }} <span class="text-danger" id="cityAsterisk" style="display: none;">*</span>
+                                </label>
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                    <div class="text-danger small mt-1">{{ form.city.errors|striptags }}</div>
+                                {% endif %}
                             </div>
 
-                            <div id="pvzMap" style="width: 100%; height: 350px; border-radius: 8px; margin-bottom: 12px;"></div>
+                            <div id="pvzSection" style="display: none;">
+                                <div class="mb-2">
+                                    <strong>Выберите пункт выдачи:</strong>
+                                </div>
+                                <div id="pvzMap" style="width: 100%; height: 350px; border-radius: 8px; margin-bottom: 12px;"></div>
+                                <div id="pvzList" style="max-height: 250px; overflow-y: auto;"></div>
 
-                            <div id="pvzList" style="max-height: 250px; overflow-y: auto;"></div>
+                                <input type="hidden" name="cdek_pvz_code" id="cdekPvzCode" value="{{ selected_pvz_code|default:'' }}">
+                                <input type="hidden" name="cdek_pvz_address" id="cdekPvzAddress" value="{{ selected_pvz_address|default:'' }}">
 
-<!--                            <input type="hidden" name="cdek_pvz_code" id="cdekPvzCode" value="">-->
-<!--                            <input type="hidden" name="cdek_pvz_address" id="cdekPvzAddress" value="">-->
-                            <input type="hidden" name="cdek_pvz_code" id="cdekPvzCode" value="{{ selected_pvz_code|default:'' }}">
-                            <input type="hidden" name="cdek_pvz_address" id="cdekPvzAddress" value="{{ selected_pvz_address|default:'' }}">
-
-                            <div id="selectedPvzInfo" class="alert alert-info mt-2" style="display: none;">
-                                <i class="fas fa-map-marker-alt"></i>
-                                Выбран: <strong id="selectedPvzName"></strong>
-                                <div class="small" id="selectedPvzAddress"></div>
+                                <div id="selectedPvzInfo" class="alert alert-info mt-2" style="display: none;">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    Выбран: <strong id="selectedPvzName"></strong>
+                                    <div class="small" id="selectedPvzAddress"></div>
+                                </div>
                             </div>
                         </div>
 
-                        {# Поле адреса — скрыто, пока не нужен (доставка до двери) #}
+                        {# Поле адреса (скрыто по умолчанию) #}
                         <div class="mb-0" id="addressField" style="display: none;">
                             <label for="{{ form.address.id_for_label }}" class="form-label">
-                                {{ form.address.label }}
+                                {{ form.address.label }} <span class="text-danger" id="addressAsterisk" style="display: none;">*</span>
                             </label>
                             {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="text-danger small mt-1">{{ form.address.errors|striptags }}</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -253,10 +262,12 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const cartTotal = parseFloat('{{ cart.total_price }}'.replace(',', '.')) || 0;
-
     const totalEl = document.getElementById('orderTotal');
-    const cityInput = document.getElementById('id_city');
 
+    // Элементы для СДЭК
+    const cityInput = document.getElementById('id_city');
+    const cdekSection = document.getElementById('cdekSection');
+    const addressField = document.getElementById('addressField');
     const pvzSection = document.getElementById('pvzSection');
     const pvzList = document.getElementById('pvzList');
     const pvzCodeInput = document.getElementById('cdekPvzCode');
@@ -269,26 +280,66 @@ document.addEventListener('DOMContentLoaded', function() {
     let mapReady = false;
     let placemarks = [];
 
-    // === Инициализация карты ===
-    if (typeof ymaps === 'undefined') {
-        console.error('Яндекс.Карты не загрузились. Проверьте API-ключ.');
-    } else {
+    // Инициализация карты
+    if (typeof ymaps !== 'undefined') {
         ymaps.ready(function() {
             map = new ymaps.Map('pvzMap', {
-                center: [59.9343, 30.3351], // СПб по умолчанию
+                center: [59.9343, 30.3351],
                 zoom: 10,
                 controls: ['zoomControl', 'fullscreenControl']
             });
             mapReady = true;
-            console.log('Карта инициализирована');
         });
     }
 
-    // === Отрисовка ПВЗ на карте и в списке ===
-    function renderPvz(pvzData) {
-        if (mapReady) {
-            placemarks.forEach(p => map.geoObjects.remove(p));
+    // Функция переключения способов доставки
+    function updateDeliveryUI() {
+        const selected = document.querySelector('input[name="delivery_method"]:checked');
+        if (!selected) return;
+
+        const val = selected.value;
+        const label = selected.closest('label');
+        const labelText = label ? label.innerText.toLowerCase() : '';
+
+        // Элементы звёздочек
+        const cityAsterisk = document.getElementById('cityAsterisk');
+        const addressAsterisk = document.getElementById('addressAsterisk');
+
+        // 1. СДЭК
+        if (val === 'cdek' || labelText.includes('сдэк')) {
+            cdekSection.style.display = 'block';
+            addressField.style.display = 'none';
+
+            if (cityAsterisk) cityAsterisk.style.display = 'inline';   // Показываем *
+            if (addressAsterisk) addressAsterisk.style.display = 'none'; // Скрываем *
         }
+        // 2. Самовывоз
+        else if (labelText.includes('самовывоз')) {
+            cdekSection.style.display = 'none';
+            addressField.style.display = 'none';
+
+            if (cityAsterisk) cityAsterisk.style.display = 'none';     // Скрываем *
+            if (addressAsterisk) addressAsterisk.style.display = 'none'; // Скрываем *
+        }
+        // 3. Курьер
+        else {
+            cdekSection.style.display = 'none';
+            addressField.style.display = 'block';
+
+            if (cityAsterisk) cityAsterisk.style.display = 'none';     // Скрываем *
+            if (addressAsterisk) addressAsterisk.style.display = 'inline'; // Показываем *
+        }
+    }
+
+    // Вешаем события на радиокнопки
+    document.querySelectorAll('input[name="delivery_method"]').forEach(radio => {
+        radio.addEventListener('change', updateDeliveryUI);
+    });
+    updateDeliveryUI(); // Запускаем при загрузке
+
+    // Отрисовка ПВЗ
+    function renderPvz(pvzData) {
+        if (mapReady) placemarks.forEach(p => map.geoObjects.remove(p));
         placemarks = [];
         pvzList.innerHTML = '';
 
@@ -298,9 +349,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        if (mapReady) {
-            map.setCenter([pvzData[0].lat, pvzData[0].lon], 11);
-        }
+        if (mapReady) map.setCenter([pvzData[0].lat, pvzData[0].lon], 11);
 
         pvzData.forEach((pvz, idx) => {
             const item = document.createElement('div');
@@ -313,12 +362,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="small text-muted">${pvz.work_time || ''}</div>
             `;
 
-            // Клик по элементу списка = только выделить (без синего блока)
-            item.addEventListener('click', function() {
-                window.highlightPvz(idx, pvz.code, pvz.name, pvz.address, pvz.lat, pvz.lon);
-            });
+            item.addEventListener('click', () => window.highlightPvz(idx, pvz.code, pvz.name, pvz.address, pvz.lat, pvz.lon));
 
-            // Маркер на карте
             if (mapReady) {
                 const placemark = new ymaps.Placemark(
                     [pvz.lat, pvz.lon],
@@ -327,85 +372,45 @@ document.addEventListener('DOMContentLoaded', function() {
                         balloonContentBody: `
                             <div>${pvz.address}</div>
                             <div class="text-muted small">${pvz.work_time || ''}</div>
-                            ${pvz.phone ? `<div class="small">${pvz.phone}</div>` : ''}
-                            <!-- 👇 ВАЖНО: type="button" запрещает отправку формы при клике 👇 -->
                             <button type="button" class="btn btn-sm btn-danger mt-2" onclick="confirmPvz(${idx}, '${pvz.code}', '${pvz.name.replace(/'/g, "\\'")}', '${pvz.address.replace(/'/g, "\\'")}')">
                                 Выбрать этот ПВЗ
                             </button>
                         `,
-                        hintContent: pvz.name,
                     },
                     { preset: 'islands#redDotIcon' }
                 );
-
-                // Клик по маркеру = только выделить
-                placemark.events.add('click', function() {
-                    window.highlightPvz(idx, pvz.code, pvz.name, pvz.address, pvz.lat, pvz.lon);
-                });
-
+                placemark.events.add('click', () => window.highlightPvz(idx, pvz.code, pvz.name, pvz.address, pvz.lat, pvz.lon));
                 map.geoObjects.add(placemark);
                 placemarks.push(placemark);
             }
-
             pvzList.appendChild(item);
         });
-
         pvzSection.style.display = 'block';
     }
 
-    // === 1. Функция ВЫДЕЛЕНИЯ (для клика по карте и списку) ===
+    // Выделение ПВЗ
     window.highlightPvz = function(idx, code, name, address, lat, lon) {
-        // Подсвечиваем карточку в списке
         document.querySelectorAll('.pvz-item').forEach(el => el.classList.remove('border-danger', 'bg-light'));
         const activeItem = document.getElementById(`pvz-item-${idx}`);
         if (activeItem) {
             activeItem.classList.add('border-danger', 'bg-light');
             activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-
-        // Центрируем карту (только если переданы реальные координаты)
-        if (mapReady && lat && lon) {
-            map.setCenter([lat, lon], 14);
-        }
+        if (mapReady && lat && lon) map.setCenter([lat, lon], 14);
     };
 
-    // === 2. Функция ПОДТВЕРЖДЕНИЯ (срабатывает только по кнопке в балуне) ===
+    // Подтверждение выбора ПВЗ
     window.confirmPvz = function(idx, code, name, address) {
-        // Сохраняем данные в скрытые поля формы
         pvzCodeInput.value = code;
         pvzAddressInput.value = address;
-
-        // Показываем синий блок подтверждения
         selectedPvzName.textContent = name;
         selectedPvzAddress.textContent = address;
         selectedPvzInfo.style.display = 'block';
-
-        // Визуально выделяем карточку в списке
-        // Передаем 0, 0, но благодаря проверке выше карта не будет центрироваться на океане
         window.highlightPvz(idx, code, name, address, 0, 0);
-
-        // Вызываем расчет доставки
         calculateDelivery();
-
-        // Автоматически выбираем СДЭК в скрытом поле delivery_method
-        const cdekRadio = document.querySelector('input[name="delivery_method"][value="cdek"]');
-        if (cdekRadio) {
-            cdekRadio.checked = true;
-        } else {
-            // Если радио нет (оно скрыто), создаем скрытый input
-            let hiddenDelivery = document.getElementById('hiddenDeliveryMethod');
-            if (!hiddenDelivery) {
-                hiddenDelivery = document.createElement('input');
-                hiddenDelivery.type = 'hidden';
-                hiddenDelivery.name = 'delivery_method';
-                hiddenDelivery.id = 'hiddenDeliveryMethod';
-                document.querySelector('form').appendChild(hiddenDelivery);
-            }
-            hiddenDelivery.value = 'cdek';
-        }
     };
 
-    // === РАСЧЁТ СТОИМОСТИ ДОСТАВКИ ===
+    // Расчет доставки
     async function calculateDelivery() {
         const cityName = cityInput.value.trim();
         if (!cityName) return;
@@ -420,49 +425,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify({ city_name: cityName }),
             });
             const data = await resp.json();
-
             if (data.tariff) {
-                // Обновляем UI
-                const deliveryPrice = data.tariff.price;
-                const deliveryPriceRow = document.getElementById('deliveryPriceRow');
-                const deliveryPriceValue = document.getElementById('deliveryPriceValue');
-                const hiddenPriceInput = document.getElementById('cdekDeliveryPrice');
-
-                // Показываем строку с доставкой
-                deliveryPriceRow.style.display = 'flex';
-                deliveryPriceValue.textContent = deliveryPrice.toFixed(2).replace('.', ',') + ' ₽';
-
-                // Обновляем скрытое поле для бэкенда
-                hiddenPriceInput.value = deliveryPrice;
-
-                // Пересчитываем итог
-                updateTotal(deliveryPrice);
-            } else {
-                console.error('Тариф не найден:', data.error);
+                const price = data.tariff.price;
+                document.getElementById('deliveryPriceRow').style.display = 'flex';
+                document.getElementById('deliveryPriceValue').textContent = price.toFixed(2).replace('.', ',') + ' ₽';
+                document.getElementById('cdekDeliveryPrice').value = price;
+                updateTotal(price);
             }
         } catch (e) {
-            console.error('Ошибка расчёта доставки:', e);
+            console.error('Ошибка расчета:', e);
         }
     }
 
-    // === ОБНОВЛЕНИЕ ИТОГА ===
     function updateTotal(deliveryPrice = 0) {
-        const total = cartTotal + deliveryPrice;
-        totalEl.textContent = total.toFixed(2).replace('.', ',') + ' ₽';
+        totalEl.textContent = (cartTotal + deliveryPrice).toFixed(2).replace('.', ',') + ' ₽';
     }
-    updateTotal(); // Первый вызов без доставки
+    updateTotal();
 
-    // === Запрос ПВЗ при вводе города ===
+    // Ввод города
     let timer = null;
     cityInput.addEventListener('input', function() {
         clearTimeout(timer);
         const cityName = cityInput.value.trim();
-
         if (!cityName || cityName.length < 2) {
             pvzSection.style.display = 'none';
             return;
         }
-
         timer = setTimeout(async () => {
             try {
                 const resp = await fetch('{% url "orders:cdek_pvz_list" %}', {
@@ -474,12 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify({ city_name: cityName }),
                 });
                 const data = await resp.json();
-                if (data.pvz) {
-                    renderPvz(data.pvz);
-                } else {
-                    pvzSection.style.display = 'none';
-                    console.error('ПВЗ не найдены:', data.error);
-                }
+                if (data.pvz) renderPvz(data.pvz);
             } catch (e) {
                 console.error('Ошибка загрузки ПВЗ:', e);
             }
@@ -491,22 +474,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return v ? v.pop() : '';
     }
 
-    // Если город уже был введен (после ошибки формы), восстанавливаем ПВЗ
+    // Восстановление после ошибки формы
     if (cityInput && cityInput.value.trim().length >= 2) {
         cityInput.dispatchEvent(new Event('input'));
-
         if (pvzCodeInput && pvzCodeInput.value) {
             selectedPvzName.textContent = 'Ранее выбранный ПВЗ';
             selectedPvzAddress.textContent = pvzAddressInput.value || pvzCodeInput.value;
             selectedPvzInfo.style.display = 'block';
-
-            // 👇 ВОССТАНАВЛИВАЕМ ЦЕНУ В UI 👇
             const savedPrice = parseFloat(document.getElementById('cdekDeliveryPrice').value) || 0;
             if (savedPrice > 0) {
-                const deliveryPriceRow = document.getElementById('deliveryPriceRow');
-                const deliveryPriceValue = document.getElementById('deliveryPriceValue');
-                deliveryPriceRow.style.display = 'flex';
-                deliveryPriceValue.textContent = savedPrice.toFixed(2).replace('.', ',') + ' ₽';
+                document.getElementById('deliveryPriceRow').style.display = 'flex';
+                document.getElementById('deliveryPriceValue').textContent = savedPrice.toFixed(2).replace('.', ',') + ' ₽';
                 updateTotal(savedPrice);
             }
         }

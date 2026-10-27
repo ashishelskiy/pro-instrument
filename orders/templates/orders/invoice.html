@@ -108,6 +108,10 @@
             word-wrap: break-word;
         }
 
+        .items-table tr.delivery-row td {
+            background: #f9f9f9;
+        }
+
         /* ===== ИТОГИ ===== */
         .totals {
             margin-bottom: 20px;
@@ -126,6 +130,8 @@
             font-size: 14px;
             font-weight: bold;
             margin-top: 6px;
+            border-top: 1px solid #000;
+            padding-top: 6px;
         }
 
         /* ===== ПОДВАЛ ===== */
@@ -200,12 +206,16 @@
     {# ШАПКА #}
     <div class="header">
         <div class="header__left">
-            <div class="company-name">ООО "ЭКСИНУС"</div>
+            <div class="company-name">
+                {{ site_settings.company_name|default:'ООО "ЭКСИНУС"' }}
+            </div>
             <div class="company-details">
-                ИНН 7712345678 · КПП 771201001<br>
-                ОГРН 1157746123456<br>
-                123456, г. Москва, ул. Примерная, д. 1, офис 100<br>
-                Тел.: +7 (495) 123-45-67 · Email: info@pro-instrument.ru
+                {% if site_settings.inn %}ИНН {{ site_settings.inn }}{% endif %}
+                {% if site_settings.kpp %} · КПП {{ site_settings.kpp }}{% endif %}<br>
+                {% if site_settings.ogrn %}ОГРН {{ site_settings.ogrn }}<br>{% endif %}
+                {% if site_settings.address %}{{ site_settings.address }}<br>{% endif %}
+                {% if site_settings.phone %}Тел.: {{ site_settings.phone }}{% endif %}
+                {% if site_settings.email %} · Email: {{ site_settings.email }}{% endif %}
             </div>
         </div>
         <div class="header__right">
@@ -234,7 +244,7 @@
         </div>
     </div>
 
-    {# ТАБЛИЦА ТОВАРОВ #}
+    {# ТАБЛИЦА ТОВАРОВ И ДОСТАВКИ #}
     <table class="items-table">
         <thead>
             <tr>
@@ -247,6 +257,7 @@
             </tr>
         </thead>
         <tbody>
+            {# Товары #}
             {% for item in order.items.all %}
             <tr>
                 <td class="center">{{ forloop.counter }}</td>
@@ -257,15 +268,41 @@
                 <td class="num">{{ item.subtotal }} ₽</td>
             </tr>
             {% endfor %}
+
+            {# Доставка (если есть) #}
+            {% if order.delivery_price and order.delivery_price > 0 %}
+            <tr class="delivery-row">
+                <td class="center">{{ order.items.count|add:"1" }}</td>
+                <td class="name">
+                    Доставка
+                    {% if order.delivery_method_name %}
+                        ({{ order.delivery_method_name }})
+                    {% endif %}
+                    {% if order.cdek_pvz_address %}
+                        <br><small style="color:#555;">ПВЗ: {{ order.cdek_pvz_address }}</small>
+                    {% endif %}
+                </td>
+                <td class="center">—</td>
+                <td class="center">1</td>
+                <td class="num">{{ order.delivery_price }} ₽</td>
+                <td class="num">{{ order.delivery_price }} ₽</td>
+            </tr>
+            {% endif %}
         </tbody>
     </table>
 
     {# ИТОГИ #}
     <div class="totals">
+        {% if order.delivery_price and order.delivery_price > 0 %}
         <div class="totals__row">
-            <span class="totals__label">Итого:</span>
-            {{ order.total_price }} ₽
+            <span class="totals__label">Товары:</span>
+            {{ items_total }} ₽
         </div>
+        <div class="totals__row">
+            <span class="totals__label">Доставка:</span>
+            {{ order.delivery_price }} ₽
+        </div>
+        {% endif %}
         <div class="totals__row">
             Без НДС
         </div>
