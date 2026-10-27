@@ -39,58 +39,59 @@
                             </div>
                         </div>
 
+
                         {# Позиции и доставка #}
-                        <div class="mt-2">
+                        <div class="mt-2" style="display: grid; grid-template-columns: 1fr auto; gap: 4px 15px; align-items: start;">
+
                             {# Товары #}
                             {% for item in order.items.all %}
-                                <div class="d-flex justify-content-between small mb-1">
-                                    <span>
-                                        <span class="text-muted" style="display:inline-block; width: 20px;">{{ forloop.counter }}.</span>
-                                        {{ item.product_name }} × {{ item.quantity }}
-                                    </span>
-                                    <span>{{ item.subtotal }} ₽</span>
+                                <div class="small">
+                                    <span class="text-muted" style="display:inline-block; width: 20px;">{{ forloop.counter }}.</span>
+                                    {{ item.product_name }} × {{ item.quantity }}
+                                </div>
+                                <div class="small text-end" style="white-space: nowrap; font-weight: 500;">
+                                    {{ item.subtotal }} ₽
                                 </div>
                             {% endfor %}
 
                             {# Доставка #}
-                            <div class="d-flex justify-content-between small" style="padding-top: 4px; margin-top: 2px;">
-                                <span>
-                                    <span class="text-muted" style="display:inline-block; width: 20px;">{{ order.items.count|add:"1" }}.</span>
-                                    Доставка: <strong>{{ order.delivery_method_name|default:"Самовывоз" }}</strong>
-                                    {% if order.cdek_pvz_address %}
-                                        <span class="text-muted" style="font-size: 0.75rem;"> ({{ order.cdek_pvz_address }})</span>
-                                    {% elif order.address %}
-                                        <span class="text-muted" style="font-size: 0.75rem;"> ({{ order.address }})</span>
-                                    {% endif %}
-                                </span>
-                                <span>
-                                    {% if order.delivery_price > 0 %}
-                                        {{ order.delivery_price }} ₽
-                                    {% else %}
-                                        <span class="text-success">Бесплатно</span>
-                                    {% endif %}
-                                </span>
+                            <div class="small" style="padding-top: 4px; margin-top: 2px;">
+                                <span class="text-muted" style="display:inline-block; width: 20px;">{{ order.items.count|add:"1" }}.</span>
+                                Доставка: <strong>{{ order.delivery_method_name|default:"Самовывоз" }}</strong>
+                                {% if order.cdek_pvz_address %}
+                                    <span class="text-muted" style="font-size: 0.75rem; display: block; margin-left: 20px;">{{ order.cdek_pvz_address }}</span>
+                                {% elif order.address %}
+                                    <span class="text-muted" style="font-size: 0.75rem; display: block; margin-left: 20px;">{{ order.address }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="small text-end" style="white-space: nowrap; font-weight: 500; padding-top: 4px; margin-top: 2px;">
+                                {% if order.delivery_price > 0 %}
+                                    {{ order.delivery_price }} ₽
+                                {% else %}
+                                    <span class="text-success">Бесплатно</span>
+                                {% endif %}
                             </div>
                         </div>
 
                         {# Итого #}
                         <div class="d-flex justify-content-between align-items-center mt-2 pt-2" style="border-top: 2px solid #eee;">
-                            <div>
-                                <strong>Итого:</strong>
-                                <strong style="font-size: 1.1rem; color: #d82a20; margin-left: 5px;">{{ order.total_price }} ₽</strong>
-                            </div>
+                            {# Левая часть: Кнопки #}
                             <div class="d-flex gap-2">
-                                <a href="{% url 'orders:order_invoice' order.pk %}" target="_blank" class="btn btn-outline-secondary btn-sm py-0" style="font-size: 0.8rem;">
+                                <a href="{% url 'orders:order_invoice' order.pk %}" target="_blank" class="btn btn-outline-secondary btn-sm py-1">
                                     <i class="fas fa-file-invoice"></i> Счёт
                                 </a>
                                 {% if order.can_be_paid %}
-                                    <a href="{% url 'orders:order_pay' order.pk %}" class="btn btn-danger btn-sm py-0" style="font-size: 0.8rem;">
+                                    <a href="{% url 'orders:order_pay' order.pk %}" class="btn btn-danger btn-sm py-1">
                                         <i class="fas fa-credit-card"></i> Оплатить
                                     </a>
                                 {% endif %}
                             </div>
+                            {# Правая часть: Итого #}
+                            <div class="text-end d-flex align-items-baseline justify-content-end">
+                                <span style="font-size: 0.85rem; color: #6c757d; margin-right: 6px;">Итого:</span>
+                                <span style="font-size: 1.1rem; font-weight: 600;">{{ order.total_price }} ₽</span>
+                            </div>
                         </div>
-
                     </div>
                 </div>
             {% endfor %}
