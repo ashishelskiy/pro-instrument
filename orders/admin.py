@@ -22,8 +22,9 @@ class OrderItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'created_at', 'name', 'phone',
-        'buyer_type_display', 'total_price', 'status',
+        'buyer_type_display', 'total_price', 'status', 'paid',
     )
+    list_editable = ('paid', 'status')
     list_filter = ('status', 'delivery_method', 'payment_method', 'created_at')
     search_fields = ('id', 'name', 'phone', 'email', 'organization__name')
     readonly_fields = ('created_at', 'updated_at', 'delivery_method_name')
@@ -43,7 +44,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('delivery_method', 'delivery_method_name', 'delivery_price', 'address')
         }),
         ('Оплата', {
-            'fields': ('payment_method',)
+            'fields': ('payment_method', 'paid')
         }),
         ('Дополнительно', {
             'fields': ('comment',)
