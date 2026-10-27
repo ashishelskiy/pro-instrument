@@ -292,8 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Функция переключения способов доставки
-    function updateDeliveryUI() {
+        function updateDeliveryUI() {
         const selected = document.querySelector('input[name="delivery_method"]:checked');
         if (!selected) return;
 
@@ -301,33 +300,56 @@ document.addEventListener('DOMContentLoaded', function() {
         const label = selected.closest('label');
         const labelText = label ? label.innerText.toLowerCase() : '';
 
-        // Элементы звёздочек
         const cityAsterisk = document.getElementById('cityAsterisk');
         const addressAsterisk = document.getElementById('addressAsterisk');
+
+        // 👇 ИЩЕМ КНОПКИ ОПЛАТЫ ПО ИХ ЗНАЧЕНИЮ (value) 👇
+        const cashRadio = document.querySelector('input[name="payment_method"][value="cash"]');
+        const cardRadio = document.querySelector('input[name="payment_method"][value="card"]');
 
         // 1. СДЭК
         if (val === 'cdek' || labelText.includes('сдэк')) {
             cdekSection.style.display = 'block';
             addressField.style.display = 'none';
 
-            if (cityAsterisk) cityAsterisk.style.display = 'inline';   // Показываем *
-            if (addressAsterisk) addressAsterisk.style.display = 'none'; // Скрываем *
+            if (cityAsterisk) cityAsterisk.style.display = 'inline';
+            if (addressAsterisk) addressAsterisk.style.display = 'none';
+
+            // Скрываем наличные
+            if (cashRadio) {
+                const wrapper = cashRadio.closest('.form-check') || cashRadio.parentElement;
+                if (wrapper) wrapper.style.display = 'none';
+
+                if (cashRadio.checked && cardRadio) {
+                    cardRadio.checked = true;
+                }
+            }
         }
         // 2. Самовывоз
         else if (labelText.includes('самовывоз')) {
             cdekSection.style.display = 'none';
             addressField.style.display = 'none';
 
-            if (cityAsterisk) cityAsterisk.style.display = 'none';     // Скрываем *
-            if (addressAsterisk) addressAsterisk.style.display = 'none'; // Скрываем *
+            if (cityAsterisk) cityAsterisk.style.display = 'none';
+            if (addressAsterisk) addressAsterisk.style.display = 'none';
+
+            if (cashRadio) {
+                const wrapper = cashRadio.closest('.form-check') || cashRadio.parentElement;
+                if (wrapper) wrapper.style.display = 'block';
+            }
         }
         // 3. Курьер
         else {
             cdekSection.style.display = 'none';
             addressField.style.display = 'block';
 
-            if (cityAsterisk) cityAsterisk.style.display = 'none';     // Скрываем *
-            if (addressAsterisk) addressAsterisk.style.display = 'inline'; // Показываем *
+            if (cityAsterisk) cityAsterisk.style.display = 'none';
+            if (addressAsterisk) addressAsterisk.style.display = 'inline';
+
+            if (cashRadio) {
+                const wrapper = cashRadio.closest('.form-check') || cashRadio.parentElement;
+                if (wrapper) wrapper.style.display = 'block';
+            }
         }
     }
 

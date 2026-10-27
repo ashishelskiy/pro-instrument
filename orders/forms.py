@@ -100,6 +100,7 @@ class OrderForm(forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         delivery_id = self.data.get('delivery_method')
+        payment_method = cleaned.get('payment_method')
         city = (cleaned.get('city') or '').strip()
         address = (cleaned.get('address') or '').strip()
         cdek_pvz_code = (self.data.get('cdek_pvz_code') or '').strip()
@@ -115,6 +116,8 @@ class OrderForm(forms.ModelForm):
                         self.add_error('city', 'Укажите город для расчета СДЭК')
                     if not cdek_pvz_code:
                         self.add_error(None, 'Выберите пункт выдачи СДЭК')
+                    if payment_method == 'cash':
+                        self.add_error('payment_method', 'Для доставки СДЭК доступна только онлайн-оплата картой')
                 elif not is_pickup and not address:
                     self.add_error('address', 'Укажите адрес доставки')
             except (DeliveryMethod.DoesNotExist, ValueError):
