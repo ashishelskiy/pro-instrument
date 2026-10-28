@@ -7,6 +7,31 @@ from .models import Category, Product, ProductProperty, Brand, CategoryProperty
 from banners.models import Banner, BannerPosition
 
 
+EN_TO_RU = {
+    # строчные буквы
+    'q': 'й', 'w': 'ц', 'e': 'у', 'r': 'к', 't': 'е', 'y': 'н', 'u': 'г',
+    'i': 'ш', 'o': 'щ', 'p': 'з', '[': 'х', ']': 'ъ',
+    'a': 'ф', 's': 'ы', 'd': 'в', 'f': 'а', 'g': 'п', 'h': 'р', 'j': 'о',
+    'k': 'л', 'l': 'д', ';': 'ж', "'": 'э',
+    'z': 'я', 'x': 'ч', 'c': 'с', 'v': 'м', 'b': 'и', 'n': 'т', 'm': 'ь',
+    ',': 'б', '.': 'ю',
+    '`': 'ё',
+
+    # заглавные буквы (Shift)
+    'Q': 'Й', 'W': 'Ц', 'E': 'У', 'R': 'К', 'T': 'Е', 'Y': 'Н', 'U': 'Г',
+    'I': 'Ш', 'O': 'Щ', 'P': 'З', '{': 'Х', '}': 'Ъ',
+    'A': 'Ф', 'S': 'Ы', 'D': 'В', 'F': 'А', 'G': 'П', 'H': 'Р', 'J': 'О',
+    'K': 'Л', 'L': 'Д', ':': 'Ж', '"': 'Э',
+    'Z': 'Я', 'X': 'Ч', 'C': 'С', 'V': 'М', 'B': 'И', 'N': 'Т', 'M': 'Ь',
+    '<': 'Б', '>': 'Ю',
+    '~': 'Ё',
+}
+
+
+def convert_layout(text: str) -> str:
+    """EN → RU по позиции клавиши. 'Ntgkjdfz' → 'Тепловая'."""
+    return ''.join(EN_TO_RU.get(ch, ch) for ch in text)
+
 
 class IndexView(ListView):
     """Главная страница"""
@@ -257,13 +282,21 @@ class CategoryDetailView(ListView):
                 queryset = queryset.filter(q_prop).distinct()
 
         # === Поиск ===
-        q = self.request.GET.get('q')
+        # q = self.request.GET.get('q')
+        # if q:
+        #     queryset = queryset.filter(
+        #         Q(name__icontains=q) |
+        #         Q(article__icontains=q)
+        #     )
+        # === Поиск ===
+        q = self.request.GET.get('q', '').strip()
         if q:
+            q_ru = convert_layout(q)
             queryset = queryset.filter(
                 Q(name__icontains=q) |
                 Q(article__icontains=q) |
-                Q(description__icontains=q)
-            )
+                Q(name__icontains=q_ru)
+            ).distinct()
 
         # === Сортировка ===
         sort = self.request.GET.get('sort')
@@ -450,33 +483,72 @@ class ProductDetailView(DetailView):
         return context
 
 
+# def search_view(request):
+#     """Поиск товаров"""
+#     q = request.GET.get('q', '').strip()[:100]
+#
+#     print(q)
+#
+#     # Ищем по ВСЕМ товарам (включая "Под заказ")
+#     products = Product.objects.all()
+#
+#     if q:
+#         products = products.filter(
+#             Q(name__icontains=q) |
+#             Q(article__icontains=q) |
+#             Q(description__icontains=q)
+#         ).select_related('brand', 'category')
+#
+#     # Сортировка: сначала в наличии, потом под заказ
+#     products = products.order_by('-in_stock')
+#
+#     paginator = Paginator(products, 24)
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+#
+#     context = {
+#         'products': page_obj,
+#         'q': q,
+#         'total': products.count()
+#     }
+#     return render(request, 'catalog/search_results.html', context)
 def search_view(request):
-    """Поиск товаров"""
-    q = request.GET.get('q', '')
+    """Поиск товаров: имя + артикул, с учётом раскладки."""
+    q = request.GET.get('q', '').strip()[:200]
 
-    # Ищем по ВСЕМ товарам (включая "Под заказ")
-    products = Product.objects.all()
+    if not q:
+        return render(request, 'catalog/search_results.html', {
+            'products': [],
+            'page_obj': None,
+            'is_paginated': False,
+            'q': '',
+            'total': 0,
+        })
 
-    if q:
-        products = products.filter(
+    q_ru = convert_layout(q)
+
+    products = (
+        Product.objects
+        .select_related('brand', 'category')
+        .filter(
             Q(name__icontains=q) |
             Q(article__icontains=q) |
-            Q(description__icontains=q)
-        ).select_related('brand', 'category')
-
-    # Сортировка: сначала в наличии, потом под заказ
-    products = products.order_by('-in_stock')
+            Q(name__icontains=q_ru)
+        )
+        .distinct()
+        .order_by('-in_stock', '-created_at')
+    )
 
     paginator = Paginator(products, 24)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginator.get_page(request.GET.get('page'))
 
-    context = {
+    return render(request, 'catalog/search_results.html', {
         'products': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
         'q': q,
-        'total': products.count()
-    }
-    return render(request, 'catalog/search_results.html', context)
+        'total': paginator.count,
+    })
 
 
 class BrandDetailView(ListView):
