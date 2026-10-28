@@ -96,124 +96,6 @@ class CategoryListView(ListView):
         return Category.objects.filter(parent__isnull=True)
 
 
-# class CategoryDetailView(ListView):
-#     """Детальная страница категории"""
-#     model = Product
-#     paginate_by = 24
-#     context_object_name = 'products'
-#
-#     def get_queryset(self):
-#         self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
-#
-#         if self.category.children.exists():
-#             return Product.objects.none()
-#
-#         queryset = Product.objects.filter(
-#             category=self.category,
-#         ).select_related('brand', 'category')
-#
-#         # Фильтрация по цене
-#         min_price = self.request.GET.get('min_price')
-#         max_price = self.request.GET.get('max_price')
-#         if min_price:
-#             queryset = queryset.filter(price__gte=min_price)
-#         if max_price:
-#             queryset = queryset.filter(price__lte=max_price)
-#
-#         # Фильтрация по бренду
-#         brand = self.request.GET.get('brand')
-#         if brand:
-#             queryset = queryset.filter(brand__slug=brand)
-#
-#         # Фильтрация по характеристикам
-#         property_names = ['Наличие удара', 'Напряжение аккумулятора, В', 'Тип двигателя']
-#         for prop_name in property_names:
-#             prop_value = self.request.GET.get(prop_name)
-#             if prop_value:
-#                 queryset = queryset.filter(
-#                     properties__name=prop_name,
-#                     properties__value=prop_value
-#                 )
-#
-#         # Поиск
-#         q = self.request.GET.get('q')
-#         if q:
-#             queryset = queryset.filter(
-#                 Q(name__icontains=q) |
-#                 Q(article__icontains=q) |
-#                 Q(description__icontains=q)
-#             )
-#
-#         # Сортировка: сначала в наличии, потом под заказ
-#         sort = self.request.GET.get('sort')
-#         if sort == 'price_asc':
-#             queryset = queryset.order_by('-in_stock', 'price')
-#         elif sort == 'price_desc':
-#             queryset = queryset.order_by('-in_stock', '-price')
-#         elif sort == 'name':
-#             queryset = queryset.order_by('-in_stock', 'name')
-#         else:
-#             queryset = queryset.order_by('-in_stock', '-created_at')
-#
-#         return queryset
-#
-#     def get_template_names(self):
-#         if self.category.children.exists():
-#             return ['catalog/subcategory_list.html']
-#         return ['catalog/product_list.html']
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['category'] = self.category
-#
-#         if self.category.children.exists():
-#             context['subcategories'] = self.category.children.all().order_by('name')
-#         else:
-#             context['brands'] = Brand.objects.filter(
-#                 products__category=self.category,
-#                 products__in_stock=True
-#             ).distinct()
-#
-#             price_range = Product.objects.filter(
-#                 category=self.category
-#             ).aggregate(
-#                 min_price=Min('price'),
-#                 max_price=Max('price')
-#             )
-#             context['min_price'] = price_range.get('min_price') or 0
-#             context['max_price'] = price_range.get('max_price') or 0
-#
-#             property_names = ['Наличие удара', 'Напряжение аккумулятора, В', 'Тип двигателя']
-#             filter_properties = []
-#
-#             for prop_name in property_names:
-#                 values = ProductProperty.objects.filter(
-#                     product__category=self.category,
-#                     product__in_stock=True,
-#                     name=prop_name
-#                 ).values_list('value', flat=True).distinct().order_by('value')
-#
-#                 values = [v for v in values if v and v.strip()]
-#
-#                 if values:
-#                     filter_properties.append({
-#                         'name': prop_name,
-#                         'values': values
-#                     })
-#
-#             context['filter_properties'] = filter_properties
-#             context['in_stock_count'] = Product.objects.filter(
-#                 category=self.category,
-#                 in_stock=True
-#             ).count()
-#             context['on_order_count'] = Product.objects.filter(
-#                 category=self.category,
-#                 in_stock=False
-#             ).count()
-#
-#         return context
-
-
 class CategoryDetailView(ListView):
     """Детальная страница категории"""
     model = Product
@@ -222,14 +104,6 @@ class CategoryDetailView(ListView):
     context_object_name = 'products'
 
     def get_queryset(self):
-        # self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
-        #
-        # if self.category.children.exists():
-        #     return Product.objects.none()
-        #
-        # queryset = Product.objects.filter(
-        #     category=self.category,
-        # ).select_related('brand', 'category')
         self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
 
         # Собираем id самой категории и всех её детей (один уровень)
@@ -253,20 +127,6 @@ class CategoryDetailView(ListView):
         if brand:
             queryset = queryset.filter(brand__slug=brand)
 
-        # # === Фильтрация по характеристикам (динамика из CategoryProperty) ===
-        # # Получаем список характеристик для этой категории
-        # category_props = CategoryProperty.objects.filter(
-        #     category=self.category
-        # ).values_list('name', flat=True)
-        #
-        # for prop_name in category_props:
-        #     prop_value = self.request.GET.get(prop_name)
-        #     if prop_value:
-        #         queryset = queryset.filter(
-        #             properties__name=prop_name,
-        #             properties__value=prop_value
-        #         )
-
         # === Фильтрация по характеристикам (множественный выбор) ===
         category_props = CategoryProperty.objects.filter(
             category=self.category
@@ -281,13 +141,6 @@ class CategoryDetailView(ListView):
                     q_prop |= Q(properties__name=prop_name, properties__value=v)
                 queryset = queryset.filter(q_prop).distinct()
 
-        # === Поиск ===
-        # q = self.request.GET.get('q')
-        # if q:
-        #     queryset = queryset.filter(
-        #         Q(name__icontains=q) |
-        #         Q(article__icontains=q)
-        #     )
         # === Поиск ===
         q = self.request.GET.get('q', '').strip()
         if q:
@@ -311,77 +164,7 @@ class CategoryDetailView(ListView):
 
         return queryset
 
-    # def get_template_names(self):
-    #     if self.category.children.exists():
-    #         return ['catalog/subcategory_list.html']
-    #     return ['catalog/product_list.html']
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['category'] = self.category
-    #
-    #     if self.category.children.exists():
-    #         context['subcategories'] = self.category.children.all().order_by('name')
-    #     else:
-    #         # Бренды в категории
-    #         context['brands'] = Brand.objects.filter(
-    #             products__category=self.category,
-    #             products__in_stock=True
-    #         ).distinct()
-    #
-    #         # Диапазон цен
-    #         price_range = Product.objects.filter(
-    #             category=self.category
-    #         ).aggregate(
-    #             min_price=Min('price'),
-    #             max_price=Max('price')
-    #         )
-    #         context['min_price'] = price_range.get('min_price') or 0
-    #         context['max_price'] = price_range.get('max_price') or 0
-    #
-    #         # === ДИНАМИЧЕСКИЕ ФИЛЬТРЫ ПО ХАРАКТЕРИСТИКАМ ===
-    #         # Получаем шаблон характеристик для категории
-    #         category_props = CategoryProperty.objects.filter(
-    #             category=self.category
-    #         ).order_by('sort_order', 'name')
-    #
-    #         filter_properties = []
-    #
-    #         for prop_template in category_props:
-    #             # Значения этой характеристики у товаров категории
-    #             values = ProductProperty.objects.filter(
-    #                 product__category=self.category,
-    #                 product__in_stock=True,
-    #                 name=prop_template.name
-    #             ).values_list('value', flat=True).distinct().order_by('value')
-    #
-    #             values = [v for v in values if v and v.strip()]
-    #
-    #             if values:
-    #                 filter_properties.append({
-    #                     'name': prop_template.name,
-    #                     'values': values,
-    #                 })
-    #
-    #         context['filter_properties'] = filter_properties
-    #
-    #         # Выбранные значения для фильтров (для галочек)
-    #         selected_filters = {}
-    #         for prop in filter_properties:
-    #             selected_filters[prop['name']] = self.request.GET.getlist(prop['name'])
-    #         context['selected_filters'] = selected_filters
-    #
-    #         # Количество товаров
-    #         context['in_stock_count'] = Product.objects.filter(
-    #             category=self.category,
-    #             in_stock=True
-    #         ).count()
-    #         context['on_order_count'] = Product.objects.filter(
-    #             category=self.category,
-    #             in_stock=False
-    #         ).count()
-    #
-    #     return context
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
@@ -483,37 +266,8 @@ class ProductDetailView(DetailView):
         return context
 
 
-# def search_view(request):
-#     """Поиск товаров"""
-#     q = request.GET.get('q', '').strip()[:100]
-#
-#     print(q)
-#
-#     # Ищем по ВСЕМ товарам (включая "Под заказ")
-#     products = Product.objects.all()
-#
-#     if q:
-#         products = products.filter(
-#             Q(name__icontains=q) |
-#             Q(article__icontains=q) |
-#             Q(description__icontains=q)
-#         ).select_related('brand', 'category')
-#
-#     # Сортировка: сначала в наличии, потом под заказ
-#     products = products.order_by('-in_stock')
-#
-#     paginator = Paginator(products, 24)
-#     page_number = request.GET.get('page')
-#     page_obj = paginator.get_page(page_number)
-#
-#     context = {
-#         'products': page_obj,
-#         'q': q,
-#         'total': products.count()
-#     }
-#     return render(request, 'catalog/search_results.html', context)
 def search_view(request):
-    """Поиск товаров: имя + артикул, с учётом раскладки."""
+    """Поиск: имя + артикул. Если по оригиналу 0 — сразу показываем по раскладке."""
     q = request.GET.get('q', '').strip()[:200]
 
     if not q:
@@ -523,17 +277,18 @@ def search_view(request):
             'is_paginated': False,
             'q': '',
             'total': 0,
+            'suggested_q': None,
+            'suggested_count': 0,
+            'fallback_used': False,
         })
 
-    q_ru = convert_layout(q)
-
+    # === 1. Основной поиск: только по оригиналу ===
     products = (
         Product.objects
         .select_related('brand', 'category')
         .filter(
             Q(name__icontains=q) |
-            Q(article__icontains=q) |
-            Q(name__icontains=q_ru)
+            Q(article__icontains=q)
         )
         .distinct()
         .order_by('-in_stock', '-created_at')
@@ -542,12 +297,45 @@ def search_view(request):
     paginator = Paginator(products, 24)
     page_obj = paginator.get_page(request.GET.get('page'))
 
+    total = paginator.count
+    suggested_q = None
+    suggested_count = 0
+    fallback_used = False
+
+    # === 2. Если по оригиналу 0 — пробуем раскладку и сразу показываем её результаты ===
+    if total == 0:
+        q_ru = convert_layout(q)
+        if q_ru != q:
+            fallback_qs = (
+                Product.objects
+                .select_related('brand', 'category')
+                .filter(
+                    Q(name__icontains=q_ru) |
+                    Q(article__icontains=q_ru)
+                )
+                .distinct()
+                .order_by('-in_stock', '-created_at')
+            )
+            fallback_paginator = Paginator(fallback_qs, 24)
+            fallback_count = fallback_paginator.count
+
+            if fallback_count > 0:
+                # показываем результаты по сконвертированному запросу
+                paginator = fallback_paginator
+                page_obj = fallback_paginator.get_page(request.GET.get('page'))
+                suggested_q = q_ru
+                suggested_count = fallback_count
+                fallback_used = True
+
     return render(request, 'catalog/search_results.html', {
         'products': page_obj,
         'page_obj': page_obj,
-        'is_paginated': page_obj.has_other_pages(),
+        'is_paginated': page_obj.has_other_pages() if page_obj else False,
         'q': q,
-        'total': paginator.count,
+        'total': total,                       # 0, если по оригиналу ничего
+        'suggested_q': suggested_q,           # «тепловая»
+        'suggested_count': suggested_count,   # 22
+        'fallback_used': fallback_used,       # True — показываем по q_ru
     })
 
 
