@@ -1089,6 +1089,16 @@
                 overflow-wrap: anywhere;
             }
         }
+                /* ============================================================
+           СЕРЫЙ ФОН ТОЛЬКО ДЛЯ ЛИЧНОГО КАБИНЕТА
+           ============================================================ */
+        .site-main-bg {
+            background-color: rgb(244, 245, 246);
+            /* Растягиваем на всю высоту, чтобы фон не обрывался, если мало контента */
+            min-height: calc(100vh - 300px);
+            padding-top: 10px;
+            padding-bottom: 40px;
+        }
     </style>
 </head>
 <body>
@@ -1428,7 +1438,12 @@
             </div>
         {% endif %}
 
-        <main>
+
+        {% if request.resolver_match.app_name == 'users' and request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'register' %}
+            <main class="site-main-bg">
+        {% else %}
+            <main>
+        {% endif %}
             <div class="container mt-2">
                 {% block breadcrumb %}
                 <nav aria-label="breadcrumb">
