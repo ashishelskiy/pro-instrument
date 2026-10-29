@@ -68,6 +68,56 @@
 </div>
 
 <style>
+/* ============================================================
+   МЕНЮ КАБИНЕТА — БЕЗ ЛИНИЙ И БЕЗ ФОНА, КРАСНЫЙ rgb(214, 0, 0)
+   ============================================================ */
+.cabinet-sidebar .list-group {
+    gap: 2px;
+    display: flex;
+    flex-direction: column;
+}
+
+.cabinet-sidebar .list-group-item {
+    border: none;
+    border-radius: 0;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #333;
+    background: transparent;
+    transition: color 0.15s;
+}
+
+.cabinet-sidebar .list-group-item:hover {
+    background: transparent;
+    color: rgb(214, 0, 0);
+    text-decoration: none;
+}
+
+.cabinet-sidebar .list-group-item.active {
+    background: transparent;
+    color: rgb(214, 0, 0);
+    font-weight: 500;
+    border: none;
+}
+
+.cabinet-sidebar .list-group-item.active:hover {
+    background: transparent;
+    color: rgb(214, 0, 0);
+}
+
+@media (max-width: 768px) {
+    .cabinet-sidebar .list-group-item {
+        border: none;
+        border-radius: 0;
+        margin-bottom: 2px;
+        padding: 10px 14px;
+        background: transparent;
+    }
+}
+/* «Мой кабинет» — отделить от остальных отступом */
+.cabinet-sidebar .list-group-item:first-child {
+    margin-bottom: 14px;
+}
     /* ============================================================
        КНОПКА-БУРГЕР КАБИНЕТА
        ============================================================ */
