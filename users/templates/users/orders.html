@@ -463,6 +463,23 @@
         max-height: 60vh;
     }
 }
+/* Карточка с фильтром — не обрезать меню */
+.card.mb-3 {
+    overflow: visible !important;
+}
+    /* Первая карточка на странице */
+.card:first-of-type {
+    position: relative;
+    z-index: 10;
+    overflow: visible !important;
+}
+
+/* Вторая карточка (или order-list) */
+.card:last-of-type,
+.order-list {
+    position: relative;
+    z-index: 1;
+}
 </style>
 <script>
 (function () {
