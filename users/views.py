@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import PasswordChangeView
 from django.contrib import messages
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -23,7 +24,7 @@ from .forms import (
     CustomUserCreationForm, UserProfileForm, OrganizationForm,
     StockNotificationForm, PriceRequestForm,
 )
-
+from catalog.views import convert_layout
 
 # ============================================================
 # ХЕЛПЕР: безопасный возврат на ту же страницу
@@ -111,7 +112,61 @@ class OrdersView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         from orders.models import Order
-        return Order.objects.filter(user=self.request.user).prefetch_related('items')
+
+        q = self.request.GET.get('q', '').strip()[:200]
+        org = self.request.GET.get('org', '').strip()   # 'all' | 'person' | '<id>'
+
+        qs = (
+            Order.objects
+            .filter(user=self.request.user)
+            .select_related('organization')
+            .prefetch_related('items')
+            .order_by('-created_at')
+        )
+
+        # === Фильтр по типу заказа ===
+        if org == 'person':
+            qs = qs.filter(organization__isnull=True)
+        elif org and org != 'all' and org.isdigit():
+            qs = qs.filter(organization_id=int(org))
+
+        # === Поиск по товарам ===
+        if q:
+            q_ru = convert_layout(q)
+            qs = qs.filter(
+                Q(items__product_name__icontains=q) |
+                Q(items__product_article__icontains=q) |
+                Q(items__product_name__icontains=q_ru) |
+                Q(items__product_article__icontains=q_ru)
+            ).distinct()
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        q = self.request.GET.get('q', '').strip()
+        org = self.request.GET.get('org', 'all').strip() or 'all'
+
+        ctx['q'] = q
+        ctx['org'] = org
+
+        orgs = list(self.request.user.organizations.all().order_by('name'))
+        ctx['user_organizations'] = orgs
+
+        # Обрезанное название для закрытого поля
+        def short(name, limit=28):
+            name = (name or '').strip()
+            return name if len(name) <= limit else name[:limit].rstrip() + '…'
+
+        if org == 'all' or not org:
+            ctx['selected_org_label'] = 'Все заказы'
+        elif org == 'person':
+            ctx['selected_org_label'] = 'Физлицо'
+        else:
+            selected = next((o for o in orgs if str(o.id) == org), None)
+            ctx['selected_org_label'] = short(selected.name) if selected else 'Все заказы'
+
+        return ctx
 
 
 class OrderDocumentsView(LoginRequiredMixin, ListView):

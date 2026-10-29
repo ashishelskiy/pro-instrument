@@ -8,6 +8,78 @@
     <div class="card-header" style="background-color: #f8f9fa;">
         <h5 class="mb-0">Мои заказы</h5>
     </div>
+    <div class="mt-3 mb-3 px-3">
+        <form method="get" class="orders-filter-row" id="ordersSearchForm">
+            <div class="orders-filter-row__left">
+                <div class="org-dropdown" id="orgDropdown">
+                    <button type="button"
+                            class="org-dropdown__toggle"
+                            id="orgDropdownToggle"
+                            aria-haspopup="listbox"
+                            aria-expanded="false">
+                        <span class="org-dropdown__label">{{ selected_org_label }}</span>
+                        <i class="fas fa-chevron-down org-dropdown__caret"></i>
+                    </button>
+
+                    <div class="org-dropdown__menu" id="orgDropdownMenu" role="listbox" hidden>
+                        <button type="button"
+                                class="org-dropdown__item {% if org == 'all' or not org %}is-active{% endif %}"
+                                data-value="all"
+                                role="option"
+                                {% if org == 'all' or not org %}aria-selected="true"{% endif %}>
+                            Все заказы
+                        </button>
+                        <button type="button"
+                                class="org-dropdown__item {% if org == 'person' %}is-active{% endif %}"
+                                data-value="person"
+                                role="option"
+                                {% if org == 'person' %}aria-selected="true"{% endif %}>
+                            Физлицо
+                        </button>
+                        {% for o in user_organizations %}
+                            <button type="button"
+                                    class="org-dropdown__item {% if org == o.id|stringformat:"s" %}is-active{% endif %}"
+                                    data-value="{{ o.id }}"
+                                    data-label="{{ o.name|truncatechars:28 }}"
+                                    role="option"
+                                    {% if org == o.id|stringformat:"s" %}aria-selected="true"{% endif %}>
+                                {{ o.name }}
+                            </button>
+                        {% endfor %}
+                    </div>
+
+                    {# Скрытое поле — чтобы org уходил в GET при отправке формы #}
+                    <input type="hidden" name="org" id="orgInput" value="{{ org }}">
+                </div>
+            </div>
+            <div class="orders-filter-row__right">
+                <div class="search-form__wrap">
+                    <input type="search" name="q" id="ordersSearchInput"
+                           class="search-form__input"
+                           placeholder="Найти товар в моих заказах (название или артикул)"
+                           value="{{ q|default:'' }}"
+                           autocomplete="off"
+                           enterkeyhint="search">
+                    <button type="button" class="search-form__clear" id="ordersSearchClear" aria-label="Очистить" hidden>
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button type="submit" class="search-form__submit" aria-label="Найти">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        {% if q or org != 'all' %}
+            <p class="text-muted small mb-0 mt-2">
+                {% if q %}Поиск: «{{ q }}». {% endif %}
+                {% if org == 'person' %}Только заказы от физлица.
+                {% elif org != 'all' %}
+                    {% for o in user_organizations %}{% if org == o.id|stringformat:"s" %}Только заказы от «{{ o.name }}».{% endif %}{% endfor %}
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
     <div class="card-body">
 
         {% if orders %}
@@ -101,23 +173,390 @@
                 <nav>
                     <ul class="pagination justify-content-center">
                         {% if page_obj.has_previous %}
-                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">←</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if org and org != 'all' %}&org={{ org }}{% endif %}">←</a>
+                            </li>
                         {% endif %}
-                        <li class="page-item active"><span class="page-link">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span></li>
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+                        </li>
                         {% if page_obj.has_next %}
-                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">→</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if org and org != 'all' %}&org={{ org }}{% endif %}">→</a>
+                            </li>
                         {% endif %}
                     </ul>
                 </nav>
             {% endif %}
+
         {% else %}
             <div class="text-center py-5">
-                <i class="fas fa-shopping-bag fa-4x mb-3" style="color: #dee2e6;"></i>
-                <p class="text-muted mb-0">У вас пока нет заказов</p>
-                <a href="{% url 'catalog:index' %}" class="btn btn-danger mt-3">Перейти в каталог</a>
+                {% if q %}
+                    <i class="fas fa-search fa-4x mb-3" style="color: #dee2e6;"></i>
+                    <p class="text-muted mb-0">По запросу «{{ q }}» заказы с таким товаром не найдены</p>
+                    <a href="{% url 'users:orders' %}" class="btn btn-outline-danger mt-3">Сбросить поиск</a>
+                {% else %}
+                    <i class="fas fa-shopping-bag fa-4x mb-3" style="color: #dee2e6;"></i>
+                    <p class="text-muted mb-0">У вас пока нет заказов</p>
+                    <a href="{% url 'catalog:index' %}" class="btn btn-danger mt-3">Перейти в каталог</a>
+                {% endif %}
             </div>
         {% endif %}
 
     </div>
 </div>
+<style>
+    /* ===== Форма поиска с лупой и крестиком ===== */
+.search-form__wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search-form__wrap:focus-within {
+    border-color: #d82a20;
+    box-shadow: 0 0 0 0.2rem rgba(216, 42, 32, 0.15);
+}
+
+.search-form__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 10px 80px 10px 14px; /* справа место под крестик + лупу */
+    font-size: 15px;
+    font-family: inherit;
+    color: #333;
+    min-width: 0;
+}
+
+.search-form__input::placeholder {
+    color: #918e8e;
+}
+
+/* Убираем встроенный крестик у type="search" в WebKit — у нас свой */
+.search-form__input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Крестик */
+.search-form__clear {
+    position: absolute;
+    right: 42px;           /* слева от лупы */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: #adb5bd;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+    padding: 0;
+}
+
+.search-form__clear:hover {
+    color: #d82a20;
+    background: #f8f9fa;
+}
+
+.search-form__clear[hidden] {
+    display: none !important;
+}
+
+/* Лупа */
+.search-form__submit {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: transparent;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+    padding: 0;
+}
+
+.search-form__submit:hover {
+    color: #d82a20;
+    background: #f8f9fa;
+}
+
+.search-form__submit i,
+.search-form__clear i {
+    font-size: 15px;
+    pointer-events: none; /* чтобы клик шёл по кнопке, а не по иконке */
+}
+/* ===== Строка «фильтр + поиск» ===== */
+.orders-filter-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    flex-wrap: nowrap;        /* ← было wrap, стало nowrap */
+}
+
+.orders-filter-row__left {
+    flex: 0 0 240px;          /* фиксированная ширина select */
+    min-width: 0;             /* ← убрали min-width: 220px */
+}
+
+.orders-filter-row__right {
+    flex: 1 1 auto;           /* поиск занимает всё остальное */
+    min-width: 0;             /* ← важно: иначе flex-элемент не сжимается */
+}
+
+.orders-filter-row__select {
+    width: 100%;              /* select на всю ширину левой колонки */
+    height: 42px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    font-size: 15px;
+    padding: 0 12px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.orders-filter-row__select:focus {
+    border-color: #d82a20;
+    box-shadow: 0 0 0 0.2rem rgba(216, 42, 32, 0.15);
+    outline: none;
+}
+
+/* На мобильных — можно оставить в строку, но уменьшить select */
+@media (max-width: 576px) {
+    .orders-filter-row {
+        flex-wrap: wrap;      /* на очень узком — перенос */
+    }
+    .orders-filter-row__left {
+        flex: 1 1 100%;       /* select на всю ширину */
+    }
+    .orders-filter-row__right {
+        flex: 1 1 100%;       /* поиск на всю ширину */
+    }
+}
+
+/* ===== Кастомный dropdown организаций ===== */
+.org-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.org-dropdown__toggle {
+    width: 100%;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 12px;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #333;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.org-dropdown__toggle:hover {
+    border-color: #adb5bd;
+}
+
+.org-dropdown__toggle:focus,
+.org-dropdown.is-open .org-dropdown__toggle {
+    border-color: #d82a20;
+    box-shadow: 0 0 0 0.2rem rgba(216, 42, 32, 0.15);
+    outline: none;
+}
+
+.org-dropdown__label {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;   /* ← обрезка в закрытом поле */
+}
+
+.org-dropdown__caret {
+    font-size: 11px;
+    color: #999;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.org-dropdown.is-open .org-dropdown__caret {
+    transform: rotate(180deg);
+}
+
+/* Список */
+.org-dropdown__menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    min-width: 100%;
+    max-height: 320px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 4px;
+    z-index: 1000;
+}
+
+.org-dropdown__menu[hidden] {
+    display: none;
+}
+
+.org-dropdown__item {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #333;
+    text-align: left;
+    cursor: pointer;
+    line-height: 1.35;
+    white-space: normal;         /* ← перенос для длинных */
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    transition: background 0.15s, color 0.15s;
+}
+
+.org-dropdown__item:hover {
+    background: #f5f5f5;
+    color: #d82a20;
+}
+
+.org-dropdown__item.is-active {
+    background: #fff5f4;
+    color: #d82a20;
+    font-weight: 500;
+}
+
+/* На мобильных — список на всю ширину экрана */
+@media (max-width: 576px) {
+    .org-dropdown__menu {
+        position: fixed;
+        top: auto;
+        left: 8px;
+        right: 8px;
+        max-height: 60vh;
+    }
+}
+</style>
+<script>
+(function () {
+    const input = document.getElementById('ordersSearchInput');
+    const clearBtn = document.getElementById('ordersSearchClear');
+    const form = document.getElementById('ordersSearchForm');
+    if (!input || !clearBtn || !form) return;
+
+    // Показать/скрыть крестик в зависимости от содержимого
+    function toggleClear() {
+        if (input.value.trim().length > 0) {
+            clearBtn.hidden = false;
+        } else {
+            clearBtn.hidden = true;
+        }
+    }
+
+    // При вводе
+    input.addEventListener('input', toggleClear);
+
+    // При загрузке — если в поле уже есть текст (из value)
+    toggleClear();
+
+    // Клик по крестику — очистить и отправить форму без q
+    clearBtn.addEventListener('click', function () {
+        input.value = '';
+        toggleClear();
+        input.focus();
+        form.submit();   // отправляем без q → показываем все заказы
+    });
+})();
+</script>
+<script>
+(function () {
+    const dropdown = document.getElementById('orgDropdown');
+    const toggle = document.getElementById('orgDropdownToggle');
+    const menu = document.getElementById('orgDropdownMenu');
+    const input = document.getElementById('orgInput');
+    const form = document.getElementById('ordersSearchForm');
+    if (!dropdown || !toggle || !menu || !input || !form) return;
+
+    function openMenu() {
+        menu.hidden = false;
+        dropdown.classList.add('is-open');
+        toggle.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeMenu() {
+        menu.hidden = true;
+        dropdown.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+    }
+
+    function toggleMenu(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (menu.hidden) openMenu(); else closeMenu();
+    }
+
+    toggle.addEventListener('click', toggleMenu);
+
+    // Выбор пункта
+    menu.addEventListener('click', function (e) {
+        const item = e.target.closest('.org-dropdown__item');
+        if (!item) return;
+
+        const value = item.dataset.value;
+        const label = item.dataset.label || item.textContent.trim();
+
+        input.value = value;
+
+        // Обновляем label в закрытом поле (обрезанный)
+        const labelEl = toggle.querySelector('.org-dropdown__label');
+        if (labelEl) labelEl.textContent = label;
+
+        closeMenu();
+
+        // Отправляем форму — фильтр применится
+        form.submit();
+    });
+
+    // Клик вне — закрыть
+    document.addEventListener('click', function (e) {
+        if (!dropdown.contains(e.target)) closeMenu();
+    });
+
+    // Esc — закрыть
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeMenu();
+    });
+})();
+</script>
 {% endblock %}
