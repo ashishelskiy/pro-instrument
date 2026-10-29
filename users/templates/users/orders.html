@@ -6,7 +6,7 @@
 {% block cabinet_content %}
 {# ===== КАРТОЧКА 1: заголовок + фильтр + поиск ===== #}
 <div class="card mb-3">
-    <div class="card-header" style="background-color: #f8f9fa;">
+    <div class="card-header border-0 bg-white">
         <h5 class="mb-0">Мои заказы</h5>
     </div>
     <div class="card-body">
@@ -86,12 +86,10 @@
 {# ===== КАРТОЧКА 2: список заказов ===== #}
 <div class="order-list">
     <div class="card-body">
-
         {% if orders %}
             {% for order in orders %}
                 <div class="card mb-3 org-card">
                     <div class="card-body">
-
                         <div class="org-card__head">
                             <div>
                                 <h5 class="org-card__name">Заказ №{{ order.pk }}</h5>
@@ -113,7 +111,6 @@
                             </div>
                         </div>
 
-                        {# Позиции и доставка #}
                         <div class="mt-2" style="display: grid; grid-template-columns: 1fr auto; gap: 4px 15px; align-items: start;">
                             {% for item in order.items.all %}
                                 <div class="small">
@@ -143,7 +140,6 @@
                             </div>
                         </div>
 
-                        {# Итого #}
                         <div class="d-flex justify-content-between align-items-center mt-2 pt-2" style="border-top: 2px solid #eee;">
                             <div class="d-flex gap-2">
                                 <a href="{% url 'orders:order_invoice' order.pk %}" target="_blank" class="btn btn-outline-secondary btn-sm py-1">
@@ -164,7 +160,6 @@
                 </div>
             {% endfor %}
 
-            {# Пагинация #}
             {% if is_paginated %}
                 <nav>
                     <ul class="pagination justify-content-center">
@@ -198,11 +193,11 @@
                 {% endif %}
             </div>
         {% endif %}
-
     </div>
 </div>
+
 <style>
-    /* ===== Форма поиска с лупой и крестиком ===== */
+/* ===== Форма поиска ===== */
 .search-form__wrap {
     position: relative;
     display: flex;
@@ -212,203 +207,78 @@
     border-radius: 6px;
     transition: border-color 0.15s, box-shadow 0.15s;
 }
-
 .search-form__wrap:focus-within {
     border-color: #d82a20;
     box-shadow: 0 0 0 0.2rem rgba(216, 42, 32, 0.15);
 }
-
 .search-form__input {
     flex: 1;
     border: none;
     outline: none;
     background: transparent;
-    padding: 10px 80px 10px 14px; /* справа место под крестик + лупу */
+    padding: 10px 80px 10px 14px;
     font-size: 15px;
     font-family: inherit;
     color: #333;
     min-width: 0;
 }
-
-.search-form__input::placeholder {
-    color: #918e8e;
-}
-
-/* Убираем встроенный крестик у type="search" в WebKit — у нас свой */
-.search-form__input::-webkit-search-cancel-button {
-    -webkit-appearance: none;
-    appearance: none;
-}
-
-/* Крестик */
+.search-form__input::placeholder { color: #918e8e; }
+.search-form__input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
 .search-form__clear {
     position: absolute;
-    right: 42px;           /* слева от лупы */
+    right: 42px;
     top: 50%;
     transform: translateY(-50%);
-    width: 28px;
-    height: 28px;
-    border: none;
-    background: transparent;
-    color: #adb5bd;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: color 0.15s, background 0.15s;
-    padding: 0;
+    width: 28px; height: 28px;
+    border: none; background: transparent; color: #adb5bd;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; transition: color 0.15s, background 0.15s; padding: 0;
 }
-
-.search-form__clear:hover {
-    color: #d82a20;
-    background: #f8f9fa;
-}
-
-.search-form__clear[hidden] {
-    display: none !important;
-}
-
-/* Лупа */
+.search-form__clear:hover { color: #d82a20; background: #f8f9fa; }
+.search-form__clear[hidden] { display: none !important; }
 .search-form__submit {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 34px;
-    height: 34px;
-    border: none;
-    background: transparent;
-    color: #666;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: color 0.15s, background 0.15s;
-    padding: 0;
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 34px; border: none; background: transparent; color: #666;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; transition: color 0.15s, background 0.15s; padding: 0;
 }
+.search-form__submit:hover { color: #d82a20; background: #f8f9fa; }
+.search-form__submit i, .search-form__clear i { font-size: 15px; pointer-events: none; }
 
-.search-form__submit:hover {
-    color: #d82a20;
-    background: #f8f9fa;
-}
-
-.search-form__submit i,
-.search-form__clear i {
-    font-size: 15px;
-    pointer-events: none; /* чтобы клик шёл по кнопке, а не по иконке */
-}
 /* ===== Строка «фильтр + поиск» ===== */
-.orders-filter-row {
-    display: flex;
-    gap: 10px;
-    align-items: stretch;
-    flex-wrap: nowrap;        /* ← было wrap, стало nowrap */
-}
-
-.orders-filter-row__left {
-    flex: 0 0 240px;          /* фиксированная ширина select */
-    min-width: 0;             /* ← убрали min-width: 220px */
-}
-
-.orders-filter-row__right {
-    flex: 1 1 auto;           /* поиск занимает всё остальное */
-    min-width: 0;             /* ← важно: иначе flex-элемент не сжимается */
-}
-
-.orders-filter-row__select {
-    width: 100%;              /* select на всю ширину левой колонки */
-    height: 42px;
-    border-radius: 6px;
-    border: 1px solid #ced4da;
-    font-size: 15px;
-    padding: 0 12px;
-    background-color: #fff;
-    cursor: pointer;
-}
-
-.orders-filter-row__select:focus {
-    border-color: #d82a20;
-    box-shadow: 0 0 0 0.2rem rgba(216, 42, 32, 0.15);
-    outline: none;
-}
-
-/* На мобильных — можно оставить в строку, но уменьшить select */
+.orders-filter-row { display: flex; gap: 10px; align-items: stretch; flex-wrap: nowrap; }
+.orders-filter-row__left { flex: 0 0 240px; min-width: 0; }
+.orders-filter-row__right { flex: 1 1 auto; min-width: 0; }
 @media (max-width: 576px) {
-    .orders-filter-row {
-        flex-wrap: wrap;      /* на очень узком — перенос */
-    }
-    .orders-filter-row__left {
-        flex: 1 1 100%;       /* select на всю ширину */
-    }
-    .orders-filter-row__right {
-        flex: 1 1 100%;       /* поиск на всю ширину */
-    }
+    .orders-filter-row { flex-wrap: wrap; }
+    .orders-filter-row__left, .orders-filter-row__right { flex: 1 1 100%; }
 }
 
-/* ===== Кастомный dropdown организаций ===== */
-.org-dropdown {
-    position: relative;
-    width: 100%;
-}
-
+/* ===== Кнопка фильтра ===== */
+.org-dropdown { position: relative; width: 100%; }
 .org-dropdown__toggle {
-    width: 100%;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 0 12px;
-    background: #fff;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-size: 15px;
-    font-family: inherit;
-    color: #333;
-    cursor: pointer;
-    text-align: left;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    width: 100%; height: 42px; display: flex; align-items: center;
+    justify-content: space-between; gap: 8px; padding: 0 12px;
+    background: #fff; border: 1px solid #ced4da; border-radius: 6px;
+    font-size: 15px; font-family: inherit; color: #333; cursor: pointer;
+    text-align: left; transition: border-color 0.15s, box-shadow 0.15s;
 }
-
-.org-dropdown__toggle:hover {
-    border-color: #adb5bd;
+.org-dropdown__toggle:hover { border-color: #adb5bd; }
+.org-dropdown__toggle:focus, .org-dropdown.is-open .org-dropdown__toggle {
+    border-color: #d82a20; box-shadow: 0 0 0 0.2rem rgba(216, 42, 32, 0.15); outline: none;
 }
-
-.org-dropdown__toggle:focus,
-.org-dropdown.is-open .org-dropdown__toggle {
-    border-color: #d82a20;
-    box-shadow: 0 0 0 0.2rem rgba(216, 42, 32, 0.15);
-    outline: none;
-}
-
 .org-dropdown__label {
-    flex: 1;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;   /* ← обрезка в закрытом поле */
+    flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.org-dropdown__caret { font-size: 11px; color: #999; flex-shrink: 0; transition: transform 0.2s; }
+.org-dropdown.is-open .org-dropdown__caret { transform: rotate(180deg); }
 
-.org-dropdown__caret {
-    font-size: 11px;
-    color: #999;
-    flex-shrink: 0;
-    transition: transform 0.2s;
-}
-
-.org-dropdown.is-open .org-dropdown__caret {
-    transform: rotate(180deg);
-}
-
-/* Список */
+/* ===== Выпадающее меню ===== */
 .org-dropdown__menu {
-    position: absolute;
-    top: calc(100% + 4px);
+    position: absolute; /* JS изменит на fixed при открытии */
+    top: 0;
     left: 0;
-    right: 0;
-    min-width: 100%;
+    /* Убрали min-width: 100%, чтобы меню не растягивалось на весь экран */
     max-height: 320px;
     overflow-y: auto;
     background: #fff;
@@ -416,103 +286,46 @@
     border-radius: 6px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     padding: 4px;
-    z-index: 1000;
+    z-index: 9999;
 }
-
-.org-dropdown__menu[hidden] {
-    display: none;
-}
+.org-dropdown__menu[hidden] { display: none; }
 
 .org-dropdown__item {
-    display: block;
-    width: 100%;
-    padding: 9px 12px;
-    background: none;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    font-family: inherit;
-    color: #333;
-    text-align: left;
-    cursor: pointer;
-    line-height: 1.35;
-    white-space: normal;         /* ← перенос для длинных */
-    word-break: break-word;
-    overflow-wrap: anywhere;
+    display: block; width: 100%; padding: 9px 12px;
+    background: none; border: none; border-radius: 4px;
+    font-size: 14px; font-family: inherit; color: #333;
+    text-align: left; cursor: pointer; line-height: 1.35;
+    white-space: normal; word-break: break-word; overflow-wrap: anywhere;
     transition: background 0.15s, color 0.15s;
 }
+.org-dropdown__item:hover { background: #f5f5f5; color: #d82a20; }
+.org-dropdown__item.is-active { background: #fff5f4; color: #d82a20; font-weight: 500; }
 
-.org-dropdown__item:hover {
-    background: #f5f5f5;
-    color: #d82a20;
-}
-
-.org-dropdown__item.is-active {
-    background: #fff5f4;
-    color: #d82a20;
-    font-weight: 500;
-}
-
-/* На мобильных — список на всю ширину экрана */
+/* Адаптив для меню */
 @media (max-width: 576px) {
-    .org-dropdown__menu {
-        position: fixed;
-        top: auto;
-        left: 8px;
-        right: 8px;
-        max-height: 60vh;
-    }
-}
-/* Карточка с фильтром — не обрезать меню */
-.card.mb-3 {
-    overflow: visible !important;
-}
-    /* Первая карточка на странице */
-.card:first-of-type {
-    position: relative;
-    z-index: 10;
-    overflow: visible !important;
-}
-
-/* Вторая карточка (или order-list) */
-.card:last-of-type,
-.order-list {
-    position: relative;
-    z-index: 1;
+    .org-dropdown__menu { max-height: 60vh; }
 }
 </style>
+
 <script>
+// ===== Поиск (крестик) =====
 (function () {
     const input = document.getElementById('ordersSearchInput');
     const clearBtn = document.getElementById('ordersSearchClear');
     const form = document.getElementById('ordersSearchForm');
     if (!input || !clearBtn || !form) return;
 
-    // Показать/скрыть крестик в зависимости от содержимого
-    function toggleClear() {
-        if (input.value.trim().length > 0) {
-            clearBtn.hidden = false;
-        } else {
-            clearBtn.hidden = true;
-        }
-    }
-
-    // При вводе
+    function toggleClear() { clearBtn.hidden = input.value.trim().length === 0; }
     input.addEventListener('input', toggleClear);
-
-    // При загрузке — если в поле уже есть текст (из value)
     toggleClear();
-
-    // Клик по крестику — очистить и отправить форму без q
     clearBtn.addEventListener('click', function () {
-        input.value = '';
-        toggleClear();
-        input.focus();
-        form.submit();   // отправляем без q → показываем все заказы
+        input.value = ''; toggleClear(); input.focus(); form.submit();
     });
 })();
 </script>
+
 <script>
+// ===== Dropdown (меню организаций) =====
 (function () {
     const dropdown = document.getElementById('orgDropdown');
     const toggle = document.getElementById('orgDropdownToggle');
@@ -521,52 +334,75 @@
     const form = document.getElementById('ordersSearchForm');
     if (!dropdown || !toggle || !menu || !input || !form) return;
 
+    // МАГИЯ: Вырываем меню из карточки и переносим в body
+    // Теперь никакой overflow: hidden карточки его не обрежет
+    document.body.appendChild(menu);
+
+    let isOpen = false;
+
     function openMenu() {
+        // 1. Считаем координаты кнопки
+        const rect = toggle.getBoundingClientRect();
+
+        // 2. Позиционируем меню на экране (fixed)
+        menu.style.position = 'fixed';
+        menu.style.top = (rect.bottom + 4) + 'px';
+        menu.style.left = rect.left + 'px';
+        menu.style.width = rect.width + 'px'; // Ширина как у кнопки
+
+        // 3. Показываем
         menu.hidden = false;
         dropdown.classList.add('is-open');
         toggle.setAttribute('aria-expanded', 'true');
+        isOpen = true;
     }
 
     function closeMenu() {
+        if (!isOpen) return;
         menu.hidden = true;
         dropdown.classList.remove('is-open');
         toggle.setAttribute('aria-expanded', 'false');
+        isOpen = false;
     }
 
-    function toggleMenu(e) {
+    // Клик по кнопке
+    toggle.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        if (menu.hidden) openMenu(); else closeMenu();
-    }
+        if (!isOpen) openMenu(); else closeMenu();
+    });
 
-    toggle.addEventListener('click', toggleMenu);
-
-    // Выбор пункта
+    // Клик по пункту меню
     menu.addEventListener('click', function (e) {
         const item = e.target.closest('.org-dropdown__item');
         if (!item) return;
 
-        const value = item.dataset.value;
+        input.value = item.dataset.value;
         const label = item.dataset.label || item.textContent.trim();
-
-        input.value = value;
-
-        // Обновляем label в закрытом поле (обрезанный)
         const labelEl = toggle.querySelector('.org-dropdown__label');
         if (labelEl) labelEl.textContent = label;
 
         closeMenu();
-
-        // Отправляем форму — фильтр применится
         form.submit();
     });
 
-    // Клик вне — закрыть
+    // Клик мимо меню
     document.addEventListener('click', function (e) {
-        if (!dropdown.contains(e.target)) closeMenu();
+        // Проверяем, что клик был не по кнопке и не по самому меню
+        if (isOpen && !menu.contains(e.target) && !toggle.contains(e.target)) {
+            closeMenu();
+        }
     });
 
-    // Esc — закрыть
+    // Скролл и ресайз
+    window.addEventListener('scroll', function() {
+        if (isOpen) closeMenu();
+    }, true);
+    window.addEventListener('resize', function() {
+        if (isOpen) closeMenu();
+    });
+
+    // Esc
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') closeMenu();
     });

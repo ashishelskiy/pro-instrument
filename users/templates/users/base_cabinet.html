@@ -21,40 +21,38 @@
 
             {# Сам сайдбар #}
             <div class="cabinet-sidebar" id="cabinetSidebar">
-                <div class="list-group">
-                    <a href="{% url 'users:profile' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                        Мой кабинет
-                    </a>
-                    <a href="{% url 'users:orders' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'orders' %}active{% endif %}">
-                        Мои заказы
-                    </a>
-                    <a href="{% url 'users:order_documents' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'order_documents' %}active{% endif %}">
-                        Документы по заказам
-                    </a>
-                    <a href="{% url 'users:purchase_history' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'purchase_history' %}active{% endif %}">
-                        История покупок
-                    </a>
-                    <a href="{% url 'users:profile_edit' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'profile_edit' %}active{% endif %}">
-                        Личные данные
-                    </a>
-                    <a href="{% url 'users:organizations' %}" class="list-group-item list-group-item-action {% if 'organization' in request.resolver_match.url_name %}active{% endif %}">
-                        Мои организации
-                    </a>
-                    <a href="{% url 'users:viewed' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'viewed' %}active{% endif %}">
-                        Просмотренные
-                    </a>
-<!--                    <a href="{% url 'users:cart' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'cart' %}active{% endif %}">-->
-<!--                        Корзина-->
-<!--                    </a>-->
-<!--                    <a href="{% url 'users:favorites' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'favorites' %}active{% endif %}">-->
-<!--                        Избранное-->
-<!--                    </a>-->
-                    <a href="{% url 'users:stock_notifications' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'stock_notifications' %}active{% endif %}">
-                        Ожидаемые товары
-                    </a>
-                    <a href="{% url 'users:support' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'support' %}active{% endif %}">
-                        Поддержка
-                    </a>
+                <div class="card">
+                    <div class="card-body p-2">
+                        <div class="list-group list-group-flush">
+                            <a href="{% url 'users:profile' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                                Мой кабинет
+                            </a>
+                            <a href="{% url 'users:orders' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'orders' %}active{% endif %}">
+                                Мои заказы
+                            </a>
+                            <a href="{% url 'users:order_documents' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'order_documents' %}active{% endif %}">
+                                Документы по заказам
+                            </a>
+                            <a href="{% url 'users:purchase_history' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'purchase_history' %}active{% endif %}">
+                                История покупок
+                            </a>
+                            <a href="{% url 'users:profile_edit' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'profile_edit' %}active{% endif %}">
+                                Личные данные
+                            </a>
+                            <a href="{% url 'users:organizations' %}" class="list-group-item list-group-item-action {% if 'organization' in request.resolver_match.url_name %}active{% endif %}">
+                                Мои организации
+                            </a>
+                            <a href="{% url 'users:viewed' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'viewed' %}active{% endif %}">
+                                Просмотренные
+                            </a>
+                            <a href="{% url 'users:stock_notifications' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'stock_notifications' %}active{% endif %}">
+                                Ожидаемые товары
+                            </a>
+                            <a href="{% url 'users:support' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'support' %}active{% endif %}">
+                                Поддержка
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -114,10 +112,10 @@
         background: transparent;
     }
 }
-/* «Мой кабинет» — отделить от остальных отступом */
-.cabinet-sidebar .list-group-item:first-child {
-    margin-bottom: 14px;
-}
+    /* «Мой кабинет» — отделить от остальных отступом */
+    .cabinet-sidebar .list-group-item:first-child {
+        margin-bottom: 7px;
+    }
     /* ============================================================
        КНОПКА-БУРГЕР КАБИНЕТА
        ============================================================ */

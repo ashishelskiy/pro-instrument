@@ -164,31 +164,3 @@ button.action-link:hover i {
     }
 }
 
-/* ============================================================
-   Сайдбар кабинета — только красный текст у активного
-   ============================================================ */
-
-.cabinet-sidebar .list-group-item {
-    color: #333;
-    background: transparent;
-    border-color: #e9ecef;
-}
-
-.cabinet-sidebar .list-group-item:hover {
-    color: #BD0000;
-    background: transparent;
-    border-color: #e9ecef;
-}
-
-.cabinet-sidebar .list-group-item.active {
-    color: #BD0000;
-    background: transparent;
-    border-color: #e9ecef;
-    font-weight: 500;
-}
-
-.cabinet-sidebar .list-group-item.active:hover {
-    color: #BD0000;
-    background: transparent;
-    border-color: #e9ecef;
-}
