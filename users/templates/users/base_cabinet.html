@@ -30,6 +30,9 @@
                             <a href="{% url 'users:orders' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'orders' %}active{% endif %}">
                                 Мои заказы
                             </a>
+                            <a href="{% url 'users:invoices' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'invoices' %}active{% endif %}">
+                                Мои счета
+                            </a>
                             <a href="{% url 'users:order_documents' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'order_documents' %}active{% endif %}">
                                 Документы по заказам
                             </a>

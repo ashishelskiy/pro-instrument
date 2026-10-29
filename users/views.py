@@ -731,3 +731,72 @@ class ComparisonView(LoginRequiredMixin, TemplateView):
         context['groups'] = list(groups.values())
         context['total_count'] = sum(g['products_count'] for g in groups.values())
         return context
+
+class InvoicesView(LoginRequiredMixin, ListView):
+    """Счета клиента (офлайн-продажи)."""
+    template_name = 'users/invoices.html'
+    context_object_name = 'invoices'
+    paginate_by = 10
+
+    def get_queryset(self):
+        from invoices.models import Invoice
+        from django.db.models import Q
+
+        q = self.request.GET.get('q', '').strip()[:200]
+        org = self.request.GET.get('org', '').strip()
+
+        # Получаем ИНН всех организаций текущего пользователя
+        user_inns = list(self.request.user.organizations.values_list('inn', flat=True))
+
+        qs = (
+            Invoice.objects
+            .filter(
+                Q(user=self.request.user) | Q(buyer_inn__in=user_inns)
+            )
+            .select_related('organization', 'supplier', 'order')
+            .prefetch_related('items')
+            .order_by('-date', '-id')
+        )
+
+        if org == 'person':
+            qs = qs.filter(organization__isnull=True)
+        elif org and org != 'all' and org.isdigit():
+            qs = qs.filter(organization_id=int(org))
+
+        if q:
+            q_ru = convert_layout(q)
+            qs = qs.filter(
+                Q(number__icontains=q) |
+                Q(items__name__icontains=q) |
+                Q(items__code__icontains=q) |
+                Q(number__icontains=q_ru) |
+                Q(items__name__icontains=q_ru) |
+                Q(items__code__icontains=q_ru)
+            ).distinct()
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        q = self.request.GET.get('q', '').strip()
+        org = self.request.GET.get('org', 'all').strip() or 'all'
+
+        ctx['q'] = q
+        ctx['org'] = org
+
+        orgs = list(self.request.user.organizations.all().order_by('name'))
+        ctx['user_organizations'] = orgs
+
+        def short(name, limit=28):
+            name = (name or '').strip()
+            return name if len(name) <= limit else name[:limit].rstrip() + '…'
+
+        if org == 'all' or not org:
+            ctx['selected_org_label'] = 'Все счета'
+        elif org == 'person':
+            ctx['selected_org_label'] = 'Физлицо'
+        else:
+            selected = next((o for o in orgs if str(o.id) == org), None)
+            ctx['selected_org_label'] = short(selected.name) if selected else 'Все счета'
+
+        return ctx

@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'pages',
     'banners',
     'promotions',
+    'invoices',
 ]
 
 MIDDLEWARE = [

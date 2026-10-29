@@ -45,3 +45,5 @@ Thumbs.db
 
 # Данные для импорта
 data/
+
+invoices/tests/fixtures/

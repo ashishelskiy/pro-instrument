@@ -6,7 +6,7 @@ from .views import (
     RegisterView,
     ProfileView, ProfileEditView,
     MyPasswordChangeView,
-    OrdersView, OrderDocumentsView, PurchaseHistoryView,
+    OrdersView, OrderDocumentsView, PurchaseHistoryView, InvoicesView,
     FavoritesView, CartView, ViewedView, SupportView,
     OrganizationListView, OrganizationCreateView,
     OrganizationUpdateView, OrganizationDeleteView, OrganizationSetDefaultView,
@@ -42,6 +42,7 @@ urlpatterns = [
 
     # Разделы кабинета
     path('orders/', OrdersView.as_view(), name='orders'),
+    path('invoices/', InvoicesView.as_view(), name='invoices'),
     path('orders/documents/', OrderDocumentsView.as_view(), name='order_documents'),
     path('orders/history/', PurchaseHistoryView.as_view(), name='purchase_history'),
     path('favorites/', FavoritesView.as_view(), name='favorites'),
