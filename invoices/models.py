@@ -76,7 +76,7 @@ class Invoice(models.Model):
         'Статус отгрузки', max_length=20,
         choices=DELIVERY_STATUS_CHOICES, default='pending'
     )
-    delivery_date = models.DateField('Дата доставки', null=True, blank=True)
+    delivery_date = models.DateField('Планируемая дата поставки', null=True, blank=True)
     shipment_date = models.DateField('Дата отгрузки', null=True, blank=True)
     manager_comment = models.TextField('Комментарий менеджера', blank=True)
 
@@ -120,6 +120,12 @@ class InvoiceItem(models.Model):
 
     shipped_quantity = models.PositiveIntegerField(
         'Отгружено, кол-во', default=0
+    )
+
+    shipment_date = models.DateField('Дата отгрузки товара', null=True, blank=True)
+    manager_comment = models.CharField(
+        'Комментарий (для товара)', max_length=255, blank=True,
+        help_text='Например: передано водителю, ожидает сборки'
     )
 
     @property
