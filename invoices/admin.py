@@ -23,7 +23,7 @@ class InvoiceItemInline(admin.TabularInline):
     extra = 0
     fields = (
         'row_no', 'code', 'name', 'quantity', 'price', 'amount',
-        'shipped_quantity', 'shipment_date', 'manager_comment', 'shipment_status_col', 'product'
+        'shipped_quantity', 'planned_date', 'shipment_date', 'manager_comment', 'shipment_status_col', 'product'
     )
     readonly_fields = ('row_no', 'shipment_status_col')
     autocomplete_fields = ('product',)
@@ -61,7 +61,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         ('Суммы', {'fields': ('total', 'vat_total')}),
         ('Служебное', {'fields': ('parsed_ok', 'parse_log')}),
         ('Отгрузка и доставка', {
-            'fields': ('delivery_status', 'delivery_date', 'manager_comment')
+            'fields': ('delivery_status', 'manager_comment')
         }),
     )
 

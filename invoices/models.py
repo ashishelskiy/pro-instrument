@@ -122,7 +122,11 @@ class InvoiceItem(models.Model):
         'Отгружено, кол-во', default=0
     )
 
-    shipment_date = models.DateField('Дата отгрузки товара', null=True, blank=True)
+    planned_date = models.DateField(
+        'Дата отгрузки планируемая', null=True, blank=True,
+        help_text='Когда планируется привезти этот товар'
+    )
+    shipment_date = models.DateField('Дата отгрузки фактическая', null=True, blank=True)
     manager_comment = models.CharField(
         'Комментарий (для товара)', max_length=255, blank=True,
         help_text='Например: передано водителю, ожидает сборки'

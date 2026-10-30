@@ -128,12 +128,12 @@
                                             {% if item.is_partially_shipped %}
                                                 <span class="badge bg-warning text-dark ms-2">Отгружено: {{ item.shipped_quantity|floatformat:"-3" }}</span>
                                                 {% if item.shipment_date %}
-                                                    <span class="small ms-1">({{ item.shipment_date|date:"d.m.Y" }})</span>
+                                                    <span class="small ms-1">(факт: {{ item.shipment_date|date:"d.m.Y" }})</span>
                                                 {% endif %}
                                             {% elif item.is_fully_shipped %}
                                                 <i class="fas fa-check-circle ms-2" title="Отгружено полностью"></i>
                                                 {% if item.shipment_date %}
-                                                    <span class="small ms-1">({{ item.shipment_date|date:"d.m.Y" }})</span>
+                                                    <span class="small ms-1">(факт: {{ item.shipment_date|date:"d.m.Y" }})</span>
                                                 {% endif %}
                                             {% endif %}
                                         </div>
@@ -142,12 +142,15 @@
                                         </div>
                                     </div>
 
-                                    <!-- Вторая строка: комментарий к товару -->
-                                    {% if item.manager_comment %}
-                                        <div class="small text-muted ms-4 mt-1" style="padding-left: 20px;">
-                                            <i class="fas fa-comment-dots me-1"></i> {{ item.manager_comment }}
-                                        </div>
-                                    {% endif %}
+                                    <!-- Вторая строка: планируемая дата и комментарий -->
+                                    <div class="small text-muted ms-4 mt-1" style="padding-left: 20px;">
+                                        {% if item.planned_date %}
+                                            <span class="me-3"><i class="fas fa-truck text-muted me-1"></i> Планируемая поставка: {{ item.planned_date|date:"d.m.Y" }}</span>
+                                        {% endif %}
+                                        {% if item.manager_comment %}
+                                            <span><i class="fas fa-comment-dots me-1"></i> {{ item.manager_comment }}</span>
+                                        {% endif %}
+                                    </div>
 
                                 </div>
                             {% endfor %}
