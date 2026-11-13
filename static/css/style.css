@@ -2132,8 +2132,10 @@ main {
 /* ===== БРЕНДЫ ===== */
 .brands-grid {
     display: grid;
+    /* 6 колонок на десктопе */
     grid-template-columns: repeat(6, 1fr);
     gap: 12px;
+    margin-top: 16px;
 }
 
 .brand-card {
@@ -2141,71 +2143,133 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 16px 8px;
-    background: #fff;
-    border: 1px solid #e9ecef;
+    padding: 8px 6px;
     border-radius: 10px;
     text-decoration: none;
     color: #333;
-    transition: all 0.2s ease;
-    min-height: 100px;
+    border: 1px solid #e9ecef;
+    background: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    /* Фиксируем высоту 90px — карточки станут прямоугольными */
+    height: 90px;
+    width: 100%;
+    gap: 4px;
+    overflow: hidden;
 }
 
 .brand-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     text-decoration: none;
 }
 
-.brand-card img {
-    max-height: 50px;
-    max-width: 100%;
-    object-fit: contain;
-    margin-bottom: 8px;
+/* Блок под логотип */
+.brand-card__logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    /* Фиксируем высоту блока с логотипом */
+    height: 45px;
+    padding: 0;
 }
 
+/* Одиночный логотип */
+.brand-card__logo img {
+    max-width: 100%;
+    max-height: 100%; /* Не вылезает за пределы блока */
+    object-fit: contain;
+}
+
+/* Пара логотипов (основной + второй) */
+.brand-card__logo-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+}
+
+.brand-card__logo-pair img {
+    max-height: 100%;
+    max-width: 60%;
+    object-fit: contain;
+}
+
+/* Второй логотип чуть меньше */
+.brand-card__logo-2 {
+    max-height: 75% !important;
+    max-width: 40% !important;
+}
+
+/* Название показываем только если нет логотипа */
+.brand-card__name {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.1;
+    word-wrap: break-word;
+    color: #333;
+}
+
+/* Заглушка, если логотипа нет (аккуратный кружок) */
 .brand-card__placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 50px;
-    height: 50px;
-    background: #f8f9fa;
+    width: 38px;
+    height: 38px;
+    background: #f1f3f5;
     border-radius: 50%;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
     color: #BD0000;
-    margin-bottom: 8px;
 }
 
-.brand-card__name {
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    line-height: 1.2;
-    word-wrap: break-word;
+/* ===== АДАПТИВНОСТЬ БРЕНДОВ ===== */
+@media (max-width: 1200px) {
+    .brands-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
 }
 
-/* Мобильные */
 @media (max-width: 992px) {
     .brands-grid {
         grid-template-columns: repeat(4, 1fr);
     }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
     .brands-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 8px;
     }
 
     .brand-card {
-        min-height: 80px;
-        padding: 10px 6px;
+        height: 80px;
+        padding: 6px 4px;
+    }
+
+    .brand-card__logo {
+        height: 40px;
     }
 
     .brand-card__name {
-        font-size: 11px;
+        font-size: 10px;
+    }
+
+    .brand-card__placeholder {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .brands-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 

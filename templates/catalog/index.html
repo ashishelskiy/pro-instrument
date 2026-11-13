@@ -242,18 +242,31 @@
 
         <!-- ===== БРЕНДЫ ===== -->
         {% if featured_brands %}
-            <div class="row mb-4">
+        <div class="row mb-4">
             <div class="col-12">
                 <h3 class="mb-3">Бренды</h3>
                 <div class="brands-grid">
                     {% for brand in featured_brands %}
-                        <a href="{{ brand.get_absolute_url }}" class="brand-card">
-                            {% if brand.logo %}
-                                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
-                            {% else %}
-                                <div class="brand-card__placeholder">{{ brand.name|first }}</div>
+                        <a href="{{ brand.get_absolute_url }}"
+                           class="brand-card"
+                           {% if brand.logo_bg_color %}style="background: {{ brand.logo_bg_color }}; border-color: {{ brand.logo_bg_color }};"{% endif %}>
+                            <div class="brand-card__logo">
+                                {% if brand.logo and brand.logo_2 %}
+                                    <span class="brand-card__logo-pair">
+                                        <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
+                                        <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}" class="brand-card__logo-2">
+                                    </span>
+                                {% elif brand.logo %}
+                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
+                                {% elif brand.logo_2 %}
+                                    <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}">
+                                {% else %}
+                                    <div class="brand-card__placeholder">{{ brand.name|first }}</div>
+                                {% endif %}
+                            </div>
+                            {% if not brand.logo and not brand.logo_2 %}
+                                <div class="brand-card__name">{{ brand.name }}</div>
                             {% endif %}
-                            <div class="brand-card__name">{{ brand.name }}</div>
                         </a>
                     {% endfor %}
                 </div>

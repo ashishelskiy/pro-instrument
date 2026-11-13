@@ -1,4 +1,5 @@
 # catalog/admin.py
+from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
@@ -164,14 +165,78 @@ class CategoryAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
 
 
+class BrandAdminForm(forms.ModelForm):
+    """Форма бренда с color picker."""
+
+    no_bg = forms.BooleanField(
+        label='Без подложки',
+        required=False,
+        help_text='Отметьте, чтобы логотип лежал прямо на белой карточке.',
+    )
+
+    class Meta:
+        model = Brand
+        fields = '__all__'
+        widgets = {
+            'logo_bg_color': forms.TextInput(attrs={'type': 'color'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            # Заполненный цвет — чекбокс снят; пустой — чекбокс стоит
+            self.fields['no_bg'].initial = not bool(self.instance.logo_bg_color)
+        else:
+            self.initial['logo_bg_color'] = '#ffffff'
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('no_bg'):
+            cleaned['logo_bg_color'] = ''
+        return cleaned
+
+
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'is_featured', 'sort_order', 'product_count')
+    form = BrandAdminForm
+
+    list_display = (
+        'name', 'logo_bg_preview', 'is_featured', 'sort_order', 'product_count',
+    )
     list_filter = ('is_featured',)
     search_fields = ('name',)
     prepopulated_fields = {'slug': ('name',)}
     list_editable = ('is_featured', 'sort_order')
     ordering = ('sort_order', 'name')
+
+    fieldsets = (
+        ('Основное', {
+            'fields': ('name', 'slug', 'description'),
+        }),
+        ('Логотип', {
+            'fields': ('logo', 'logo_2', 'logo_bg_color', 'no_bg'),
+            'description': 'Если логотип состоит из двух частей — загрузите вторую во «Второй логотип». '
+                           'Он появится справа от основного.'
+                           'Выберите цвет подложки через палитру. '
+                           'Чтобы убрать подложку — отметьте «Без подложки».',
+        }),
+        ('Отображение', {
+            'fields': ('is_featured', 'sort_order'),
+            'description': 'Галочка «Показывать на главной» включает бренд в блок «Бренды».',
+        }),
+    )
+
+    @admin.display(description='Фон')
+    def logo_bg_preview(self, obj):
+        if not obj.logo_bg_color:
+            return '—'
+        return format_html(
+            '<span style="display:inline-block;width:18px;height:18px;'
+            'border:1px solid #ccc;border-radius:4px;background:{0};'
+            'vertical-align:middle;margin-right:6px;"></span>'
+            '<span style="font-size:11px;color:#666;">{0}</span>',
+            obj.logo_bg_color,
+        )
 
     @admin.display(description='Товаров')
     def product_count(self, obj):

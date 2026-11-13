@@ -87,6 +87,12 @@ class Brand(models.Model):
     name = models.CharField('Название', max_length=255)
     slug = models.SlugField('URL', max_length=255, unique=True, blank=True)
     logo = models.ImageField('Логотип', upload_to='brands/', null=True, blank=True)
+    logo_2 = models.ImageField(
+        'Второй логотип (доп. изображение)',
+        upload_to='brands/',
+        null=True, blank=True,
+        help_text='Отображается справа от основного логотипа.',
+    )
     description = models.TextField('Описание', blank=True, max_length=500)
     is_featured = models.BooleanField(
         'Показывать на главной',
@@ -94,6 +100,15 @@ class Brand(models.Model):
         help_text='Отметьте, чтобы бренд появился в блоке «Бренды» на главной странице',
     )
     sort_order = models.PositiveIntegerField('Порядок', default=0)
+
+    logo_bg_color = models.CharField(
+        'Цвет подложки логотипа',
+        max_length=7,
+        blank=True,
+        default='',
+        help_text='HEX-цвет фона под логотипом, например #1a1a1a, #d82a20, #ffffff. '
+                  'Оставьте пустым — подложки не будет (прозрачный фон).',
+    )
 
     class Meta:
         verbose_name = 'Бренд'
