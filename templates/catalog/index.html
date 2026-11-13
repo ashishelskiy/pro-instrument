@@ -249,7 +249,7 @@
                     {% for brand in featured_brands %}
                         <a href="{{ brand.get_absolute_url }}"
                            class="brand-card"
-                           {% if brand.logo_bg_color %}style="background: {{ brand.logo_bg_color }}; border-color: {{ brand.logo_bg_color }};"{% else %}style="background: #ffffff; border-color: transparent;"{% endif %}>
+                           {% if brand.logo_bg_color %}style="background: {{ brand.logo_bg_color }}; border-color: {{ brand.logo_bg_color }};"{% else %}style="background: #f8f9fa; border-color: transparent;"{% endif %}>
 
                             {% if brand.logo or brand.logo_2 %}
                                 <div class="brand-card__logo">
