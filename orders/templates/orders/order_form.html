@@ -30,22 +30,23 @@
                                 Заказ оформляется от организации:
                                 <strong>{{ organization.name }}</strong>
                                 (ИНН {{ organization.inn }})
-                                <a href="{% url 'users:organization_unset_default' %}"
-                                   onclick="event.preventDefault(); this.nextElementSibling.submit();"
-                                   class="float-end small">Сменить на физлицо</a>
-                                <form method="post"
-                                      action="{% url 'users:organization_unset_default' %}"
-                                      class="d-none">
-                                    {% csrf_token %}
-                                </form>
+<!--                                <a href="{% url 'users:organization_unset_default' %}"-->
+<!--                                   onclick="event.preventDefault(); this.nextElementSibling.submit();"-->
+<!--                                   class="float-end small">Сменить на физлицо</a>-->
+<!--                                <form method="post"-->
+<!--                                      action="{% url 'users:organization_unset_default' %}"-->
+<!--                                      class="d-none">-->
+<!--                                    {% csrf_token %}-->
+<!--                                </form>-->
                             </div>
                         {% else %}
                             <div class="alert alert-info mb-3">
                                 <i class="fas fa-user"></i>
                                 Заказ оформляется как <strong>физическое лицо</strong>
-                                {% if user.organizations.exists %}
-                                    · <a href="{% url 'users:organizations' %}">Выбрать организацию</a>
-                                {% endif %}
+                                <strong>{{ user.get_full_name|default:user.username }}</strong>
+<!--                                {% if user.organizations.exists %}-->
+<!--                                    · <a href="{% url 'users:organizations' %}">Выбрать организацию</a>-->
+<!--                                {% endif %}-->
                             </div>
                         {% endif %}
 
