@@ -245,7 +245,9 @@
         <div class="row mb-4">
             <div class="col-12">
                 <h3 class="mb-3">Бренды</h3>
-                <div class="brands-grid">
+
+                <!-- Обертка для скролла -->
+                <div class="brands-scroll">
                     {% for brand in featured_brands %}
                         <a href="{{ brand.get_absolute_url }}"
                            class="brand-card"
@@ -267,10 +269,10 @@
                             {% else %}
                                 <div class="brand-card__name">{{ brand.name }}</div>
                             {% endif %}
-
                         </a>
                     {% endfor %}
                 </div>
+
             </div>
         </div>
         {% endif %}
