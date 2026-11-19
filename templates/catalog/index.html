@@ -9,7 +9,7 @@
 {% if categories %}
     <div class="row mb-4 d-none d-md-block">
     <div class="col-12">
-        <div id="categoriesCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+        <div id="categoriesCarousel" class="carousel slide" data-bs-ride="false" data-bs-interval="5000">
             <div class="carousel-inner">
                 {% for category in categories %}
                     {% if forloop.counter0|divisibleby:4 %}
@@ -29,15 +29,26 @@
                     {% endif %}
                 {% endfor %}
             </div>
+<!--            <button class="carousel-control-prev" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="prev">-->
+<!--                <span class="carousel-control-prev-icon" aria-hidden="true"></span>-->
+<!--                <span class="visually-hidden">Предыдущая</span>-->
+<!--            </button>-->
+<!--            <button class="carousel-control-next" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="next">-->
+<!--                <span class="carousel-control-next-icon" aria-hidden="true"></span>-->
+<!--                <span class="visually-hidden">Следующая</span>-->
+<!--            </button>-->
+            <button type="button" class="categories-slider__btn categories-slider__btn--prev" data-bs-target="#categoriesCarousel" data-bs-slide="prev" aria-label="Предыдущие категории">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
 
-            <button class="carousel-control-prev" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Предыдущая</span>
+            <button type="button" class="categories-slider__btn categories-slider__btn--next" data-bs-target="#categoriesCarousel" data-bs-slide="next" aria-label="Следующие категории">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
             </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#categoriesCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Следующая</span>
-            </button>
+
         </div>
     </div>
 </div>
@@ -242,40 +253,85 @@
 
         <!-- ===== БРЕНДЫ ===== -->
         {% if featured_brands %}
-        <div class="row mb-4">
-            <div class="col-12">
-                <h3 class="mb-3">Бренды</h3>
+        <section class="mb-4">
+            <h3 class="mb-3">Бренды</h3>
 
-                <!-- Обертка для скролла -->
-                <div class="brands-scroll">
+            <!-- ДЕСКТОП (> 768px): Штатная круговая карусель Bootstrap с белыми кружками -->
+            <div id="brandsCarousel" class="carousel slide brands-slider d-none d-md-block" data-bs-ride="false">
+                <div class="carousel-inner">
                     {% for brand in featured_brands %}
-                        <a href="{{ brand.get_absolute_url }}"
-                           class="brand-card"
-                           {% if brand.logo_bg_color %}style="background: {{ brand.logo_bg_color }}; border-color: {{ brand.logo_bg_color }};"{% else %}style="background: #f8f9fa; border-color: transparent;"{% endif %}>
+                        {% if forloop.counter0|divisibleby:6 %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <div class="brands-grid-desktop">
+                        {% endif %}
 
-                            {% if brand.logo or brand.logo_2 %}
-                                <div class="brand-card__logo">
-                                    {% if brand.logo and brand.logo_2 %}
-                                        <span class="brand-card__logo-pair">
-                                            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
-                                            <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}" class="brand-card__logo-2">
-                                        </span>
-                                    {% elif brand.logo %}
-                                        <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
-                                    {% elif brand.logo_2 %}
-                                        <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}">
+                                <a href="{{ brand.get_absolute_url }}" class="brand-card" title="{{ brand.name }}" {% if brand.logo_bg_color %}style="background-color: {{ brand.logo_bg_color }}; border-color: {{ brand.logo_bg_color }};"{% endif %}>
+                                    {% if brand.logo or brand.logo_2 %}
+                                        <div class="brand-card__logo">
+                                            {% if brand.logo and brand.logo_2 %}
+                                                <div class="brand-card__logo-pair">
+                                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
+                                                    <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}" class="brand-card__logo-2">
+                                                </div>
+                                            {% elif brand.logo %}
+                                                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
+                                            {% elif brand.logo_2 %}
+                                                <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}">
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <span class="brand-card__name">{{ brand.name }}</span>
                                     {% endif %}
-                                </div>
-                            {% else %}
-                                <div class="brand-card__name">{{ brand.name }}</div>
-                            {% endif %}
-                        </a>
+                                </a>
+
+                        {% if forloop.counter0|add:1|divisibleby:6 or forloop.last %}
+                            </div>
+                        </div>
+                        {% endif %}
                     {% endfor %}
                 </div>
 
+                <!-- Ваши белые кружки со стрелками -->
+                <button type="button" class="brands-slider__btn brands-slider__btn--prev" data-bs-target="#brandsCarousel" data-bs-slide="prev" aria-label="Предыдущие бренды">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+
+                <button type="button" class="brands-slider__btn brands-slider__btn--next" data-bs-target="#brandsCarousel" data-bs-slide="next" aria-label="Следующие бренды">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
             </div>
-        </div>
+
+            <!-- МОБИЛЬНЫЕ (<= 768px): Чистая свайп-лента пальцем без кнопок -->
+            <div class="brands-scroll d-flex d-md-none">
+                {% for brand in featured_brands %}
+                    <a href="{{ brand.get_absolute_url }}" class="brand-card" title="{{ brand.name }}">
+                        {% if brand.logo or brand.logo_2 %}
+                            <div class="brand-card__logo">
+                                {% if brand.logo and brand.logo_2 %}
+                                    <div class="brand-card__logo-pair">
+                                        <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
+                                        <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}" class="brand-card__logo-2">
+                                    </div>
+                                {% elif brand.logo %}
+                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
+                                {% elif brand.logo_2 %}
+                                    <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}">
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <span class="brand-card__name">{{ brand.name }}</span>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
         {% endif %}
+
+
 
         <!-- ===== ЛИДЕРЫ ПРОДАЖ ===== -->
         {% if top_products %}

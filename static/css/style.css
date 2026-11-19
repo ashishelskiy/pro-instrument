@@ -1084,55 +1084,48 @@ main {
 /* ========== СТИЛИ ДЛЯ КАРУСЕЛИ КАТЕГОРИЙ ========== */
 /* ================================================================ */
 
-/* Кнопки навигации карусели */
-#categoriesCarousel .carousel-control-prev,
-#categoriesCarousel .carousel-control-next {
-    width: 5%;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-#categoriesCarousel:hover .carousel-control-prev,
-#categoriesCarousel:hover .carousel-control-next {
-    opacity: 1;
-}
-
-#categoriesCarousel .carousel-control-prev-icon,
-#categoriesCarousel .carousel-control-next-icon {
-    background-color: #BD0000;
-    border-radius: 50%;
+.categories-slider__btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     width: 40px;
     height: 40px;
-    background-size: 50% 50%;
+    padding: 0;
+    border-radius: 50%;
+    background: #ffffff;
+    border: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+    color: #1c2126;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
 }
 
-/* Карусель на мобильных устройствах */
+.categories-slider__btn:hover {
+    background: #ffffff;
+    color: #BD0000;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.categories-slider__btn--prev {
+    left: -18px;
+}
+
+.categories-slider__btn--next {
+    right: -18px;
+}
+
+/* На мобильных устройствах (<= 768px) отключаем кнопки — там используется свайп-лента */
 @media (max-width: 768px) {
-    #categoriesCarousel .carousel-control-prev,
-    #categoriesCarousel .carousel-control-next {
-        opacity: 1;
-        width: 8%;
-    }
-
-    #categoriesCarousel .carousel-control-prev-icon,
-    #categoriesCarousel .carousel-control-next-icon {
-        width: 30px;
-        height: 30px;
+    .categories-slider__btn {
+        display: none;
     }
 }
 
-@media (max-width: 576px) {
-    #categoriesCarousel .carousel-control-prev,
-    #categoriesCarousel .carousel-control-next {
-        width: 10%;
-    }
-
-    #categoriesCarousel .carousel-control-prev-icon,
-    #categoriesCarousel .carousel-control-next-icon {
-        width: 24px;
-        height: 24px;
-    }
-}
 
 /* ================================================================
    ===== МЕГАМЕНЮ =====
@@ -2121,23 +2114,22 @@ main {
 }
 
 /* ===== БРЕНДЫ ===== */
+.brands-slider {
+    position: relative;
+}
+
 .brands-scroll {
     display: flex;
     gap: 12px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 10px; /* Отступ для тени при наведении */
-    scrollbar-width: thin; /* Тонкий скроллбар для десктопа */
+    padding-bottom: 10px;
+    scrollbar-width: none; /* Прячем стандартный скроллбар, так как есть кнопки */
 }
 
-/* Прячем скроллбар в вебките, чтобы было аккуратнее (по желанию) */
 .brands-scroll::-webkit-scrollbar {
-    height: 6px;
-}
-.brands-scroll::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 3px;
+    display: none;
 }
 
 .brand-card {
@@ -2151,10 +2143,16 @@ main {
     color: #333;
     border: 1px solid #e9ecef;
     background: #fff;
-    flex: 0 0 140px; /* Было 180px, стало 140px */
-    height: 75px;    /* Было 90px, стало 75px */
+    flex: 0 0 140px;
+    height: 75px;
     gap: 2px;
     scroll-snap-align: start;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.brand-card:hover {
+    border-color: #dee2e6;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 /* Блок под логотип */
@@ -2207,10 +2205,63 @@ main {
     letter-spacing: 0.5px;
 }
 
-/* ===== АДАПТИВНОСТЬ БРЕНДОВ (уменьшаем размер на мобильных) ===== */
+/* Кнопки прокрутки на десктопе */
+.brands-slider__btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    background: #ffffff;
+    border: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+    color: #1c2126;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.brands-slider__btn:hover {
+    background: #ffffff;
+    color: #BD0000;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.brands-slider__btn--prev {
+    left: -18px;
+}
+
+.brands-slider__btn--next {
+    right: -18px;
+}
+
+/* Сетка брендов внутри одного слайда Bootstrap (6 штук в ряд) */
+.brands-grid-desktop {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+}
+
+.brands-grid-desktop .brand-card {
+    flex: none;
+    width: 100%;
+}
+
+/* ===== АДАПТИВНОСТЬ БРЕНДОВ ===== */
 @media (max-width: 768px) {
+    .brands-slider__btn {
+        display: none; /* На мобильных оставляем только свайп */
+    }
+
     .brand-card {
-        flex: 0 0 140px; /* На мобилках карточки чуть уже */
+        flex: 0 0 140px;
         height: 80px;
     }
 
@@ -2222,6 +2273,7 @@ main {
         font-size: 11px;
     }
 }
+
 
 /* ===== КНОПКА ИЗБРАННОГО ===== */
 .btn-fav {

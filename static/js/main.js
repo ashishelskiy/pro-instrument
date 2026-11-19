@@ -259,6 +259,26 @@ function showNotification(message, type = 'info') {
 }
 
 // =============================================================
+// САЙДБАР-МЕНЮ (раскрытие подкатегорий)
+// =============================================================
+
+function initSidebarMenu() {
+    const sidebarItems = document.querySelectorAll('.sidebar-catalog__item.has-children');
+
+    sidebarItems.forEach(item => {
+        const link = item.querySelector('.sidebar-catalog__link');
+        if (!link) return;
+
+        link.addEventListener('click', function(e) {
+            if (e.target.closest('.sidebar-catalog__link')) {
+                e.preventDefault();
+                item.classList.toggle('open');
+            }
+        });
+    });
+}
+
+// =============================================================
 // INIT
 // =============================================================
 
@@ -266,26 +286,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initCatalogMenu();
     initFilters();
     initProductCards();
-});
-
-// static/js/main.js
-
-// =============================================================
-// САЙДБАР-МЕНЮ (раскрытие подкатегорий)
-// =============================================================
-
-document.addEventListener('DOMContentLoaded', function() {
-    const sidebarItems = document.querySelectorAll('.sidebar-catalog__item.has-children');
-
-    sidebarItems.forEach(item => {
-        const link = item.querySelector('.sidebar-catalog__link');
-
-        link.addEventListener('click', function(e) {
-            // Проверяем, не был ли клик по ссылке с переходом
-            if (e.target.closest('.sidebar-catalog__link')) {
-                e.preventDefault();
-                item.classList.toggle('open');
-            }
-        });
-    });
+    initSidebarMenu();
+    initBrandsSlider();
 });
