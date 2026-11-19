@@ -255,82 +255,51 @@
         {% if featured_brands %}
         <section class="mb-4">
             <h3 class="mb-3">Бренды</h3>
-
-            <!-- ДЕСКТОП (> 768px): Штатная круговая карусель Bootstrap с белыми кружками -->
-            <div id="brandsCarousel" class="carousel slide brands-slider d-none d-md-block" data-bs-ride="false">
-                <div class="carousel-inner">
-                    {% for brand in featured_brands %}
-                        {% if forloop.counter0|divisibleby:6 %}
-                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                            <div class="brands-grid-desktop">
-                        {% endif %}
-
-                                <a href="{{ brand.get_absolute_url }}" class="brand-card" title="{{ brand.name }}" {% if brand.logo_bg_color %}style="background-color: {{ brand.logo_bg_color }}; border-color: {{ brand.logo_bg_color }};"{% endif %}>
-                                    {% if brand.logo or brand.logo_2 %}
-                                        <div class="brand-card__logo">
-                                            {% if brand.logo and brand.logo_2 %}
-                                                <div class="brand-card__logo-pair">
-                                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
-                                                    <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}" class="brand-card__logo-2">
-                                                </div>
-                                            {% elif brand.logo %}
+            <div class="brands-slider">
+                <div class="swiper brandsSwiper">
+                    <div class="swiper-wrapper">
+                        {% for brand in featured_brands %}
+                        <div class="swiper-slide">
+                            <a href="{{ brand.get_absolute_url }}"
+                               class="brand-card"
+                               title="{{ brand.name }}"
+                               {% if brand.logo_bg_color %}style="background-color: {{ brand.logo_bg_color }}; border-color: {{ brand.logo_bg_color }};"{% endif %}>
+                                {% if brand.logo or brand.logo_2 %}
+                                    <div class="brand-card__logo">
+                                        {% if brand.logo and brand.logo_2 %}
+                                            <div class="brand-card__logo-pair">
                                                 <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
-                                            {% elif brand.logo_2 %}
-                                                <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}">
-                                            {% endif %}
-                                        </div>
-                                    {% else %}
-                                        <span class="brand-card__name">{{ brand.name }}</span>
-                                    {% endif %}
-                                </a>
-
-                        {% if forloop.counter0|add:1|divisibleby:6 or forloop.last %}
-                            </div>
+                                                <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}" class="brand-card__logo-2">
+                                            </div>
+                                        {% elif brand.logo %}
+                                            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
+                                        {% elif brand.logo_2 %}
+                                            <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}">
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="brand-card__name">{{ brand.name }}</span>
+                                {% endif %}
+                            </a>
                         </div>
-                        {% endif %}
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
 
-                <!-- Ваши белые кружки со стрелками -->
-                <button type="button" class="brands-slider__btn brands-slider__btn--prev" data-bs-target="#brandsCarousel" data-bs-slide="prev" aria-label="Предыдущие бренды">
+                <button type="button" class="brands-slider__btn brands-slider__btn--prev" aria-label="Предыдущий бренд">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="15 18 9 12 15 6"></polyline>
                     </svg>
                 </button>
 
-                <button type="button" class="brands-slider__btn brands-slider__btn--next" data-bs-target="#brandsCarousel" data-bs-slide="next" aria-label="Следующие бренды">
+                <button type="button" class="brands-slider__btn brands-slider__btn--next" aria-label="Следующий бренд">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
                 </button>
             </div>
-
-            <!-- МОБИЛЬНЫЕ (<= 768px): Чистая свайп-лента пальцем без кнопок -->
-            <div class="brands-scroll d-flex d-md-none">
-                {% for brand in featured_brands %}
-                    <a href="{{ brand.get_absolute_url }}" class="brand-card" title="{{ brand.name }}">
-                        {% if brand.logo or brand.logo_2 %}
-                            <div class="brand-card__logo">
-                                {% if brand.logo and brand.logo_2 %}
-                                    <div class="brand-card__logo-pair">
-                                        <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
-                                        <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}" class="brand-card__logo-2">
-                                    </div>
-                                {% elif brand.logo %}
-                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}">
-                                {% elif brand.logo_2 %}
-                                    <img src="{{ brand.logo_2.url }}" alt="{{ brand.name }}">
-                                {% endif %}
-                            </div>
-                        {% else %}
-                            <span class="brand-card__name">{{ brand.name }}</span>
-                        {% endif %}
-                    </a>
-                {% endfor %}
-            </div>
         </section>
         {% endif %}
-
 
 
         <!-- ===== ЛИДЕРЫ ПРОДАЖ ===== -->

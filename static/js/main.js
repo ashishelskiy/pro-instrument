@@ -287,5 +287,31 @@ document.addEventListener('DOMContentLoaded', function() {
     initFilters();
     initProductCards();
     initSidebarMenu();
-    initBrandsSlider();
+
+        if (document.querySelector('.brandsSwiper') && typeof Swiper !== 'undefined') {
+        new Swiper('.brandsSwiper', {
+            loop: true,
+            slidesPerView: 2.3,
+            slidesPerGroup: 1,
+            spaceBetween: 12,
+            navigation: {
+                prevEl: '.brands-slider__btn--prev',
+                nextEl: '.brands-slider__btn--next',
+            },
+            breakpoints: {
+                576: { slidesPerView: 3.3 },
+                768: { slidesPerView: 4 },
+                992: { slidesPerView: 6 },
+            },
+        });
+    }
+
+
 });
+
+document.addEventListener('mousedown', function(e) {
+    if (e.target.closest('.brands-slider__btn, .categories-slider__btn')) {
+        e.preventDefault();
+    }
+});
+
