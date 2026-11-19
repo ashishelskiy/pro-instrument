@@ -65,7 +65,7 @@ function initCatalogMenu() {
     // =========================================================
     // ЗАКРЫТИЕ МЕНЮ
     // =========================================================
-
+    /*
     function closeMenu() {
         catalogMenu.classList.remove('is-active');
         catalogToggle.setAttribute('aria-expanded', 'false');
@@ -77,7 +77,21 @@ function initCatalogMenu() {
         });
         activeCategory = null;
         catalogToggle.focus();
+    }*/
+
+    function closeMenu() {
+        if (!catalogMenu.classList.contains('is-active')) return;
+        catalogMenu.classList.remove('is-active');
+        catalogToggle.setAttribute('aria-expanded', 'false');
+        catalogMenu.setAttribute('aria-hidden', 'true');
+        subsectionsContainer.classList.remove('is-active');
+        catalogInner.classList.remove('has-subsections');
+        allGroups.forEach(group => {
+            group.classList.remove('is-active');
+        });
+        activeCategory = null;
     }
+
 
     // =========================================================
     // ОТКРЫТИЕ МЕНЮ
