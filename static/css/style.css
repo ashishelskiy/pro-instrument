@@ -159,20 +159,6 @@ text-align: center;
 .navigation>ul>li {
 position: static;
 }
-level-top {
-text-align: center;
-padding-right: 20px;
-font-size: 14px;
-padding: 6px 15px 6px 15px !important;
-font-family: "Roboto Condensed", sans-serif;
-color: #fff;
-line-height: 1.3em;
-position: relative;
-text-decoration: none;
-box-sizing: border-box;
-display: inline-block;
-background: #d82a20;
-}
 
 /* ================================================================ */
 /* ===== ИКОНКИ В ШАПКЕ (Мой аккаунт / Корзина) ===== */
@@ -1148,37 +1134,15 @@ main {
     }
 }
 
-/* ===== МЕГАМЕНЮ ===== */
+/* ================================================================
+   ===== МЕГАМЕНЮ =====
+   ================================================================ */
+
+/* Точка отсчёта для выпадающего окна (ровно по левому краю кнопки "КАТАЛОГ") */
+.navigation li.header-catalog,
+.nav__item.header-catalog,
 .header-catalog {
     position: relative;
-    display: inline-block;
-}
-
-.catalog-toggle {
-    background: #BD0000;
-    color: #fff;
-    border: none;
-    padding: 8px 20px;
-    font-size: 15px;
-    font-weight: 600;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: background 0.2s;
-}
-
-.catalog-toggle:hover {
-    background: #990000;
-}
-
-.catalog-toggle:focus {
-    outline: none;
-}
-
-.catalog-toggle i {
-    font-size: 18px;
 }
 
 /* Выпадающее окно */
@@ -1187,6 +1151,7 @@ main {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
+    transform: none;
     min-width: 280px;
     max-width: 900px;
     background: #ffffff;
@@ -1195,6 +1160,7 @@ main {
     z-index: 1000;
     padding: 20px;
     border: 1px solid #e9ecef;
+    font-weight: 400; /* Сбрасываем жирный шрифт родительского .navigation */
 }
 
 .catalog-menu.is-active {
@@ -1208,7 +1174,7 @@ main {
     min-height: 200px;
 }
 
-/* Левая колонка */
+/* Левая колонка (главные разделы) */
 .catalog-menu__sections {
     width: 240px;
     flex-shrink: 0;
@@ -1218,7 +1184,6 @@ main {
     border-right: none;
 }
 
-/* Разделитель только когда есть подкатегории */
 .catalog-menu__inner.has-subsections .catalog-menu__sections {
     border-right: 1px solid #edf2f7;
 }
@@ -1227,19 +1192,31 @@ main {
     padding: 0;
 }
 
+#catalogToggle:focus,
+#catalogToggle:focus-visible,
+.header-catalog > .nav__link:focus {
+    outline: none;
+    box-shadow: none;
+}
+
 .catalog-menu__section-link {
     display: flex;
     align-items: center;
     width: 100%;
     text-decoration: none;
-    color: inherit;
+    color: #1c2126;
+    font-weight: 400;
+    font-size: 14px;
     padding: 10px 14px;
     border-radius: 8px;
-    transition: color 0.15s;
+    transition: background-color 0.15s, color 0.15s;
 }
 
-.catalog-menu__section-link:hover {
+.catalog-menu__section-item:hover .catalog-menu__section-link,
+.catalog-menu__section-item.is-current .catalog-menu__section-link {
+    background-color: #f8f9fa;
     color: #BD0000;
+    font-weight: 500;
     text-decoration: none;
 }
 
@@ -1252,7 +1229,8 @@ main {
     flex-shrink: 0;
 }
 
-.catalog-menu__section-item:hover .catalog-menu__section-icon {
+.catalog-menu__section-item:hover .catalog-menu__section-icon,
+.catalog-menu__section-item.is-current .catalog-menu__section-icon {
     color: #BD0000;
 }
 
@@ -1269,19 +1247,14 @@ main {
     transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
 }
 
-.catalog-menu__section-item:hover .catalog-menu__arrow {
-    opacity: 1;
-    transform: translateX(0);
-    color: #BD0000;
-}
-
+.catalog-menu__section-item:hover .catalog-menu__arrow,
 .catalog-menu__section-item.is-current .catalog-menu__arrow {
     opacity: 1;
     transform: translateX(0);
     color: #BD0000;
 }
 
-/* Правая колонка */
+/* Правая колонка (подкатегории) */
 .catalog-menu__subsections {
     display: none;
     flex: 1;
@@ -1294,7 +1267,6 @@ main {
     display: block;
 }
 
-/* Группы подкатегорий */
 .catalog-menu__subsections-group {
     display: none;
 }
@@ -1311,9 +1283,10 @@ main {
 }
 
 .catalog-menu__sub-item {
-    color: #333;
+    color: #495057;
     text-decoration: none;
     padding: 6px 0;
+    font-weight: 400;
     font-size: 14px;
     border-bottom: 1px solid transparent;
     transition: color 0.15s;
@@ -1366,31 +1339,47 @@ main {
     padding: 10px 0;
 }
 
-.catalog-menu__show-all {
-    display: inline-block;
-    margin-top: 16px;
-    padding: 8px 16px;
-    background: #f8f9fa;
-    border-radius: 6px;
+.catalog-menu__group-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1c2126;
     text-decoration: none;
+    margin-top: 6px;
+    margin-bottom: 14px;
+    transition: color 0.15s ease;
+}
+
+.catalog-menu__group-header i {
+    font-size: 12px;
+    color: #adb5bd;
+    transition: transform 0.2s ease, color 0.15s ease;
+}
+
+.catalog-menu__group-header:hover {
     color: #BD0000;
-    font-weight: 600;
-    font-size: 14px;
-    transition: background 0.2s, color 0.2s;
+    text-decoration: none;
 }
 
-.catalog-menu__show-all:hover {
-    background: #BD0000;
-    color: #fff;
+.catalog-menu__group-header:hover i {
+    color: #BD0000;
+    transform: translateX(3px);
 }
 
-/* Адаптивность */
+/* Адаптивность мегаменю */
 @media (max-width: 768px) {
+    .navigation li.header-catalog,
+    .nav__item.header-catalog {
+        position: static;
+    }
+
     .catalog-menu {
-        width: 100% !important;
+        left: 10px;
+        right: 10px;
+        width: auto;
         min-width: auto;
-        left: 0;
-        right: 0;
         padding: 15px;
     }
 
@@ -1410,6 +1399,7 @@ main {
     .catalog-menu__subsections {
         padding: 0;
         min-height: auto;
+        min-width: auto;
     }
 
     .catalog-menu__subsections-grid {
@@ -1448,6 +1438,7 @@ main {
         font-size: 10px;
     }
 }
+
 
 /* ===== САЙДБАР-МЕНЮ ===== */
 .sidebar-catalog {
@@ -2130,12 +2121,23 @@ main {
 }
 
 /* ===== БРЕНДЫ ===== */
-.brands-grid {
-    display: grid;
-    /* 6 колонок на десктопе */
-    grid-template-columns: repeat(6, 1fr);
+.brands-scroll {
+    display: flex;
     gap: 12px;
-    margin-top: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 10px; /* Отступ для тени при наведении */
+    scrollbar-width: thin; /* Тонкий скроллбар для десктопа */
+}
+
+/* Прячем скроллбар в вебките, чтобы было аккуратнее (по желанию) */
+.brands-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+.brands-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
 }
 
 .brand-card {
@@ -2149,19 +2151,10 @@ main {
     color: #333;
     border: 1px solid #e9ecef;
     background: #fff;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-    /* Фиксируем высоту 90px — карточки станут прямоугольными */
-    height: 90px;
-    width: 100%;
-    gap: 4px;
-    overflow: hidden;
-}
-
-.brand-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    text-decoration: none;
+    flex: 0 0 140px; /* Было 180px, стало 140px */
+    height: 75px;    /* Было 90px, стало 75px */
+    gap: 2px;
+    scroll-snap-align: start;
 }
 
 /* Блок под логотип */
@@ -2170,19 +2163,17 @@ main {
     align-items: center;
     justify-content: center;
     width: 100%;
-    /* Фиксируем высоту блока с логотипом */
     height: 45px;
     padding: 0;
 }
 
-/* Одиночный логотип */
 .brand-card__logo img {
     max-width: 100%;
-    max-height: 100%; /* Не вылезает за пределы блока */
+    max-height: 100%;
     object-fit: contain;
 }
 
-/* Пара логотипов (основной + второй) */
+/* Пара логотипов */
 .brand-card__logo-pair {
     display: flex;
     align-items: center;
@@ -2198,47 +2189,29 @@ main {
     object-fit: contain;
 }
 
-/* Второй логотип чуть меньше */
 .brand-card__logo-2 {
     max-height: 75% !important;
     max-width: 40% !important;
 }
 
-/* Название показываем только если нет логотипа */
+/* Название (если нет логотипа) */
 .brand-card__name {
-    font-size: 14px;           /* Чуть крупнее */
+    font-size: 13px;
     font-weight: 600;
     text-align: center;
     line-height: 1.2;
     word-wrap: break-word;
-    color: #333;               /* Темный текст */
-    padding: 0 4px;            /* Небольшие отступы по бокам */
-    text-transform: uppercase; /* (Опционально) сделает текст капсом, как логотип */
-    letter-spacing: 0.5px;     /* (Опционально) для стиля */
+    color: #333;
+    padding: 0 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* ===== АДАПТИВНОСТЬ БРЕНДОВ ===== */
-@media (max-width: 1200px) {
-    .brands-grid {
-        grid-template-columns: repeat(5, 1fr);
-    }
-}
-
-@media (max-width: 992px) {
-    .brands-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
+/* ===== АДАПТИВНОСТЬ БРЕНДОВ (уменьшаем размер на мобильных) ===== */
 @media (max-width: 768px) {
-    .brands-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-    }
-
     .brand-card {
+        flex: 0 0 140px; /* На мобилках карточки чуть уже */
         height: 80px;
-        padding: 6px 4px;
     }
 
     .brand-card__logo {
@@ -2246,13 +2219,7 @@ main {
     }
 
     .brand-card__name {
-        font-size: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .brands-grid {
-        grid-template-columns: repeat(2, 1fr);
+        font-size: 11px;
     }
 }
 

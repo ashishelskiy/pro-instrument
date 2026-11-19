@@ -1347,55 +1347,67 @@
                 <div class="section-item-content nav-sections-item-content">
                     <nav class="navigation">
                         <ul class="nav__list">
-                            <li class="nav__item nav__item--has-submenu">
-                                <a href="{% url 'catalog:category_list' %}" class="nav__link">
+                            <li class="nav__item header-catalog">
+                                <a href="#" id="catalogToggle" class="nav__link" role="button" aria-expanded="false" aria-controls="catalogMenu">
+                                    <i class="bi bi-list"></i>
                                     <span>Каталог</span>
                                 </a>
-                                <div class="nav__submenu">
-                                    <div class="container">
-                                        <div class="nav__submenu-grid">
-<!--                                            {% for item in menu_data|slice:":4" %}-->
-<!--                                            <div class="nav__submenu-col">-->
-<!--                                                <h4>-->
-<!--                                                    <a href="{% url 'catalog:category_detail' item.category.slug %}">-->
-<!--                                                        {{ item.category.name }}-->
-<!--                                                    </a>-->
-<!--                                                </h4>-->
-<!--                                            </div>-->
-<!--                                            {% endfor %}-->
+
+                                <!-- Выпадающее мегаменю -->
+                                <div id="catalogMenu" class="catalog-menu" aria-hidden="true">
+                                    <div class="catalog-menu__inner">
+
+                                        <!-- ЛЕВАЯ КОЛОНКА: Основные разделы -->
+                                        <ul class="catalog-menu__sections">
                                             {% for item in menu_data %}
-                                                <div class="nav__submenu-col">
-                                                    <a href="{% url 'catalog:category_detail' item.category.slug %}" class="nav__submenu-col-link">
-                                                        {% if item.category.image %}
-                                                            <span class="nav__submenu-col-image">
-                                                                <img src="{{ item.category.image.url }}" alt="{{ item.category.name }}">
-                                                            </span>
-                                                        {% else %}
-                                                            <span class="nav__submenu-col-image nav__submenu-col-image--empty">
-                                                                <i class="fas {{ item.category.icon|default:'fa-folder-open' }}"></i>
-                                                            </span>
-                                                        {% endif %}
-                                                        <h4>{{ item.category.name }}</h4>
-                                                    </a>
+                                            <li class="catalog-menu__section-item"
+                                                data-section="{{ item.category.slug }}"
+                                                data-has-children="{% if item.children %}true{% else %}false{% endif %}">
 
-                                                    {% if item.children %}
-                                                        <ul class="nav__submenu-sublist">
-                                                            {% for sub in item.children %}
-                                                                <li>
-                                                                    <a href="{% url 'catalog:category_detail' sub.slug %}">
-                                                                        {{ sub.name }}
-                                                                    </a>
-                                                                </li>
-                                                            {% endfor %}
-                                                        </ul>
+                                                <a href="{{ item.category.get_absolute_url }}" class="catalog-menu__section-link">
+                                                    {% if item.category.image %}
+                                                        <span class="catalog-menu__section-icon">
+                                                            <img src="{{ item.category.image.url }}" alt="{{ item.category.name }}" style="max-width: 20px; max-height: 20px; object-fit: contain;">
+                                                        </span>
                                                     {% endif %}
-                                                </div>
+                                                    <span class="catalog-menu__section-name">{{ item.category.name }}</span>
+                                                    {% if item.children %}
+                                                        <span class="catalog-menu__arrow">›</span>
+                                                    {% endif %}
+                                                </a>
+                                            </li>
                                             {% endfor %}
+                                        </ul>
 
+                                        <!-- ПРАВАЯ КОЛОНКА: Контейнер подкатегорий -->
+                                        <div id="subsectionsContainer" class="catalog-menu__subsections">
+                                            {% for item in menu_data %}
+                                                {% if item.children %}
+                                                <div class="catalog-menu__subsections-group" data-section="{{ item.category.slug }}">
+                                                    <a href="{{ item.category.get_absolute_url }}" class="catalog-menu__group-header">
+                                                        <span>{{ item.category.name }}</span>
+                                                        <i class="bi bi-chevron-right"></i>
+                                                    </a>
+                                                    <div class="catalog-menu__subsections-grid">
+                                                        {% for sub in item.children %}
+                                                        <a href="{{ sub.get_absolute_url }}" class="catalog-menu__sub-item">
+                                                            <i class="bi bi-chevron-right"></i>
+                                                            <span class="catalog-menu__sub-item-name">{{ sub.name }}</span>
+                                                        </a>
+                                                        {% endfor %}
+                                                    </div>
+<!--                                                    <a href="{{ item.category.get_absolute_url }}" class="catalog-menu__show-all">-->
+<!--                                                        Все товары раздела →-->
+<!--                                                    </a>-->
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
                                         </div>
+
                                     </div>
                                 </div>
                             </li>
+
 
                             <li class="nav__item">
                                 <a href="{% url 'pages:page_detail' slug='about' %}" class="nav__link">О компании</a>
