@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'banners',
     'promotions',
     'invoices',
+    'django_prose_editor',
 ]
 
 MIDDLEWARE = [

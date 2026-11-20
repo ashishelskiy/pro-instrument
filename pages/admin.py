@@ -19,6 +19,10 @@ class PageAdmin(admin.ModelAdmin):
         ('Содержимое', {
             'fields': ('content',)
         }),
+        ('Карта', {
+            'fields': ('map_embed_code',),
+            'classes': ('collapse',),
+        }),
         ('SEO', {
             'fields': ('meta_title', 'meta_description'),
             'classes': ('collapse',),

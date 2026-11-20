@@ -1,6 +1,7 @@
 # pages/models.py
 from django.db import models
 from django.utils import timezone
+from django_prose_editor.fields import ProseEditorField
 
 
 class Page(models.Model):
@@ -12,7 +13,26 @@ class Page(models.Model):
         help_text='Например: about, delivery, contacts',
     )
     title = models.CharField('Заголовок', max_length=255)
-    content = models.TextField('Содержимое', help_text='Поддерживается HTML')
+    # content = models.TextField('Содержимое', help_text='Поддерживается HTML')
+    content = ProseEditorField(
+        verbose_name='Содержимое',
+        extensions={
+            "Bold": True,
+            "Italic": True,
+            "BulletList": True,
+            "ListItem": True,
+            "Link": True,
+            "Heading": True,  # если хотите иметь заголовки H2/H3
+        },
+        sanitize=True,  # Включает серверную очистку HTML
+    )
+    # Поле для кода карты.
+    map_embed_code = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Код карты (iframe)",
+        help_text="Вставьте сюда HTML-код iframe из Яндекс.Карт"
+    )
     meta_title = models.CharField('Meta Title', max_length=255, blank=True)
     meta_description = models.TextField('Meta Description', max_length=500, blank=True)
 

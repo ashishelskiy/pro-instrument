@@ -15,6 +15,12 @@
                 {{ page.content|safe }}
             </div>
 
+            {% if page.map_embed_code %}
+                <div class="map-container">
+                    {{ page.map_embed_code|safe }}
+                </div>
+            {% endif %}
+
         </div>
     </div>
 
