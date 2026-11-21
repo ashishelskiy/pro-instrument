@@ -1,10 +1,13 @@
 # catalog/views.py
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
-from django.db.models import Q, Min, Max, F
+from django.db.models import Q, Min, Max, F, Count
 from django.core.paginator import Paginator
 from .models import Category, Product, ProductProperty, Brand, CategoryProperty
 from banners.models import Banner, BannerPosition
+
+from django.http import JsonResponse
+from django.urls import reverse
 
 
 EN_TO_RU = {
@@ -266,35 +269,195 @@ class ProductDetailView(DetailView):
         return context
 
 
-def search_view(request):
-    """Поиск: имя + артикул. Если по оригиналу 0 — сразу показываем по раскладке."""
-    q = request.GET.get('q', '').strip()[:200]
+def search_suggest(request):
+    """
+    JSON-подсказки для автокомплита строки поиска.
+    GET ?q=...
+    Возвращает:
+    {
+      "q": "...",
+      "categories": [{"name": ..., "url": ...}],
+      "brands":     [{"name": ..., "url": ...}],
+      "products":   [{"name": ..., "url": ..., "price": "..."}],
+    }
+    """
+    q = request.GET.get('q', '').strip()[:100]
 
     if not q:
-        return render(request, 'catalog/search_results.html', {
-            'products': [],
-            'page_obj': None,
-            'is_paginated': False,
+        return JsonResponse({
             'q': '',
-            'total': 0,
-            'suggested_q': None,
-            'suggested_count': 0,
-            'fallback_used': False,
+            'categories': [],
+            'brands': [],
+            'products': [],
         })
 
-    # === 1. Основной поиск: только по оригиналу ===
+    # Варианты запроса: оригинал + раскладка EN→RU
+    variants = [q]
+    q_ru = convert_layout(q)
+    if q_ru != q:
+        variants.append(q_ru)
+
+    # --- Категории ---
+    cat_q = Q()
+    for v in variants:
+        cat_q |= Q(name__icontains=v)
+    categories = (
+        Category.objects.filter(cat_q)
+        .order_by('name')[:5]
+    )
+
+    # --- Бренды ---
+    brand_q = Q()
+    for v in variants:
+        brand_q |= Q(name__icontains=v)
+    brands = (
+        Brand.objects.filter(brand_q)
+        .order_by('name')[:5]
+    )
+
+    # --- Товары ---
+    prod_q = Q()
+    for v in variants:
+        prod_q |= Q(name__icontains=v) | Q(article__icontains=v)
     products = (
         Product.objects
+        .filter(prod_q)
+        .order_by('-in_stock', '-created_at')
+        .only('id', 'name', 'slug', 'price')[:5]
+    )
+
+    return JsonResponse({
+        'q': q,
+        'categories': [
+            {'name': c.name, 'url': c.get_absolute_url()}
+            for c in categories
+        ],
+        'brands': [
+            {'name': b.name, 'url': b.get_absolute_url()}
+            for b in brands
+        ],
+        'products': [
+            {
+                'name': p.name,
+                'url': p.get_absolute_url(),
+                'price': str(p.price),
+            }
+            for p in products
+        ],
+    })
+
+
+def _category_with_children_ids(category):
+    """id категории + id всех её прямых детей (один уровень, как в меню)."""
+    child_ids = list(category.children.values_list('id', flat=True))
+    return [category.id] + child_ids
+
+
+def search_view(request):
+    """
+    Сквозной поиск: категории + бренды + товары.
+
+    Логика:
+    - по запросу ищем категории (name icontains), бренды (name icontains),
+      товары (name/article icontains);
+    - если найдены категории — дополнительно подтягиваем товары из этих
+      категорий (и их подкатегорий), чтобы ввод «генераторы» давал товары
+      раздела, даже если в названии товара слова «генератор» нет;
+    - если по оригиналу ничего — пробуем раскладку EN→RU (как раньше).
+    """
+    q = request.GET.get('q', '').strip()[:200]
+
+    empty_context = {
+        'products': [],
+        'page_obj': None,
+        'is_paginated': False,
+        'q': '',
+        'total': 0,
+        'suggested_q': None,
+        'suggested_count': 0,
+        'fallback_used': False,
+        'found_categories': [],
+        'found_brands': [],
+        'matched_category': None,
+        'query_variants': [],
+    }
+
+    if not q:
+        return render(request, 'catalog/search_results.html', empty_context)
+
+    # Варианты запроса: оригинал + раскладка (если отличается)
+    q_variants = [q]
+    q_ru = convert_layout(q)
+    if q_ru != q:
+        q_variants.append(q_ru)
+
+    # ---------- 1. КАТЕГОРИИ ----------
+    cat_q = Q()
+    for v in q_variants:
+        cat_q |= Q(name__icontains=v)
+
+    found_categories = list(
+        Category.objects.filter(cat_q).order_by('name')[:20]
+    )
+
+    # ---------- 2. БРЕНДЫ ----------
+    brand_q = Q()
+    for v in q_variants:
+        brand_q |= Q(name__icontains=v)
+
+    found_brands = list(
+        Brand.objects.filter(brand_q).order_by('name')[:20]
+    )
+
+    # ---------- 3. ТОВАРЫ ----------
+    product_q = Q()
+    for v in q_variants:
+        product_q |= Q(name__icontains=v) | Q(article__icontains=v)
+
+    products_qs = (
+        Product.objects
         .select_related('brand', 'category')
-        .filter(
-            Q(name__icontains=q) |
-            Q(article__icontains=q)
-        )
+        .filter(product_q)
         .distinct()
         .order_by('-in_stock', '-created_at')
     )
 
-    paginator = Paginator(products, 24)
+    total_by_name = products_qs.count()
+
+    # ---------- 4. ТОВАРЫ ИЗ НАЙДЕННЫХ КАТЕГОРИЙ ----------
+    # Если запрос совпал с категорией — добавим товары из неё (и детей),
+    # чтобы «генераторы» находило раздел, а не только товары со словом в названии.
+    matched_category = None
+    if found_categories:
+        # Берём самую «точную» категорию: сначала полное совпадение,
+        # иначе первую по алфавиту (можно доработать по вкусу).
+        exact = next(
+            (c for c in found_categories if c.name.lower() == q.lower()),
+            None,
+        )
+        matched_category = exact or found_categories[0]
+
+        cat_ids = _category_with_children_ids(matched_category)
+        category_products = (
+            Product.objects
+            .select_related('brand', 'category')
+            .filter(category_id__in=cat_ids)
+            .distinct()
+            .order_by('-in_stock', '-created_at')
+        )
+        # Объединяем: сначала товары по названию/артикулу, затем из категории
+        product_ids = list(products_qs.values_list('id', flat=True))
+        extra_ids = list(
+            category_products.exclude(id__in=product_ids)
+            .values_list('id', flat=True)
+        )
+        if extra_ids:
+            products_qs = Product.objects.filter(
+                id__in=product_ids + extra_ids
+            ).select_related('brand', 'category').order_by('-in_stock', '-created_at')
+
+    # ---------- 5. Пагинация ----------
+    paginator = Paginator(products_qs, 24)
     page_obj = paginator.get_page(request.GET.get('page'))
 
     total = paginator.count
@@ -302,40 +465,27 @@ def search_view(request):
     suggested_count = 0
     fallback_used = False
 
-    # === 2. Если по оригиналу 0 — пробуем раскладку и сразу показываем её результаты ===
-    if total == 0:
-        q_ru = convert_layout(q)
-        if q_ru != q:
-            fallback_qs = (
-                Product.objects
-                .select_related('brand', 'category')
-                .filter(
-                    Q(name__icontains=q_ru) |
-                    Q(article__icontains=q_ru)
-                )
-                .distinct()
-                .order_by('-in_stock', '-created_at')
-            )
-            fallback_paginator = Paginator(fallback_qs, 24)
-            fallback_count = fallback_paginator.count
-
-            if fallback_count > 0:
-                # показываем результаты по сконвертированному запросу
-                paginator = fallback_paginator
-                page_obj = fallback_paginator.get_page(request.GET.get('page'))
-                suggested_q = q_ru
-                suggested_count = fallback_count
-                fallback_used = True
+    # Если вообще ничего не нашли (ни товаров, ни категорий, ни брендов) —
+    # оставляем «подсказку по раскладке» для совместимости с шаблоном.
+    if total == 0 and not found_categories and not found_brands and q_ru != q:
+        suggested_q = q_ru
+        suggested_count = 0
+        fallback_used = False
 
     return render(request, 'catalog/search_results.html', {
         'products': page_obj,
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages() if page_obj else False,
         'q': q,
-        'total': total,                       # 0, если по оригиналу ничего
-        'suggested_q': suggested_q,           # «тепловая»
-        'suggested_count': suggested_count,   # 22
-        'fallback_used': fallback_used,       # True — показываем по q_ru
+        'total': total,
+        'suggested_q': suggested_q,
+        'suggested_count': suggested_count,
+        'fallback_used': fallback_used,
+        'found_categories': found_categories,
+        'found_brands': found_brands,
+        'matched_category': matched_category,
+        'query_variants': q_variants,
+        'total_by_name': total_by_name,
     })
 
 

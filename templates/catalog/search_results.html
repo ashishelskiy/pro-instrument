@@ -1,116 +1,126 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Результаты поиска{% endblock %}
-
-{% block breadcrumb_extra %}
-<li class="breadcrumb-item active">Поиск</li>
-{% endblock %}
+{% block title %}Поиск: {{ q }}{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <!-- Заголовок -->
+<div class="container py-4">
+    <h1 class="mb-3">Результаты поиска</h1>
+
+    {% if q %}
+        <p class="text-muted">
+            По запросу <strong>«{{ q }}»</strong>
+            {% if total %}найдено товаров: {{ total }}{% endif %}
+        </p>
+    {% endif %}
+
+    {# --- Категории --- #}
+    {% if found_categories %}
         <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <h1 class="fw-normal" style="color: #1c2126; font-size: 1.6rem;">
-                    Результаты поиска
-                </h1>
-                {% if q %}
-                <p class="text-muted mb-0">
-                    По запросу «{{ q }}» найдено:
-                    <strong>{{ total }}</strong>
-                    {% if total == 1 %}товар{% elif total < 5 %}товара{% else %}товаров{% endif %}
-                </p>
-                {% endif %}
+            <h4 class="mb-3">Категории</h4>
+            <div class="row g-3">
+                {% for cat in found_categories %}
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{{ cat.get_absolute_url }}" class="text-decoration-none">
+                            <div class="card h-100 p-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if cat.image %}
+                                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}"
+                                             style="width:36px;height:36px;object-fit:contain;">
+                                    {% else %}
+                                        <i class="fas fa-folder-open text-muted"></i>
+                                    {% endif %}
+                                    <span class="fw-semibold">{{ cat.name }}</span>
+                                </div>
+                                <small class="text-muted mt-1">
+                                    Товаров: {{ cat.total_products_count }}
+                                </small>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
             </div>
-
-            {% if fallback_used %}
-            <div class="alert alert-light border d-inline-flex align-items-center gap-2 mt-2 mb-0">
-                <i class="fas fa-lightbulb" style="color: #d82a20;"></i>
-                <span>
-                    Возможно, вы имели в виду
-                    <a href="?q={{ suggested_q|urlencode }}" class="fw-bold" style="color: #d82a20;">
-                        «{{ suggested_q }}»
-                    </a>
-                    — по этому запросу найдено <strong>{{ suggested_count }}</strong>
-                    {% if suggested_count == 1 %}товар{% elif suggested_count < 5 %}товара{% else %}товаров{% endif %}.
-                    Показаны результаты ниже.
-                </span>
-            </div>
-            {% endif %}
         </div>
+    {% endif %}
 
-        <!-- Сетка товаров -->
+    {# --- Бренды --- #}
+    {% if found_brands %}
+        <div class="mb-4">
+            <h4 class="mb-3">Бренды</h4>
+            <div class="row g-3">
+                {% for brand in found_brands %}
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{{ brand.get_absolute_url }}" class="text-decoration-none">
+                            <div class="card h-100 p-2 d-flex align-items-center">
+                                {% if brand.logo %}
+                                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}"
+                                         style="max-height:40px;object-fit:contain;">
+                                {% else %}
+                                    <span class="fw-semibold">{{ brand.name }}</span>
+                                {% endif %}
+                                <small class="text-muted mt-1">
+                                    Товаров: {{ brand.product_count }}
+                                </small>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {# --- Подсказка, что показываем товары из раздела --- #}
+    {% if matched_category and matched_category.name.lower == q.lower or matched_category %}
+        <div class="alert alert-light border d-flex align-items-center gap-2">
+            <i class="fas fa-info-circle text-danger"></i>
+            <span>
+                Показаны товары из раздела
+                <a href="{{ matched_category.get_absolute_url }}" class="fw-semibold">
+                    «{{ matched_category.name }}»
+                </a>
+                {% if matched_category.children.exists %}
+                    (включая подкатегории)
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+
+    {# --- Товары --- #}
+    {% if products %}
         <div class="row">
             {% for product in products %}
                 <div class="col-6 col-md-4 col-lg-3 mb-4">
                     <div class="card h-100 product-card d-flex flex-column">
-
-                        {# Картинка — ссылка на товар #}
                         <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
-                            <img src="{{ product.display_image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: contain; padding: 10px;">
+                            <img src="{{ product.display_image_url }}" class="card-img-top"
+                                 alt="{{ product.name }}"
+                                 style="height:180px;object-fit:contain;padding:10px;">
                         </a>
-
                         <div class="card-body d-flex flex-column">
-
-                            {# Название — ссылка на товар #}
                             <a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">
-                                <h5 class="product-title">{{ product.name }}</h5>
+                                <h5 class="product-title">{{ product.name|truncatechars:40 }}</h5>
                             </a>
-
-                            {# Цена #}
                             <div class="mb-1">
                                 <span class="product-price">{{ product.price }} ₽</span>
-                                {% if product.old_price %}
-                                <br><span class="product-old-price">{{ product.old_price }} ₽</span>
-                                {% endif %}
                             </div>
-
-                            {# Артикул #}
-                            {% if product.article %}
-                            <div class="product-article">Арт: {{ product.article }}</div>
-                            {% endif %}
-
-                            {# Статус #}
                             <div class="mb-1">
                                 {% if product.in_stock %}
-                                <span class="product-stock in-stock"><i class="fas fa-check-circle"></i> В наличии</span>
+                                    <span class="product-stock in-stock">
+                                        <i class="fas fa-check-circle"></i> В наличии
+                                    </span>
                                 {% else %}
-                                <span class="product-stock on-order"><i class="fas fa-clock"></i> Под заказ</span>
+                                    <span class="product-stock on-order">
+                                        <i class="fas fa-clock"></i> Под заказ
+                                    </span>
                                 {% endif %}
                             </div>
-
-                            {# Кнопки: корзина/уведомить + избранное #}
                             <div class="d-flex gap-2 mt-auto">
-
-                                {% if product.in_stock %}
-                                    <form method="post" action="{% url 'cart:cart_add' product.id %}" class="flex-grow-1">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn-cart w-100">
-                                            <i class="fas fa-shopping-cart"></i> В корзину
-                                        </button>
-                                    </form>
-                                {% else %}
-                                    {% if product.id in user_stock_notification_ids %}
-                                        <form method="post" action="{% url 'users:stock_notification_remove_by_product' product.id %}" class="w-100">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn-cart w-100" style="background: #adb5bd;">
-                                                <i class="fas fa-times"></i> Отписаться
-                                            </button>
-                                        </form>
-                                    {% else %}
-                                        <button type="button"
-                                                class="btn-cart w-100"
-                                                style="background: #666;"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#stockModal{{ product.id }}">
-                                            <i class="fas fa-bell"></i> Уведомить
-                                        </button>
-                                    {% endif %}
-                                {% endif %}
-
-                                {# Избранное #}
+                                <form method="post" action="{% url 'cart:cart_add' product.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-cart">
+                                        <i class="fas fa-shopping-cart"></i> В корзину
+                                    </button>
+                                </form>
                                 {% if product.id in user_favorite_ids %}
                                     <form method="post" action="{% url 'users:favorite_remove' product.id %}">
                                         {% csrf_token %}
@@ -126,89 +136,44 @@
                                         </button>
                                     </form>
                                 {% endif %}
-
                             </div>
-
                         </div>
                     </div>
-
-                    {# Модалка для уведомления о поступлении #}
-                    {% if not product.in_stock %}
-                        <div class="modal fade" id="stockModal{{ product.id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form method="post" action="{% url 'users:stock_notification_add' product.id %}">
-                                        {% csrf_token %}
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Уведомить о поступлении</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p class="mb-3">Товар: <strong>{{ product.name|truncatechars:60 }}</strong></p>
-                                            <label class="form-label">Email</label>
-                                            <input type="email" name="email" class="form-control" required
-                                                   placeholder="your@email.com"
-                                                   value="{{ user.email|default:'' }}">
-                                            <p class="text-muted small mt-2 mb-0">
-                                                Мы пришлём письмо, когда товар появится в наличии.
-                                            </p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                                            <button type="submit" class="btn btn-danger">Подписаться</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-
                 </div>
-            {% empty %}
-            <div class="col-12">
-                <div class="text-center py-5">
-                    <i class="fas fa-search fa-4x mb-3" style="color: #dee2e6;"></i>
-                    <p class="text-muted mb-3">По запросу «{{ q }}» ничего не найдено</p>
-                    <a href="{% url 'users:price_request' %}" class="btn btn-danger">
-                        <i class="fas fa-paper-plane"></i> Запросить цену
-                    </a>
-                    <p class="text-muted small mt-2">
-                        Мы постараемся найти нужный товар и сообщим цену
-                    </p>
-                    <p class="text-muted small">Попробуйте изменить поисковый запрос или проверьте категории.</p>
-                </div>
-            </div>
             {% endfor %}
         </div>
 
-        <!-- Пагинация -->
+        {# Пагинация #}
         {% if is_paginated %}
-        <nav>
-            <ul class="pagination justify-content-center">
-                {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">&laquo; Первая</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Предыдущая</a>
-                </li>
-                {% endif %}
-
-                <li class="page-item active">
-                    <span class="page-link">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
-                </li>
-
-                {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Следующая</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Последняя &raquo;</a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
+            <nav aria-label="Пагинация">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?q={{ q|urlencode }}&page={{ page_obj.previous_page_number }}">Назад</a>
+                        </li>
+                    {% endif %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?q={{ q|urlencode }}&page={{ page_obj.next_page_number }}">Вперёд</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
         {% endif %}
-    </div>
+    {% else %}
+        <div class="alert alert-warning">
+            <i class="fas fa-search me-2"></i>
+            По запросу «{{ q }}» ничего не найдено.
+            {% if suggested_q %}
+                <br>Возможно, вы имели в виду:
+                <a href="?q={{ suggested_q|urlencode }}">{{ suggested_q }}</a>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -293,6 +293,180 @@ function initSidebarMenu() {
 }
 
 // =============================================================
+// АВТОКОМПЛИТ СТРОКИ ПОИСКА
+// =============================================================
+
+function initSearchSuggest() {
+    const wrapper = document.getElementById('headerSearch');
+    const input = document.getElementById('headerSearchInput');
+    const box = document.getElementById('searchSuggest');
+    if (!wrapper || !input || !box) return;
+
+    const form = wrapper.querySelector('form');
+    const suggestUrl = wrapper.dataset.suggestUrl || '/search/suggest/';
+    const searchUrl = form ? form.action : '/search/';
+
+    let controller = null;
+    let timer = null;
+    let activeIndex = -1;
+    let items = [];
+
+    function hide() {
+        box.hidden = true;
+        box.innerHTML = '';
+        input.setAttribute('aria-expanded', 'false');
+        activeIndex = -1;
+        items = [];
+    }
+
+    function show() {
+        if (box.innerHTML.trim()) {
+            box.hidden = false;
+            input.setAttribute('aria-expanded', 'true');
+        }
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, ch => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+    }
+
+    // Подсветка совпавшей части запроса
+    function highlight(text, q) {
+        if (!q) return escapeHtml(text);
+        const safe = escapeHtml(text);
+        const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+        return safe.replace(re, '<mark>$1</mark>');
+    }
+
+    function render(data) {
+        const parts = [];
+        const cat = data.categories || [];
+        const br = data.brands || [];
+        const pr = data.products || [];
+
+        if (!cat.length && !br.length && !pr.length) {
+            parts.push('<div class="search-suggest__empty">Ничего не найдено</div>');
+            box.innerHTML = parts.join('');
+            box.hidden = false;
+            input.setAttribute('aria-expanded', 'true');
+            items = [];
+            return;
+        }
+
+        if (cat.length) {
+            parts.push('<div class="search-suggest__group-title">Категории</div>');
+            cat.forEach(c => {
+                parts.push(
+                    `<a class="search-suggest__item" href="${c.url}">` +
+                    `<i class="fas fa-folder-open"></i>` +
+                    `<span class="search-suggest__item-name">${highlight(c.name, data.q)}</span>` +
+                    `</a>`
+                );
+            });
+        }
+
+        if (br.length) {
+            parts.push('<div class="search-suggest__group-title">Бренды</div>');
+            br.forEach(b => {
+                parts.push(
+                    `<a class="search-suggest__item" href="${b.url}">` +
+                    `<i class="fas fa-tag"></i>` +
+                    `<span class="search-suggest__item-name">${highlight(b.name, data.q)}</span>` +
+                    `</a>`
+                );
+            });
+        }
+
+        if (pr.length) {
+            parts.push('<div class="search-suggest__group-title">Товары</div>');
+            pr.forEach(p => {
+                parts.push(
+                    `<a class="search-suggest__item" href="${p.url}">` +
+                    `<i class="fas fa-box"></i>` +
+                    `<span class="search-suggest__item-name">${highlight(p.name, data.q)}</span>` +
+                    `<span class="search-suggest__item-hint">${p.price} ₽</span>` +
+                    `</a>`
+                );
+            });
+        }
+
+        // «Показать все результаты»
+        const allUrl = `${searchUrl}?q=${encodeURIComponent(data.q)}`;
+        parts.push('<div class="search-suggest__group-title">Ещё</div>');
+        parts.push(
+            `<a class="search-suggest__item" href="${allUrl}">` +
+            `<i class="fas fa-search"></i>` +
+            `<span class="search-suggest__item-name">Показать все результаты по «${escapeHtml(data.q)}»</span>` +
+            `</a>`
+        );
+
+        box.innerHTML = parts.join('');
+        box.hidden = false;
+        input.setAttribute('aria-expanded', 'true');
+        items = Array.from(box.querySelectorAll('.search-suggest__item'));
+        activeIndex = -1;
+    }
+
+    function fetchSuggest(q) {
+        if (controller) controller.abort();
+        controller = new AbortController();
+
+        fetch(`${suggestUrl}?q=${encodeURIComponent(q)}`, {
+            signal: controller.signal,
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+        })
+            .then(r => r.ok ? r.json() : Promise.reject(r))
+            .then(data => {
+                if (input.value.trim() !== q) return;
+                render(data);
+            })
+            .catch(err => {
+                if (err.name === 'AbortError') return;
+                hide();
+            });
+    }
+
+    function onInput() {
+        const q = input.value.trim();
+        clearTimeout(timer);
+        if (q.length < 2) {
+            hide();
+            return;
+        }
+        timer = setTimeout(() => fetchSuggest(q), 200);
+    }
+
+    function moveActive(delta) {
+        if (!items.length) return;
+        activeIndex = (activeIndex + delta + items.length) % items.length;
+        items.forEach((el, i) => el.classList.toggle('is-active', i === activeIndex));
+        items[activeIndex].scrollIntoView({block: 'nearest'});
+    }
+
+    input.addEventListener('input', onInput);
+    input.addEventListener('focus', show);
+
+    input.addEventListener('keydown', e => {
+        if (box.hidden) return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); moveActive(1); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); moveActive(-1); }
+        else if (e.key === 'Enter' && activeIndex >= 0) {
+            e.preventDefault();
+            items[activeIndex].click();
+        }
+        else if (e.key === 'Escape') { hide(); }
+    });
+
+    document.addEventListener('click', e => {
+        if (!wrapper.contains(e.target)) hide();
+    });
+
+    if (form) form.addEventListener('submit', hide);
+}
+
+// =============================================================
 // INIT
 // =============================================================
 
@@ -301,6 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initFilters();
     initProductCards();
     initSidebarMenu();
+    initSearchSuggest();
 
         if (document.querySelector('.brandsSwiper') && typeof Swiper !== 'undefined') {
         new Swiper('.brandsSwiper', {
@@ -328,4 +503,3 @@ document.addEventListener('mousedown', function(e) {
         e.preventDefault();
     }
 });
-

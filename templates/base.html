@@ -1111,17 +1111,41 @@
         </a>
         <div class="flex-grow-1 d-flex align-items-center" id="navbarNav">
             <ul class="navbar-nav me-auto"></ul>
-            <form class="d-flex" action="{% url 'catalog:search' %}" method="get" style="position: relative; width: 100%; max-width: 550px;">
-                <input class="form-control" type="search" name="q" placeholder="Расскажите нам, что вы ищете" aria-label="Поиск"
-                       value="{{ request.GET.q|default:'' }}" autocomplete="off" enterkeyhint="search"
-                       style="height: 38px; width: 100%; padding-right: 40px;">
-                <button type="submit" aria-label="Поиск" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #666; flex-shrink: 0;">
-                        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
-                        <path d="M16 16L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </button>
-            </form>
+<!--            <form class="d-flex" action="{% url 'catalog:search' %}" method="get" style="position: relative; width: 100%; max-width: 550px;">-->
+<!--                <input class="form-control" type="search" name="q" placeholder="Расскажите нам, что вы ищете" aria-label="Поиск"-->
+<!--                       value="{{ request.GET.q|default:'' }}" autocomplete="off" enterkeyhint="search"-->
+<!--                       style="height: 38px; width: 100%; padding-right: 40px;">-->
+<!--                <button type="submit" aria-label="Поиск" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;">-->
+<!--                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #666; flex-shrink: 0;">-->
+<!--                        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>-->
+<!--                        <path d="M16 16L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>-->
+<!--                    </svg>-->
+<!--                </button>-->
+<!--            </form>-->
+            <div class="header-search" id="headerSearch" data-suggest-url="{% url 'catalog:suggest' %}">
+                <form class="d-flex" action="{% url 'catalog:search' %}" method="get"
+                      style="position: relative; width: 100%;">
+                    <input class="form-control" type="search" name="q"
+                           id="headerSearchInput"
+                           placeholder="Расскажите нам, что вы ищете"
+                           aria-label="Поиск"
+                           value="{{ request.GET.q|default:'' }}"
+                           autocomplete="off" enterkeyhint="search"
+                           style="height: 38px; width: 100%; padding-right: 40px;"
+                           aria-autocomplete="list"
+                           aria-controls="searchSuggest"
+                           aria-expanded="false">
+                    <button type="submit" aria-label="Поиск"
+                            style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                             xmlns="http://www.w3.org/2000/svg" style="color: #666; flex-shrink: 0;">
+                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 16L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </form>
+                <div id="searchSuggest" class="search-suggest" hidden></div>
+            </div>
         </div>
 
         <!-- ===== АККАУНТ ===== -->
