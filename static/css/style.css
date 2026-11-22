@@ -2503,6 +2503,11 @@ main {
 /* ================================================================
    ===== АВТОКОМПЛИТ СТРОКИ ПОИСКА =====
    ================================================================ */
+#headerSearchInput:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: #ced4da;
+}
 
 .header-search {
     position: relative;
