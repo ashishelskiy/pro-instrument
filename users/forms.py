@@ -1,4 +1,6 @@
 # users/forms.py
+import os
+from django.core.exceptions import ValidationError
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.utils import timezone
@@ -135,9 +137,27 @@ class StockNotificationForm(forms.ModelForm):
 
 class PriceRequestForm(forms.ModelForm):
     """Форма заявки на запрос цены. Для залогиненных — поля скрываются, если есть в профиле."""
+
+    ALLOWED_EXTENSIONS = {
+        '.jpg', '.jpeg', '.png', '.gif', '.webp',
+        '.pdf', '.doc', '.docx', '.xls', '.xlsx',
+        '.txt', '.csv',
+    }
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 МБ
+
+    attachment = forms.FileField(
+        label='Прикрепить файл',
+        required=False,
+        help_text='Скриншот, PDF, Excel или Word — до 10 МБ',
+        widget=forms.ClearableFileInput(attrs={
+            'class': 'form-control',
+            'accept': '.jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv',
+        }),
+    )
+
     class Meta:
         model = PriceRequest
-        fields = ('name', 'phone', 'email', 'description', 'comment')
+        fields = ('name', 'phone', 'email', 'description', 'comment', 'attachment',)
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -176,3 +196,20 @@ class PriceRequestForm(forms.ModelForm):
                 self.fields.pop('phone')
             if user.email:
                 self.fields.pop('email')
+
+    def clean_attachment(self):
+        f = self.cleaned_data.get('attachment')
+        if not f:
+            return f
+
+        if f.size > self.MAX_FILE_SIZE:
+            raise ValidationError('Файл слишком большой. Максимум — 10 МБ.')
+
+        ext = os.path.splitext(f.name)[1].lower()
+        if ext not in self.ALLOWED_EXTENSIONS:
+            raise ValidationError(
+                'Недопустимый формат файла. Разрешены: '
+                'jpg, png, gif, webp, pdf, doc, docx, xls, xlsx, txt, csv.'
+            )
+
+        return f

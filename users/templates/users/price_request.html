@@ -31,7 +31,7 @@
             <div class="card">
                 <div class="card-body">
 
-                    <form method="post" novalidate>
+                    <form method="post" enctype="multipart/form-data" novalidate>
                         {% csrf_token %}
 
                         {% if form.non_field_errors %}
@@ -103,6 +103,51 @@
                             {{ form.comment }}
                         </div>
 
+                        {# Вложение #}
+<!--                        <div class="mb-3">-->
+<!--                            <label for="{{ form.attachment.id_for_label }}" class="form-label">-->
+<!--                                Прикрепить файл-->
+<!--                            </label>-->
+<!--                            {{ form.attachment }}-->
+<!--                            {% if form.attachment.errors %}-->
+<!--                                <div class="text-danger small mt-1">{{ form.attachment.errors|striptags }}</div>-->
+<!--                            {% endif %}-->
+<!--                            <div class="form-text">-->
+<!--                                Скриншот, PDF, Excel или Word — до 10 МБ.-->
+<!--                            </div>-->
+<!--                        </div>-->
+                        {# Вложение #}
+                        <div class="mb-3">
+                            <label for="{{ form.attachment.id_for_label }}" class="form-label">
+                                Прикрепить файл
+                            </label>
+                            {{ form.attachment }}
+
+                            {# Превью выбранного файла #}
+                            <div id="file-preview" class="mt-2 d-none">
+                                <div class="d-flex align-items-center gap-2 p-2 border rounded bg-light">
+                                    <img id="preview-img" src="" alt=""
+                                         class="rounded d-none" style="width: 40px; height: 40px; object-fit: cover;">
+                                    <i id="preview-icon" class="fas fa-file fa-2x text-secondary d-none"></i>
+                                    <div class="flex-grow-1 small overflow-hidden">
+                                        <div id="preview-name" class="fw-semibold text-truncate"></div>
+                                        <div id="preview-size" class="text-muted"></div>
+                                    </div>
+                                    <button type="button" id="preview-remove"
+                                            class="btn btn-sm btn-link text-danger p-1" title="Убрать файл">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {% if form.attachment.errors %}
+                                <div class="text-danger small mt-1">{{ form.attachment.errors|striptags }}</div>
+                            {% endif %}
+                            <div class="form-text">
+                                JPG, PNG, PDF, DOC, XLS/XLSX, TXT, CSV — до 10 МБ.
+                            </div>
+                        </div>
+
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-danger">
                                 <i class="fas fa-paper-plane"></i> Отправить заявку
@@ -125,4 +170,71 @@
         </div>
     </div>
 </div>
+<script>
+(function () {
+    const input       = document.querySelector('#{{ form.attachment.id_for_label }}');
+    const preview     = document.getElementById('file-preview');
+    const previewImg  = document.getElementById('preview-img');
+    const previewIcon = document.getElementById('preview-icon');
+    const previewName = document.getElementById('preview-name');
+    const previewSize = document.getElementById('preview-size');
+    const removeBtn   = document.getElementById('preview-remove');
+
+    if (!input || !preview) return;
+
+    const ICONS = {
+        '.pdf':  'fa-file-pdf text-danger',
+        '.doc':  'fa-file-word text-primary',
+        '.docx': 'fa-file-word text-primary',
+        '.xls':  'fa-file-excel text-success',
+        '.xlsx': 'fa-file-excel text-success',
+        '.txt':  'fa-file-alt text-secondary',
+        '.csv':  'fa-file-csv text-success',
+    };
+
+    function extOf(name) {
+        const i = name.lastIndexOf('.');
+        return i >= 0 ? name.slice(i).toLowerCase() : '';
+    }
+
+    function humanSize(bytes) {
+        if (bytes < 1024) return bytes + ' Б';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
+    }
+
+    function show(file) {
+        if (!file) {
+            preview.classList.add('d-none');
+            return;
+        }
+        preview.classList.remove('d-none');
+        previewName.textContent = file.name;
+        previewSize.textContent = humanSize(file.size);
+
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewImg.src = e.target.result;
+                previewImg.classList.remove('d-none');
+                previewIcon.classList.add('d-none');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewImg.classList.add('d-none');
+            previewIcon.className = 'fas fa-2x ' + (ICONS[extOf(file.name)] || 'fa-file text-secondary');
+            previewIcon.classList.remove('d-none');
+        }
+    }
+
+    input.addEventListener('change', () => {
+        show(input.files[0]);
+    });
+
+    removeBtn.addEventListener('click', () => {
+        input.value = '';
+        show(null);
+    });
+})();
+</script>
 {% endblock %}

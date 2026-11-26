@@ -123,10 +123,10 @@ class StockNotificationAdmin(admin.ModelAdmin):
 
 @admin.register(PriceRequest)
 class PriceRequestAdmin(admin.ModelAdmin):
-    list_display = ('name', 'phone', 'email', 'short_description', 'status', 'created_at')
+    list_display = ('name', 'phone', 'email', 'short_description', 'status', 'created_at', 'has_attachment')
     list_filter = ('status', 'created_at')
     search_fields = ('name', 'phone', 'email', 'description')
-    readonly_fields = ('created_at', 'updated_at', 'user')
+    readonly_fields = ('created_at', 'updated_at', 'user', 'attachment_original_name')
     list_per_page = 30
     date_hierarchy = 'created_at'
     ordering = ('-created_at',)
@@ -137,6 +137,9 @@ class PriceRequestAdmin(admin.ModelAdmin):
         }),
         ('Заявка', {
             'fields': ('description', 'comment')
+        }),
+        ('Вложение', {
+            'fields': ('attachment', 'attachment_original_name')
         }),
         ('Статус', {
             'fields': ('status',)
@@ -149,6 +152,16 @@ class PriceRequestAdmin(admin.ModelAdmin):
     @admin.display(description='Описание')
     def short_description(self, obj):
         return obj.description[:80] + ('…' if len(obj.description) > 80 else '')
+
+    @admin.display(description='Файл')
+    def has_attachment(self, obj):
+        if not obj.attachment:
+            return '—'
+        return format_html(
+            '<a href="{}" target="_blank">📎 {}</a>',
+            obj.attachment.url,
+            obj.attachment_original_name or 'открыть',
+        )
 
 
 @admin.register(ViewedProduct)

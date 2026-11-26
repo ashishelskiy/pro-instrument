@@ -1,6 +1,18 @@
 # users/models.py
+import os
+import uuid
+from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+def price_request_upload_to(instance, filename):
+    """Куда класть вложение заявки:
+       - залогинен:  price_requests/2026/11/user_42/<uuid>.pdf
+       - аноним:     price_requests/2026/11/anon/<uuid>.pdf
+    """
+    ext = os.path.splitext(filename)[1].lower()
+    user_part = f'user_{instance.user_id}' if instance.user_id else 'anon'
+    return f'price_requests/{timezone.now():%Y/%m}/{user_part}/{uuid.uuid4().hex}{ext}'
 
 
 class User(AbstractUser):
@@ -183,6 +195,20 @@ class PriceRequest(models.Model):
         help_text='Опишите, какой товар вам нужен: название, модель, характеристики',
     )
     comment = models.TextField('Комментарий', blank=True)
+
+    attachment = models.FileField(
+        'Вложение',
+        upload_to=price_request_upload_to,
+        blank=True,
+        null=True,
+        help_text='Скриншот, текстовый файл, таблица или PDF (до 10 МБ)',
+    )
+
+    attachment_original_name = models.CharField(
+        'Исходное имя файла',
+        max_length=255,
+        blank=True,
+    )
 
     user = models.ForeignKey(
         User,

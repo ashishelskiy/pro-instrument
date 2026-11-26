@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'import_export',
     'catalog',
-    'users',
+    'users.apps.UsersConfig',
     'cart',
     'orders',
     'pages',
@@ -211,7 +211,7 @@ else:
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='')
 
 # Email администратора — куда приходят уведомления о заказах
-ADMIN_EMAIL = config('ADMIN_EMAIL', default='pro-instrument@a2infinity.ru')
+ADMIN_EMAIL = config('ADMIN_EMAIL', default='ooo-eksinus@yandex.ru')
 
 # ============================================================
 # SITE

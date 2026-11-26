@@ -1,4 +1,6 @@
 # users/views.py
+import os
+import mimetypes
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
@@ -515,11 +517,13 @@ class PriceRequestView(CreateView):
             if not form.cleaned_data.get('email'):
                 form.instance.email = self.request.user.email
 
+        uploaded = form.cleaned_data.get('attachment')
+        if uploaded:
+            form.instance.attachment_original_name = uploaded.name[:255]
+
         response = super().form_valid(form)
 
-        # === ПИСЬМА ===
         self._send_price_request_emails(self.object)
-
         return response
 
     # def _send_price_request_emails(self, price_request):
@@ -588,6 +592,19 @@ class PriceRequestView(CreateView):
                 to=[settings.ADMIN_EMAIL],
             )
             msg.attach_alternative(html_content, 'text/html')
+            if price_request.attachment:
+                try:
+                    price_request.attachment.open('rb')
+                    msg.attach(
+                        price_request.attachment_original_name
+                        or os.path.basename(price_request.attachment.name),
+                        price_request.attachment.read(),
+                        mimetypes.guess_type(price_request.attachment.name)[0]
+                        or 'application/octet-stream',
+                    )
+                    price_request.attachment.close()
+                except Exception:
+                    pass
             msg.send(fail_silently=True)
         except Exception:
             pass
