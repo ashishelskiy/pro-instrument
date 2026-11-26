@@ -28,6 +28,17 @@
     </div>
     {% endif %}
 
+    {% if price_request.attachment %}
+    <h2>Вложение</h2>
+    <div class="info-block">
+        <p>
+            <a href="{{ site_url }}{{ price_request.attachment.url }}" target="_blank">
+                📎 {{ price_request.attachment_original_name|default:"Скачать файл" }}
+            </a>
+        </p>
+    </div>
+    {% endif %}
+
     <div class="divider"></div>
 
     <p style="text-align: center; margin: 20px 0;">

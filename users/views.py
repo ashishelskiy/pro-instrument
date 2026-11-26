@@ -622,6 +622,17 @@ class PriceRequestView(CreateView):
                 to=[price_request.email],
             )
             msg.attach_alternative(html_content, 'text/html')
+            if price_request.attachment:
+                try:
+                    price_request.attachment.open('rb')
+                    msg.attach(
+                        price_request.attachment_original_name or os.path.basename(price_request.attachment.name),
+                        price_request.attachment.read(),
+                        mimetypes.guess_type(price_request.attachment.name)[0] or 'application/octet-stream',
+                    )
+                    price_request.attachment.close()
+                except Exception:
+                    pass
             msg.send(fail_silently=True)
         except Exception:
             pass

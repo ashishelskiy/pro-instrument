@@ -13,6 +13,10 @@ Email: {{ price_request.email }}
 КОММЕНТАРИЙ:
 {{ price_request.comment }}
 {% endif %}
+{% if price_request.attachment %}
+ВЛОЖЕНИЕ:
+{{ site_url }}{{ price_request.attachment.url }}
+{% endif %}
 --
 Открыть в админке:
 {{ site_url }}/panel/users/pricerequest/{{ price_request.pk }}/change/
