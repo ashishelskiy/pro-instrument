@@ -1,7 +1,6 @@
 # users/views.py
 import os
 import mimetypes
-import threading
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
@@ -524,10 +523,7 @@ class PriceRequestView(CreateView):
 
         response = super().form_valid(form)
 
-        threading.Thread(
-            target=self._send_price_request_emails,
-            args=(self.object,)
-        ).start()
+        self._send_price_request_emails(self.object)
         return response
 
     # def _send_price_request_emails(self, price_request):
