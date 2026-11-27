@@ -1,20 +1,12 @@
-/*body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-*/
-
-/* ================================================================ */
-/* ========== СТИЛЬ КАК У OHIO POWER TOOL ========== */
-/* ================================================================ */
+/* ================================================================
+   БАЗОВАЯ РАЗМЕТКА СТРАНИЦЫ (body, .page-wrapper, .page-header, .header)
+   ================================================================ */
 
 body {
     background-color: #e9ecef;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    /*align-items: center;*/
     padding: 0px;
 }
 
@@ -51,7 +43,6 @@ body {
 }
 
 .header {
-    /*max-width: 1440px !important;*/
     width: 100%;
 }
 
@@ -72,14 +63,6 @@ body {
     width: auto;
     position: relative;
 }
-
-/*
-@media (min-width: 768px), print
-@media screen and (min-width: 768px)
-styles-l.min.css:1:805885.header.content:before, .header.content:after {
-display: none !important;
-}
-*/
 
 .sections.nav-sections {
     left: 0;
@@ -106,58 +89,17 @@ display: none !important;
     transition: .1s all ease-in;
 }
 
-nav-sections-item-title {
-    display: none;
-}
-
 .navigation {
     background: inherit;
     display: block;
     z-index: 2;
     font-weight: 700;
-    height: inherit;
-    left: auto;
-    overflow: inherit;
     padding: 0;
     position: relative;
-    top: 0;
     width: 100%;
     box-sizing: border-box;
     margin-left: auto;
     margin-right: auto;
-    /*max-width: 1280px;*/
-    width: 100%;
-}
-
-.navigation .level0 {
-    margin: 0 10px 0 0;
-    display: inline-block;
-    position: relative;
-}
-
-.ui-menu-icon {
-position: absolute;
-right: 0;
-display: inline-block;
-text-decoration: none;
-}
-
-.ui-menu-icon:after {
-content: '';
--webkit-font-smoothing: antialiased;
-font-size: 12px;
-line-height: 20px;
-color: inherit;
-/*font-family: 'luma-icons';*/
-vertical-align: middle;
-font-weight: 400;
-overflow: hidden;
-speak: none;
-text-align: center;
-}
-
-.navigation>ul>li {
-position: static;
 }
 
 /* ================================================================ */
@@ -208,32 +150,10 @@ position: static;
     flex-shrink: 0;
 }
 
-.header__icon-text {
-    color: #fff;
-    font-size: 13px;
-    font-weight: 400;
-    letter-spacing: 0.3px;
-}
-
-/* Убираем отступы у main внутри обертки */
-.site-wrapper main {
-    flex: 1;
-    padding: 0 20px;
-}
-
-/* Футер внутри обертки */
-.site-wrapper .footer {
-    border-radius: 0;
-    margin-top: 0;
-}
-
 /* Адаптивность */
 @media (max-width: 992px) {
     body {
         padding: 10px;
-    }
-    .site-wrapper {
-        border-radius: 12px;
     }
 }
 
@@ -241,36 +161,11 @@ position: static;
     body {
         padding: 5px;
     }
-    .site-wrapper {
-        border-radius: 8px;
-    }
-    .site-wrapper main {
-        padding: 0 10px;
-    }
 }
 
 main {
     flex: 1;
 }
-
-/* ========== СТИЛИ ДЛЯ МЕНЮ ========== */
-/*
-.navbar {
-    background-color: #000000 !important;
-    /*border-bottom: 2px solid #BD0000;*/
-/*    min-height: 85px;
-}
-
-.nav {
-    background: #d82a20;
-    position: relative;
-    padding-top: 22px;
-    margin-top: -2px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-}
-*/
-
-
 
 /* ========== СТИЛИ ДЛЯ ЛОГОТИПА ========== */
 .navbar-brand {
@@ -287,34 +182,6 @@ main {
     object-fit: contain;
     display: block;
 }
-/* ========== СТИЛИ ДЛЯ КНОПКИ "КАТАЛОГ" ========== */
-.btn-catalog {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 6px 24px;
-    background-color: #BD0000;
-    color: #ffffff;
-    text-decoration: none;
-    border-radius: 4px;
-    font-weight: 500;
-    font-size: 0.95rem;
-    border: none;
-    line-height: 1.5;
-    height: 38px;
-    transition: none;
-}
-
-/* ========== ВЫРАВНИВАНИЕ ЭЛЕМЕНТОВ ========== */
-.navbar-nav {
-    display: flex;
-    align-items: center;
-}
-
-.nav-item {
-    display: flex;
-    align-items: center;
-}
 
 /* ========== ФОРМА ПОИСКА ========== */
 .d-flex {
@@ -325,21 +192,6 @@ main {
 
 .form-control {
     height: 38px;
-}
-
-.btn-outline-dark {
-    height: 38px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    border-color: #BD0000;
-    color: #BD0000;
-}
-
-.btn-outline-dark:hover {
-    background-color: #BD0000;
-    border-color: #BD0000;
-    color: white;
 }
 
 /* ========== СТИЛИ ДЛЯ ПОДВАЛА ========== */
@@ -545,7 +397,6 @@ main {
 .category-image-wrapper-horizontal {
     flex: 0 0 35%;
     max-width: 35%;
-    /*background: #ffffff;*/
     display: flex;
     align-items: center;
     justify-content: center;
@@ -588,7 +439,6 @@ main {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    /*background: #ffffff;*/
 }
 
 .category-title {
@@ -647,14 +497,6 @@ main {
     color: #495057 !important;
     font-weight: 500 !important;
 }
-
-/*
-.breadcrumb-item + .breadcrumb-item::before {
-    color: #adb5bd !important;
-    content: "—" !important;
-    padding: 0 8px !important;
-}
-*/
 
 /* ================================================================ */
 /* ========== КАРТОЧКИ ТОВАРОВ ========== */
@@ -729,6 +571,10 @@ main {
 
 .product-stock.out-of-stock {
     color: #dc3545;
+}
+
+.product-stock.on-order {
+    color: #fd7e14;  /* Оранжевый */
 }
 
 /* ========== ЦЕНА ========== */
@@ -813,19 +659,8 @@ main {
         height: 32px;
     }
 
-    .btn-catalog {
-        padding: 4px 18px;
-        font-size: 0.85rem;
-        height: 34px;
-    }
-
     .form-control {
         height: 34px;
-    }
-
-    .btn-outline-dark {
-        height: 34px;
-        font-size: 0.85rem;
     }
 
     .footer .container {
@@ -902,21 +737,9 @@ main {
         height: 28px;
     }
 
-    .btn-catalog {
-        padding: 4px 14px;
-        font-size: 0.8rem;
-        height: 30px;
-    }
-
     .form-control {
         height: 30px;
         font-size: 0.8rem;
-    }
-
-    .btn-outline-dark {
-        height: 30px;
-        font-size: 0.8rem;
-        padding: 4px 12px;
     }
 
     .category-image-wrapper {
@@ -960,22 +783,6 @@ main {
     .category-image-placeholder-horizontal i {
         font-size: 20px;
     }
-}
-
-/* ========== СТАТУС НАЛИЧИЯ ========== */
-.product-stock {
-    font-size: 0.7rem;
-    display: block !important;
-    text-align: left !important;
-    width: 100% !important;
-}
-
-.product-stock.in-stock {
-    color: #28a745;
-}
-
-.product-stock.on-order {
-    color: #fd7e14;  /* Оранжевый */
 }
 
 /* ================================================================ */
@@ -1292,13 +1099,6 @@ main {
     max-width: 100%;
 }
 
-.catalog-menu__sub-item i {
-    font-size: 10px;
-    opacity: 0.5;
-    margin-top: 3px;
-    flex-shrink: 0;
-}
-
 .catalog-menu__sub-item-name {
     flex: 1;
     max-width: 30ch;
@@ -1345,20 +1145,9 @@ main {
     transition: color 0.15s ease;
 }
 
-.catalog-menu__group-header i {
-    font-size: 12px;
-    color: #adb5bd;
-    transition: transform 0.2s ease, color 0.15s ease;
-}
-
 .catalog-menu__group-header:hover {
     color: #BD0000;
     text-decoration: none;
-}
-
-.catalog-menu__group-header:hover i {
-    color: #BD0000;
-    transform: translateX(3px);
 }
 
 /* Адаптивность мегаменю */
@@ -1425,10 +1214,6 @@ main {
     .catalog-menu__sub-item {
         font-size: 13px;
         padding: 4px 0;
-    }
-
-    .catalog-menu__sub-item i {
-        font-size: 10px;
     }
 }
 
@@ -1763,57 +1548,6 @@ main {
     }
 }
 
-/* ================================================================ */
-/* ===== КАРТОЧКИ КАТЕГОРИЙ (BENTO GRID) ===== */
-/* ================================================================ */
-
-.category-cards-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 8px;
-    max-width: 100%;
-    margin-bottom: 20px;
-}
-
-.category-card-item {
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-    aspect-ratio: 224 / 185;
-    text-decoration: none;
-    background: #f8f9fa;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.category-card-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    text-decoration: none;
-}
-
-.category-card-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.category-card-item .category-card-title {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 12px 16px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    text-align: left;
-    letter-spacing: 0.3px;
-    pointer-events: none;
-}
-
 /* =========================================
    BENTO КАТЕГОРИИ
    ========================================= */
@@ -1915,72 +1649,6 @@ main {
 .bento-6 {
     grid-column: 3;
     grid-row: 3;
-}
-
-/* ===== НОВОСТИ В САЙДБАРЕ ===== */
-.sidebar-news {
-    background: #ffffff;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 0;
-    margin-bottom: 20px;
-}
-
-.sidebar-news__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 2px solid #BD0000;
-}
-
-.sidebar-news__title {
-    font-weight: 600;
-    font-size: 15px;
-    color: #1c2126;
-}
-
-.sidebar-news__all {
-    font-size: 12px;
-    color: #BD0000;
-    text-decoration: none;
-}
-
-.sidebar-news__all:hover {
-    text-decoration: underline;
-}
-
-.sidebar-news__list {
-    padding: 8px 0;
-}
-
-.sidebar-news__item {
-    display: block;
-    padding: 8px 16px;
-    text-decoration: none;
-    color: inherit;
-    transition: background 0.2s ease;
-}
-
-.sidebar-news__item:hover {
-    background: #f8f9fa;
-}
-
-.sidebar-news__date {
-    font-size: 11px;
-    color: #adb5bd;
-    margin-bottom: 2px;
-}
-
-.sidebar-news__title {
-    font-size: 13px;
-    color: #333;
-    line-height: 1.3;
-    font-weight: 400;
-}
-
-.sidebar-news__item:hover .sidebar-news__title {
-    color: #BD0000;
 }
 
 /* ===== НОВОСТИ В САЙДБАРЕ (КАК НОВИНКИ) ===== */

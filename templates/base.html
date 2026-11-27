@@ -1,4 +1,3 @@
-<!-- base.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -591,12 +590,6 @@
             background: #f5f5f5;
         }
 
-        .header__dropdown-divider {
-            height: 1px;
-            background: #eee;
-            margin: 4px 0;
-        }
-
         /* --- Заголовок раздела "Организации" в меню --- */
         .header__dropdown-section {
             padding: 8px 16px 4px;
@@ -678,25 +671,6 @@
         }
 
         .cart-badge {
-            position: absolute;
-            top: -6px;
-            right: -8px;
-            background: #d82a20;
-            color: #fff;
-            border-radius: 50%;
-            min-width: 20px;
-            height: 20px;
-            padding: 0 5px;
-            font-size: 11px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .comparison-badge {
             position: absolute;
             top: -6px;
             right: -8px;
@@ -1110,18 +1084,6 @@
             <img src="{% static 'images/logo.png' %}" alt="PRO-Инструмент">
         </a>
         <div class="flex-grow-1 d-flex align-items-center" id="navbarNav">
-            <ul class="navbar-nav me-auto"></ul>
-<!--            <form class="d-flex" action="{% url 'catalog:search' %}" method="get" style="position: relative; width: 100%; max-width: 550px;">-->
-<!--                <input class="form-control" type="search" name="q" placeholder="Расскажите нам, что вы ищете" aria-label="Поиск"-->
-<!--                       value="{{ request.GET.q|default:'' }}" autocomplete="off" enterkeyhint="search"-->
-<!--                       style="height: 38px; width: 100%; padding-right: 40px;">-->
-<!--                <button type="submit" aria-label="Поиск" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;">-->
-<!--                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="color: #666; flex-shrink: 0;">-->
-<!--                        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>-->
-<!--                        <path d="M16 16L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>-->
-<!--                    </svg>-->
-<!--                </button>-->
-<!--            </form>-->
             <div class="header-search" id="headerSearch" data-suggest-url="{% url 'catalog:suggest' %}">
                 <form class="d-flex" action="{% url 'catalog:search' %}" method="get"
                       style="position: relative; width: 100%;">
@@ -1148,7 +1110,7 @@
             </div>
         </div>
 
-        <!-- ===== АККАУНТ ===== -->
+        {# АККАУНТ #}
         {% if user.is_authenticated %}
             <div class="header__account-wrap header__auth-block">
 
@@ -1157,35 +1119,33 @@
                             class="header__icon-link header__account-toggle"
                             onclick="toggleAccountMenu(event)"
                             aria-expanded="false">
-<!--                        <img src="{% static 'images/ico-account.png' %}"-->
-<!--                             alt="Пользователь" width="35" height="35">-->
-    {% if user.default_organization %}
-    <span style="
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 35px;
-        height: 35px;
-        background: #fff;
-        border-radius: 50%;
-        flex-shrink: 0;
-    ">
-        <i class="fas fa-briefcase" style="font-size: 16px; color: #000;"></i>
-    </span>
-{% else %}
-    <span style="
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 35px;
-        height: 35px;
-        background: #fff;
-        border-radius: 50%;
-        flex-shrink: 0;
-    ">
-        <i class="fas fa-user" style="font-size: 16px; color: #000;"></i>
-    </span>
-{% endif %}
+                        {% if user.default_organization %}
+                            <span style="
+                                display: inline-flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: 35px;
+                                height: 35px;
+                                background: #fff;
+                                border-radius: 50%;
+                                flex-shrink: 0;
+                            ">
+                                <i class="fas fa-briefcase" style="font-size: 16px; color: #000;"></i>
+                            </span>
+                        {% else %}
+                            <span style="
+                                display: inline-flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: 35px;
+                                height: 35px;
+                                background: #fff;
+                                border-radius: 50%;
+                                flex-shrink: 0;
+                            ">
+                                <i class="fas fa-user" style="font-size: 16px; color: #000;"></i>
+                            </span>
+                        {% endif %}
                         <div class="info-account">
                             <span class="header__icon-title header__icon-title--name">
                                 {{ user.get_header_name }}
@@ -1221,7 +1181,6 @@
                             </div>
                         {% endif %}
 
-<!--                        <div class="header__dropdown-divider"></div>-->
 
                         {# ===== ОБЫЧНЫЕ ПУНКТЫ МЕНЮ ===== #}
                         <a href="{% url 'users:profile' %}" class="header__dropdown-item">
@@ -1278,7 +1237,6 @@
                             </form>
                         {% endif %}
 
-<!--                        <div class="header__dropdown-divider"></div>-->
 
                         {# ===== ВЫХОД ===== #}
                         <form method="post" action="{% url 'users:logout' %}">
@@ -1301,10 +1259,6 @@
             </a>
         {% endif %}
 
-<!--        <a href="{% url 'cart:cart_detail' %}" class="header__icon-link header__cart-link" style="display: flex; align-items: center; text-decoration: none;">-->
-<!--            <img src="{% static 'images/toolbox-icon.png' %}" alt="Корзина" width="35" height="35" style="display: block; flex-shrink: 0;">-->
-<!--            <span class="header__icon-title">Корзина</span>-->
-<!--        </a>-->
         <a href="{% url 'cart:cart_detail' %}" class="header__icon-link header__cart-link" style="display: flex; align-items: center; text-decoration: none;">
             <span style="position: relative; display: inline-block; flex-shrink: 0;">
                 <img src="{% static 'images/toolbox-icon.png' %}" alt="Корзина" width="35" height="35" style="display: block;">
@@ -1366,7 +1320,7 @@
     </div>
         </header>
 
-        <!-- ===== НАВИГАЦИЯ ===== -->
+        {# ===== НАВИГАЦИЯ ===== #}
         <div class="sections nav-sections">
             <div class="section-items nav-sections-items">
                 <div class="section-item-content nav-sections-item-content">
@@ -1374,15 +1328,14 @@
                         <ul class="nav__list">
                             <li class="nav__item header-catalog">
                                 <a href="#" id="catalogToggle" class="nav__link" role="button" aria-expanded="false" aria-controls="catalogMenu">
-                                    <i class="bi bi-list"></i>
                                     <span>Каталог</span>
                                 </a>
 
-                                <!-- Выпадающее мегаменю -->
+                                {# Выпадающее мегаменю #}
                                 <div id="catalogMenu" class="catalog-menu" aria-hidden="true">
                                     <div class="catalog-menu__inner">
 
-                                        <!-- ЛЕВАЯ КОЛОНКА: Основные разделы -->
+                                        {# ЛЕВАЯ КОЛОНКА: Основные разделы #}
                                         <ul class="catalog-menu__sections">
                                             {% for item in menu_data %}
                                             <li class="catalog-menu__section-item"
@@ -1404,26 +1357,21 @@
                                             {% endfor %}
                                         </ul>
 
-                                        <!-- ПРАВАЯ КОЛОНКА: Контейнер подкатегорий -->
+                                        {# ПРАВАЯ КОЛОНКА: Контейнер подкатегорий #}
                                         <div id="subsectionsContainer" class="catalog-menu__subsections">
                                             {% for item in menu_data %}
                                                 {% if item.children %}
                                                 <div class="catalog-menu__subsections-group" data-section="{{ item.category.slug }}">
                                                     <a href="{{ item.category.get_absolute_url }}" class="catalog-menu__group-header">
                                                         <span>{{ item.category.name }}</span>
-                                                        <i class="bi bi-chevron-right"></i>
                                                     </a>
                                                     <div class="catalog-menu__subsections-grid">
                                                         {% for sub in item.children %}
                                                         <a href="{{ sub.get_absolute_url }}" class="catalog-menu__sub-item">
-                                                            <i class="bi bi-chevron-right"></i>
                                                             <span class="catalog-menu__sub-item-name">{{ sub.name }}</span>
                                                         </a>
                                                         {% endfor %}
                                                     </div>
-<!--                                                    <a href="{{ item.category.get_absolute_url }}" class="catalog-menu__show-all">-->
-<!--                                                        Все товары раздела →-->
-<!--                                                    </a>-->
                                                 </div>
                                                 {% endif %}
                                             {% endfor %}
@@ -1522,7 +1470,7 @@
             </div>
         </footer>
 
-        <!-- ===== МОБИЛЬНАЯ НИЖНЯЯ НАВИГАЦИЯ ===== -->
+        {# ===== МОБИЛЬНАЯ НИЖНЯЯ НАВИГАЦИЯ ===== #}
         <nav class="mobile-bottom-nav">
             <a href="{% url 'catalog:index' %}"
                class="mobile-nav-item {% if request.resolver_match.app_name == 'catalog' and request.resolver_match.url_name == 'index' %}active{% endif %}">
@@ -1534,11 +1482,6 @@
                 <i class="fas fa-th-large"></i>
                 <span>Каталог</span>
             </a>
-<!--            <a href="{% url 'cart:cart_detail' %}"-->
-<!--               class="mobile-nav-item {% if request.resolver_match.app_name == 'users' and request.resolver_match.url_name == 'cart' %}active{% endif %}">-->
-<!--                <i class="fas fa-shopping-cart"></i>-->
-<!--                <span>Корзина</span>-->
-<!--            </a>-->
             <a href="{% url 'cart:cart_detail' %}"
                class="mobile-nav-item {% if request.resolver_match.app_name == 'users' and request.resolver_match.url_name == 'cart' %}active{% endif %}"
                style="position: relative;">
@@ -1549,11 +1492,6 @@
                 {% endif %}
             </a>
 
-<!--            <a href="{% url 'users:favorites' %}"-->
-<!--               class="mobile-nav-item {% if request.resolver_match.url_name == 'favorites' %}active{% endif %}">-->
-<!--                <i class="fas fa-heart"></i>-->
-<!--                <span>Избранное</span>-->
-<!--            </a>-->
             <a href="{% url 'users:favorites' %}"
                class="mobile-nav-item {% if request.resolver_match.url_name == 'favorites' %}active{% endif %}"
                style="position: relative;">
